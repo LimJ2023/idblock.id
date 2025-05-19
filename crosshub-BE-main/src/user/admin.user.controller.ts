@@ -56,9 +56,9 @@ export class AdminUserController {
     return this.userService.declineUser(body.data.documentId, body.data.reason);
   }
 
-  @Delete('delete')
+  @Delete(':documentId')
   @ApiOperation({ summary: '회원 삭제' })
-  async deleteUser(@Body() body: UserVerificationDocumetDetailDto) {
-    return this.userService.deleteUser(body.data.documentId);
+  async deleteUser(@Param() param: UserVerificationDocumetDetailDto) {
+    return this.userService.deleteUser(param.data.documentId);
   }
 }

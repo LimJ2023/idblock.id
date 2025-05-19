@@ -4,6 +4,7 @@ import { ApproveUserDialog } from "../dialogs/approve-user";
 import { RejectUserDialog } from "../dialogs/reject-user";
 import { Link } from "react-router-dom";
 import { Button } from "../ui/button";
+import { DeleteUserDialog } from "../dialogs/delete-user";
 
 const columns: ColumnDef<User>[] = [
   {
@@ -115,6 +116,15 @@ const columns: ColumnDef<User>[] = [
             <>
               <ApproveUserDialog selected={id} />
               <RejectUserDialog id={id} />
+              <Button
+                variants="secondary"
+                className="border border-[#D8D7DB] bg-orange-600 font-pretendard hover:text-white"
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+              >
+                취소
+              </Button>
             </>
           ) : approvalStatus === 1 ? (
             <>
@@ -137,6 +147,9 @@ const columns: ColumnDef<User>[] = [
               >
                 거절
               </Button>
+
+              <DeleteUserDialog selected={id} />
+
             </>
           ) : (
             <>
@@ -158,6 +171,15 @@ const columns: ColumnDef<User>[] = [
                 }}
               >
                 거절
+              </Button>
+              <Button
+                variants="secondary"
+                className="border border-[#D8D7DB] bg-orange-600 font-pretendard hover:text-white"
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+              >
+                삭제
               </Button>
             </>
           )}

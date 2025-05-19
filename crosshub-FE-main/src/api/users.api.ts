@@ -139,6 +139,16 @@ const rejectUser = async ({ documentId, reason }: RejectUser) => {
   }
 };
 
-export { getUsers, approveUser, rejectUser, getUserDetail, argosCall };
+const deleteUser = async (documentId: string) => {
+  try {
+    await api.delete(`user/${documentId}`);
+  } catch (e) {
+    if (e instanceof HTTPError) {
+      return Failure(await e.response.json<ErrorResponse>());
+    }
+  }
+};
+
+export { getUsers, approveUser, rejectUser, getUserDetail, argosCall, deleteUser };
 
 export type { ErrorResponse, User, RejectUser };
