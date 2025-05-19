@@ -455,4 +455,11 @@ export class UserService {
       .set({ approvalStatus: 2, rejectReason })
       .where(eq(UserVerificationDocument.id, documentId));
   }
+
+  async deleteUser(documentId: bigint) {
+    return this.db
+      .update(UserVerificationDocument)
+      .set({ approvalStatus: 3 })
+      .where(eq(UserVerificationDocument.id, documentId));
+  }
 }

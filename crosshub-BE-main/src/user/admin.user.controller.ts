@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -53,5 +54,11 @@ export class AdminUserController {
   @ApiOperation({ summary: '회원 거부' })
   async rejectUser(@Body() body: RejectUserDto) {
     return this.userService.declineUser(body.data.documentId, body.data.reason);
+  }
+
+  @Delete('delete')
+  @ApiOperation({ summary: '회원 삭제' })
+  async deleteUser(@Body() body: UserVerificationDocumetDetailDto) {
+    return this.userService.deleteUser(body.data.documentId);
   }
 }
