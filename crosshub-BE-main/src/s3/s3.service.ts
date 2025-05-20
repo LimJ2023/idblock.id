@@ -72,6 +72,6 @@ export class S3Service {
 
   createPresignedUrlWithClient(key: string) {
     const command = new GetObjectCommand({ Bucket: this.bucketName, Key: key });
-    return getSignedUrl(this.s3Client, command, {});
+    return getSignedUrl(this.s3Client, command, { expiresIn: 3600 });
   }
 }

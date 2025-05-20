@@ -246,6 +246,13 @@ export class AuthController {
   }
 
   @Public()
+  @Post('upload/passport-recognition')
+  @ApiOperation({ summary: '여권 인식' })
+  async uploadPassportRecognition(@UploadedFile() file: Express.Multer.File) {
+    return this.authService.argosRecognition(file);
+  }
+
+  @Public()
   @Post('upload/profile-image')
   @ApiOperation({ summary: '프로필 이미지 업로드' })
   @UseInterceptors(FileInterceptor('file'))

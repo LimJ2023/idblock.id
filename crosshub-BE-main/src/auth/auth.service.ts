@@ -25,6 +25,10 @@ import { email } from 'valibot';
 import { S3Service } from 'src/s3/s3.service';
 import QRCode from 'qrcode';
 import { ERROR_CODE } from 'src/common/error-code';
+import axios from 'axios';
+import sharp from 'sharp';
+import { RecognitionResponse } from 'src/user/user.service';
+import { EnvService } from 'src/env/env.service';
 @Injectable()
 export class AuthService {
   constructor(
@@ -32,6 +36,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly emailService: EmailService,
     private readonly s3Service: S3Service,
+    private readonly envService: EnvService,
   ) {}
 
   private validateBirthday(dateString: string) {
@@ -386,5 +391,61 @@ export class AuthService {
         where: (users, { eq }) => eq(users.email, email),
       }),
     );
+  }
+
+  private async fetchImageAsBase64(url: string): Promise<string> {
+    try {
+      const response = await axios.get(url, { 
+        responseType: 'arraybuffer',
+        timeout: 10000 // 10초 타임아웃 설정
+      });
+      const inputBuffer = Buffer.from(response.data, 'binary');
+      const maxSizeKB = 5000;
+
+      let outputBuffer: Buffer = Buffer.from('');
+
+      // Reduce quality until under max size or quality is too low
+      for (let quality = 90; quality > 10; quality -= 10) {
+        outputBuffer = await sharp(inputBuffer)
+          .jpeg({ quality })
+          .toBuffer();
+
+        if (outputBuffer.length / 1024 <= maxSizeKB) {
+          break;
+        }
+      }
+      const base64 = outputBuffer.toString('base64');
+      return `${base64}`;
+    } catch (error) {
+      console.error('Error fetching image:', error);
+      throw new BadRequestException('Failed to fetch image from S3');
+    }
+  }
+  async argosRecognition(file: Express.Multer.File) {
+    const fileUrl = await this.s3Service.uploadFile(file, 'public/passport/');
+    const idImageBase64 = await this.fetchImageAsBase64(fileUrl.url);
+    try {
+      const response = await axios.post<RecognitionResponse>(
+        'https://idverify-api.argosidentity.com/modules/recognition',
+        {
+          idImage: idImageBase64,
+          issuingCountry: 'KOR',
+          idType: 'passport',
+        },
+        {
+          headers: {
+            'x-api-key': this.envService.get('ARGOS_API_KEY'),
+          },
+        },
+      );
+
+      // console.log('recognition raw data >>>>>>.', JSON.stringify(response.data.result.data.raw, null, 2));
+      console.log('recognition ocr data >>>>>>.', JSON.stringify(response.data.result.data.ocr, null, 2));
+      const ocrData = response.data.result.data.ocr;
+      return ocrData;
+    } catch (error) {
+      console.error('Error fetching Argos Recognition:', error);
+      throw new BadRequestException('Failed to fetch Argos Recognition');
+    }
   }
 }

@@ -7,21 +7,31 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
+  UseInterceptors,
+  BadRequestException,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { UserService } from './user.service';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from 'src/auth/current-user.decorator';
 import {
   ApproveUserDto,
   QueryUserDto,
   RejectUserDto,
+  UserRecognitionDto,
   UserVerificationDocumetDetailDto,
 } from './admin.user.dto';
+import { FileUploadDto } from 'src/s3/s3.dto';
+import { S3Service } from 'src/s3/s3.service';
 
 @ApiTags('회원 관리')
 @Controller('user')
 export class AdminUserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly s3Service: S3Service,
+  ) {}
 
   @Get('')
   @ApiOperation({ summary: '회원 목록 조회' })
@@ -39,6 +49,39 @@ export class AdminUserController {
   @ApiOperation({ summary: '회원 Argos ID Liveness' })
   async getArgosIdLiveness(@Body() body: UserVerificationDocumetDetailDto) {
     return await this.userService.argosProcessPipeline(body.data.documentId);
+  }
+
+  @Post('argos-recognition')
+  @ApiOperation({ summary: '회원 Argos Recognition' })
+  @UseInterceptors(FileInterceptor('file', {
+    fileFilter: (req, file, callback) => {
+      if (!file.mimetype.match(/\/(jpg|jpeg|png)$/)) {
+        return callback(new BadRequestException('이미지 파일만 업로드 가능합니다.'), false);
+      }
+      callback(null, true);
+    },
+    limits: {
+      fileSize: 5 * 1024 * 1024, // 5MB
+    },
+  }))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: '파일 업로드',
+    type: FileUploadDto,
+  })
+  async getArgosRecognition(@UploadedFile() file: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException('파일이 업로드되지 않았습니다.');
+    }
+    
+    try {
+      const fileUrl = await this.s3Service.uploadFile(file, 'public/passport/');
+      console.log('fileUrl >>>>>>.', fileUrl);
+      return await this.userService.argosRecognition(fileUrl.url);
+    } catch (error) {
+      console.error('File upload error:', error);
+      throw new BadRequestException('파일 업로드 중 오류가 발생했습니다.');
+    }
   }
 
   @Post('approve')

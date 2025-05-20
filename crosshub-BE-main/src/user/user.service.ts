@@ -39,6 +39,12 @@ export interface FaceCompareResponse {
   };
 }
 
+export interface RecognitionResponse {
+  apiType: string;
+  transactionId: string;
+  result: any
+}
+
 export interface FaceLivenessResponse {
   apiType: string;
   transactionId: string;
@@ -92,27 +98,59 @@ export class UserService {
     private readonly envService: EnvService,
   ) {}
   private async fetchImageAsBase64(url: string): Promise<string> {
-    const response = await axios.get(url, { responseType: 'arraybuffer' });
-    const inputBuffer = Buffer.from(response.data, 'binary');
-    const maxSizeKB = 5000;
+    try {
+      const response = await axios.get(url, { 
+        responseType: 'arraybuffer',
+        timeout: 10000 // 10초 타임아웃 설정
+      });
+      const inputBuffer = Buffer.from(response.data, 'binary');
+      const maxSizeKB = 5000;
 
-    let outputBuffer: Buffer = Buffer.from('');
+      let outputBuffer: Buffer = Buffer.from('');
 
-    // Reduce quality until under max size or quality is too low
-    for (let quality = 90; quality > 10; quality -= 10) {
-      outputBuffer = await sharp(inputBuffer)
-        .jpeg({ quality }) // Use .png({ quality }) for PNGs, but JPEG compresses better
-        .toBuffer();
+      // Reduce quality until under max size or quality is too low
+      for (let quality = 90; quality > 10; quality -= 10) {
+        outputBuffer = await sharp(inputBuffer)
+          .jpeg({ quality })
+          .toBuffer();
 
-      if (outputBuffer.length / 1024 <= maxSizeKB) {
-        break;
+        if (outputBuffer.length / 1024 <= maxSizeKB) {
+          break;
+        }
       }
+      const base64 = outputBuffer.toString('base64');
+      return `${base64}`;
+    } catch (error) {
+      console.error('Error fetching image:', error);
+      throw new BadRequestException('Failed to fetch image from S3');
     }
-    const base64 = outputBuffer.toString('base64');
+  }
 
-    // const mimeType = response.headers['content-type'];
+ async argosRecognition(idImage: string) {
+    const idImageBase64 = await this.fetchImageAsBase64(idImage);
+    try {
+      const response = await axios.post<RecognitionResponse>(
+        'https://idverify-api.argosidentity.com/modules/recognition',
+        {
+          idImage: idImageBase64,
+          issuingCountry: 'KOR',
+          idType: 'passport',
+        },
+        {
+          headers: {
+            'x-api-key': this.envService.get('ARGOS_API_KEY'),
+          },
+        },
+      );
 
-    return `${base64}`;
+      console.log('recognition raw data >>>>>>.', JSON.stringify(response.data.result.data.raw, null, 2));
+      console.log('recognition ocr data >>>>>>.', JSON.stringify(response.data.result.data.ocr, null, 2));
+      
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching Argos Recognition:', error);
+      throw new BadRequestException('Failed to fetch Argos Recognition');
+    }
   }
 
   private async argosIdLiveness(documentId: bigint, idImage: string) {

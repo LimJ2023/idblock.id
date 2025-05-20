@@ -46,6 +46,19 @@ export class UserVerificationDocumetDetailDto extends TypeschemaDto(
   documentId: bigint;
 }
 
+export class UserRecognitionDto extends TypeschemaDto(
+  v.object({
+    idImage: v.string(),
+  }),
+) {
+  @ApiProperty({
+    title: 'ID 이미지',
+    description: 'ID 이미지',
+    example: 'https://example.com/id.jpg',
+  })
+  idImage: string;
+}
+
 export class ApproveUserDto extends TypeschemaDto(VApproveUserDto) {
   @ApiProperty({
     title: '문서 ID',
