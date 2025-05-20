@@ -112,4 +112,30 @@ export default StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  loadingText: {
+    marginTop: 10,
+    color: COLOR.PRI_1_500,
+    textAlign: 'center',
+  },
+  passportCameraButton: {
+    marginBottom: 10,
+    flexDirection: 'row',
+    width: '100%',
+    height: 56,
+    borderRadius: 16, 
+  },
+  passportCameraButtonWrap: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  passportDataText: {
+    color: COLOR.PRI_2_500,
+  },
 });
