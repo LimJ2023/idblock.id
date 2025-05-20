@@ -7,12 +7,14 @@ import { AdminUser } from 'src/database/schema';
 import { AdminUserSession } from 'src/database/schema/admin-user-session';
 import { eq } from 'drizzle-orm';
 import { ERROR_CODE } from 'src/common/error-code';
+import { AuthService } from 'src/auth/auth.service';
 
 @Injectable()
 export class AdminAuthService {
   constructor(
     @Inject(INJECT_DRIZZLE) private db: DrizzleDB,
     private readonly jwtService: JwtService,
+    private readonly authService: AuthService,
   ) {}
 
   async login(body: TAdminLoginDto) {
@@ -82,5 +84,9 @@ export class AdminAuthService {
         { expiresIn: '1d' },
       ),
     };
+  }
+
+  async argosRecognition(file: Express.Multer.File) {
+    return this.authService.argosRecognition(file);
   }
 }
