@@ -233,6 +233,19 @@ export class AuthController {
   }
 
   @Public()
+  @Post('upload/passport-recognition')
+  @ApiOperation({ summary: '여권 인식' })
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: '파일 업로드',
+    type: FileUploadDto,
+  })
+  async uploadPassportRecognition(@UploadedFile() file: Express.Multer.File) {
+    return this.authService.argosRecognition(file);
+  }
+  
+  @Public()
   @Post('upload/passport-image')
   @ApiOperation({ summary: '여권 업로드' })
   @UseInterceptors(FileInterceptor('file'))
@@ -243,13 +256,6 @@ export class AuthController {
   })
   async uploadPassport(@UploadedFile() file: Express.Multer.File) {
     return this.s3Service.uploadFile(file, 'private/passport/');
-  }
-
-  @Public()
-  @Post('upload/passport-recognition')
-  @ApiOperation({ summary: '여권 인식' })
-  async uploadPassportRecognition(@UploadedFile() file: Express.Multer.File) {
-    return this.authService.argosRecognition(file);
   }
 
   @Public()
