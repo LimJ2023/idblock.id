@@ -23,7 +23,7 @@ export function useApiPostAuthPassport() {
 
       console.log("formData 전달받음: " + JSON.stringify(formData));
       const response: HttpResponse<PassportRecognitionResponse> = await postForm('/v1/auth/upload/passport-recognition', formData);
-      console.log("response : " + JSON.stringify(response));
+      console.log("response 서버 처리 결과 : " + JSON.stringify(response));
       return (
         response.data || {
           ocr_fullName: '',

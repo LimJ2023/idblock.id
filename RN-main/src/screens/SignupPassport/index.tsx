@@ -1,5 +1,5 @@
-import React, { memo, useCallback, useRef, useState } from 'react';
-import { ScrollView, View, ActivityIndicator } from 'react-native';
+import React, { memo, useCallback, useRef, useState, useEffect } from 'react';
+import { ScrollView, View, ActivityIndicator, TextInput } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Route, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -33,6 +33,7 @@ export const SignupPassport = memo(function ({ route }: Params) {
   const [image, setImage] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [passportData, setPassportData] = useState<any>(null);
+  const [editedPassportData, setEditedPassportData] = useState<any>(null);
 
   const { bottom } = useSafeAreaInsets();
   const { cameraPermissionCheck } = usePermissionCheck();
@@ -43,6 +44,12 @@ export const SignupPassport = memo(function ({ route }: Params) {
   if (imageRef.current !== image) {
     imageRef.current = image;
   }
+
+  useEffect(() => {
+    if (passportData) {
+      setEditedPassportData(passportData);
+    }
+  }, [passportData]);
 
   const handleScanner = useCallback(async () => {
     cameraPermissionCheck().then((result) => {
@@ -57,6 +64,13 @@ export const SignupPassport = memo(function ({ route }: Params) {
     });
   }, []);
 
+  const handlePassportDataChange = (field: string, value: string) => {
+    setEditedPassportData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
   const handleScanned = useCallback(async (imagePath: string) => {
     setImage(imagePath);
     setIsLoading(true);
@@ -67,8 +81,6 @@ export const SignupPassport = memo(function ({ route }: Params) {
         type: 'image/jpeg',
         name: 'passport.jpg',
       });
-
-      console.log("만들어진 formData : " + JSON.stringify(formData));
 
       const response = await apiPostAuthPassport({
         formData,
@@ -99,9 +111,9 @@ export const SignupPassport = memo(function ({ route }: Params) {
       birth,
       passport,
       passportImage: imageRef.current,
-      passportData,
+      passportData: editedPassportData || passportData,
     });
-  }, [passportData]);
+  }, [editedPassportData, passportData]);
 
   const openCamera = () => {
     launchCamera(
@@ -137,7 +149,7 @@ export const SignupPassport = memo(function ({ route }: Params) {
     );
   };
 
-  const uploadImage = (asset) => {
+  const uploadImage = async (asset) => {
     setImage(asset.uri)
     const formData = new FormData();
     formData.append('file', {
@@ -146,19 +158,15 @@ export const SignupPassport = memo(function ({ route }: Params) {
       name: asset.fileName || 'photo.jpg',
     });
 
-    // 예시: axios 사용
-    axios.post('http://10.0.2.2:8989/api/v1/auth/upload/passport-recognition', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    })
-    .then(res => {
-      console.log('서버 응답:', res.data);
-      setPassportData(res.data.data)
-    })
-    .catch(err => {
-      console.log('업로드 에러:', err);
-    });
+    try {
+      const response = await apiPostAuthPassport({
+        formData,
+      });
+      setPassportData(response);
+    } catch (error) {
+      console.log(error);
+      Toast.show('이미지 처리 중 오류가 발생했습니다', Toast.SHORT);
+    }
   };
 
   return (
@@ -180,28 +188,80 @@ export const SignupPassport = memo(function ({ route }: Params) {
                   <Text style={[font.BODY3_R, style.loadingText]}>Processing passport image...</Text>
                 </View>
               ) : passportData ? (
-                <View>
-                  <Text style={[font.BODY2_B, style.guideContentTitleText]}>여권 정보가 성공적으로 추출되었습니다</Text>
-                  <FastImage source={{ uri: image }} style={style.passportImage} resizeMode="contain" />
-                  <Text style={[font.BODY2_B, style.passportDataText]}>이름 : {passportData.ocr_fullName}</Text>
-                  <Text style={[font.BODY2_B, style.passportDataText]}>성별 : {passportData.ocr_gender}</Text>
-                  <Text style={[font.BODY2_B, style.passportDataText]}>생년월일 : {passportData.ocr_birthDate}</Text>
-                  <Text style={[font.BODY2_B, style.passportDataText]}>발급일 : {passportData.ocr_issueDate}</Text>
-                  <Text style={[font.BODY2_B, style.passportDataText]}>만료일 : {passportData.ocr_expireDate}</Text>
-                  <Text style={[font.BODY2_B, style.passportDataText]}>국적 : {passportData.ocr_nationality}</Text>
-                  <Text style={[font.BODY2_B, style.passportDataText]}>여권번호 : {passportData.ocr_number}</Text>
+                <>                  
+                <View style={style.registeredImage}>
+                <View style={style.registeredImageWrap}>
+                  <Text style={[font.CAPTION1_R, style.registeredImageText]}>
+                    The Passport Image is registered successfully
+                  </Text>
+                  <FastImage source={STATIC_IMAGE.CHECK_CIRCLE_GREEN} style={style.registeredImageIcon} resizeMode="contain" />
                 </View>
+              </View>
+                <View>
+                  <FastImage source={{ uri: image }} style={style.passportImage} resizeMode="contain" />
+                  <Text style={[font.BODY2_B, style.guideContentTitleText]}>인식된 여권의 정보를 확인해주세요</Text>
+                  <View style={style.inputContainer}>
+                    <Text style={[font.BODY2_B, style.passportDataText]}>이름:</Text>
+                    <TextInput
+                      style={style.input}
+                      value={editedPassportData?.ocr_fullName}
+                      onChangeText={(value) => handlePassportDataChange('ocr_fullName', value)}
+                    />
+                  </View>
+                  <View style={style.inputContainer}>
+                    <Text style={[font.BODY2_B, style.passportDataText]}>성별:</Text>
+                    <TextInput
+                      style={style.input}
+                      value={editedPassportData?.ocr_gender}
+                      onChangeText={(value) => handlePassportDataChange('ocr_gender', value)}
+                    />
+                  </View>
+                  <View style={style.inputContainer}>
+                    <Text style={[font.BODY2_B, style.passportDataText]}>생년월일:</Text>
+                    <TextInput
+                      style={style.input}
+                      value={editedPassportData?.ocr_birthDate}
+                      onChangeText={(value) => handlePassportDataChange('ocr_birthDate', value)}
+                    />
+                  </View>
+                  <View style={style.inputContainer}>
+                    <Text style={[font.BODY2_B, style.passportDataText]}>발급일:</Text>
+                    <TextInput
+                      style={style.input}
+                      value={editedPassportData?.ocr_issueDate}
+                      onChangeText={(value) => handlePassportDataChange('ocr_issueDate', value)}
+                    />
+                  </View>
+                  <View style={style.inputContainer}>
+                    <Text style={[font.BODY2_B, style.passportDataText]}>만료일:</Text>
+                    <TextInput
+                      style={style.input}
+                      value={editedPassportData?.ocr_expireDate}
+                      onChangeText={(value) => handlePassportDataChange('ocr_expireDate', value)}
+                    />
+                  </View>
+                  <View style={style.inputContainer}>
+                    <Text style={[font.BODY2_B, style.passportDataText]}>국적:</Text>
+                    <TextInput
+                      style={style.input}
+                      value={editedPassportData?.ocr_nationality}
+                      onChangeText={(value) => handlePassportDataChange('ocr_nationality', value)}
+                    />
+                  </View>
+                  <View style={style.inputContainer}>
+                    <Text style={[font.BODY2_B, style.passportDataText]}>여권번호:</Text>
+                    <TextInput
+                      style={style.input}
+                      value={editedPassportData?.ocr_number}
+                      onChangeText={(value) => handlePassportDataChange('ocr_number', value)}
+                    />
+                  </View>
+                </View>
+                </>
               ) : image ? (
                 <>
-                  <FastImage source={{ uri: image }} style={style.passportImage} resizeMode="contain" />
-                  <View style={style.registeredImage}>
-                    <View style={style.registeredImageWrap}>
-                      <Text style={[font.CAPTION1_R, style.registeredImageText]}>
-                        The Passport Image is registered successfully
-                      </Text>
-                      <FastImage source={STATIC_IMAGE.CHECK_CIRCLE_GREEN} style={style.registeredImageIcon} resizeMode="contain" />
-                    </View>
-                  </View>
+                  {/* <FastImage source={{ uri: image }} style={style.passportImage} resizeMode="contain" /> */}
+
                 </>
               ) : (
                 <View style={style.guideContentWrap}>
@@ -245,9 +305,8 @@ export const SignupPassport = memo(function ({ route }: Params) {
             </Button>
           </View>
           <View style={style.passportCameraButtonWrap}>
-
-            <Button style={[style.passportCameraButton, { backgroundColor: 'blue' }]} onPress={openGallery} >
-              <Text>갤러리에서 선택</Text>
+            <Button style={[style.passportCameraButton, { backgroundColor: COLOR.PRI_1_400 }]} onPress={openGallery} >
+              <Text style={[font.BODY3_SB, { color: COLOR.WHITE }]}>Select from Gallery</Text>
             </Button>
           </View>
         </View>

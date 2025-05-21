@@ -5,7 +5,7 @@ export const PACKAGE_NAME = 'com.crosshub.idblock';
 // export const API_PREFIX = 'https://api.crosshub.buttersoft.dev/api';
 
 // export const API_PREFIX = 'https://api.idblock.id/api';
-export const API_PREFIX = 'http://10.0.2.2:8989/api';
+export const API_PREFIX = 'https://idblock-test.site/api';
 
 export const DEFAULT_POSITION = {
   LAT: 0,

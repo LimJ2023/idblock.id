@@ -41,8 +41,11 @@ async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe());
 
-  app.useStaticAssets(join(__dirname, '..', 'public'));
-  app.setBaseViewsDir(join(__dirname, '..', 'views'));
+  // app.useStaticAssets(join(__dirname, '..', 'public'));
+  // app.setBaseViewsDir(join(__dirname, '..', 'views'));
+  // docker 환경에서는 절대 경로로 설정
+  app.useStaticAssets(join(__dirname, '../public'));
+  app.setBaseViewsDir(join(__dirname, '../views'));
   app.setViewEngine('hbs');
 
   await SwaggerModule.loadPluginMetadata(metadata); // <-- here
