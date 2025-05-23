@@ -62,17 +62,22 @@ export const SignupFace = memo(function ({ route }: Params) {
     accessTokenRef.current = accessToken;
   }
 
+
+
   const handleFaceDetectCamera = useCallback(() => {
+    console.log('카메라 권한 체크 시작');
     cameraPermissionCheck().then((result) => {
+      console.log('카메라 권한 체크 결과:', result);
       if (result === 'granted') {
         setIsVisibleFaceDetectCamera(true);
       } else if (permissionRequestCount.current === 0) {
         permissionRequestCount.current = permissionRequestCount.current + 1;
-
         Toast.show('Permission to use camera has been denied.', Toast.SHORT);
       } else {
         setIsVisiblePermission(true);
       }
+    }).catch(error => {
+      console.error('카메라 권한 체크 에러:', error);
     });
   }, []);
 

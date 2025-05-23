@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useRef, useState, useEffect } from 'react';
-import { ScrollView, View, ActivityIndicator, TextInput } from 'react-native';
+import { ScrollView, View, ActivityIndicator, TextInput, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Route, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -7,7 +7,7 @@ import FastImage from 'react-native-fast-image';
 import Toast from 'react-native-simple-toast';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 
-import {useApiPostAuthPassport} from '~/hooks/api.post.auth.passport'
+import {useApiPostRecogPassport} from '~/hooks/api.post.recog.passport'
 import { ModalRectangleScanner } from '~/components/ModalRectangleScanner';
 import { ModalPermissionGuide } from '~/components/ModalPermissionGuide';
 import { Header } from '~/components/Header';
@@ -21,7 +21,6 @@ import { COLOR } from '~/utils/guide';
 import { font } from '~/style';
 
 import style from './style';
-import axios from 'axios';
 
 export const SignupPassport = memo(function ({ route }: Params) {
   const { uuid, mail, pw, name, country, honorary, birth, passport } = route.params;
@@ -37,7 +36,7 @@ export const SignupPassport = memo(function ({ route }: Params) {
 
   const { bottom } = useSafeAreaInsets();
   const { cameraPermissionCheck } = usePermissionCheck();
-  const { apiPostAuthPassport } = useApiPostAuthPassport();
+  const { apiPostRecogPassport } = useApiPostRecogPassport();
   const permissionRequestCount = useRef<number>(0);
   const imageRef = useRef<string>();
 
@@ -77,24 +76,24 @@ export const SignupPassport = memo(function ({ route }: Params) {
     try {
       const formData = new FormData();
       formData.append('file', {
-        uri: imagePath,
+        uri: Platform.OS === 'android' ? `file://${imagePath}` : imagePath,
         type: 'image/jpeg',
         name: 'passport.jpg',
       });
 
-      const response = await apiPostAuthPassport({
+      const response = await apiPostRecogPassport({
         formData,
       });
       
-      if (response.ocr_fullName) {
+      if (response && response.ocr_fullName) {
         setPassportData(response);
-        Toast.show('여권 정보가 성공적으로 추출되었습니다' + JSON.stringify(response), Toast.SHORT);
+        Toast.show('여권 정보가 성공적으로 추출되었습니다', Toast.SHORT);
       } else {
-        Toast.show('여권 정보 추출에 실패했습니다', Toast.SHORT);
+        Toast.show('여권 정보 추출에 실패했습니다: ' + JSON.stringify(response), Toast.SHORT);
       }
     } catch (error) {
-      console.log(error);
-      Toast.show('이미지 처리 중 오류가 발생했습니다', Toast.SHORT);
+      console.error('Passport scanning error:', error);
+      Toast.show(`이미지 처리 중 오류가 발생했습니다: ${error.message}`, Toast.SHORT);
     } finally {
       setIsLoading(false);
     }
@@ -133,6 +132,7 @@ export const SignupPassport = memo(function ({ route }: Params) {
   };
 
   const openGallery = () => {
+    setIsLoading(true);
     launchImageLibrary(
       {mediaType: 'photo'},
       (response) => {
@@ -147,6 +147,7 @@ export const SignupPassport = memo(function ({ route }: Params) {
         }
       }
     );
+    setIsLoading(false);
   };
 
   const uploadImage = async (asset) => {
@@ -159,7 +160,7 @@ export const SignupPassport = memo(function ({ route }: Params) {
     });
 
     try {
-      const response = await apiPostAuthPassport({
+      const response = await apiPostRecogPassport({
         formData,
       });
       setPassportData(response);
