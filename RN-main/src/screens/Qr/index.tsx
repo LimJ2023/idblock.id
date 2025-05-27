@@ -3,7 +3,7 @@ import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 
 import { Shadow } from 'react-native-shadow-2';
-import FastImage from 'react-native-fast-image';
+import FastImage from '@d11/react-native-fast-image';
 
 import { Header } from '~/components/Header';
 import { Button } from '~/components/Button';

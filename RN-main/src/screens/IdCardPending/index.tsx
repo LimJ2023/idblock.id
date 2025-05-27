@@ -4,7 +4,7 @@ import { ScrollView, View } from 'react-native';
 
 import { useFocusEffect } from '@react-navigation/native';
 import { Shadow } from 'react-native-shadow-2';
-import FastImage from 'react-native-fast-image';
+import FastImage from '@d11/react-native-fast-image';
 
 import { Header } from '~/components/Header';
 import { Text } from '~/components/Text';

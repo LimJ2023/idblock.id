@@ -35,6 +35,7 @@ local.properties
 .cxx/
 *.keystore
 !debug.keystore
+gradle.properties
 
 # node.js
 #
@@ -74,3 +75,5 @@ yarn-error.log
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+.kotlin/

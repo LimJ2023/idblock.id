@@ -6,7 +6,7 @@ import { Button } from '~/components/Button';
 
 import style from './style';
 import { COLOR } from '~/utils/guide';
-import FastImage from 'react-native-fast-image';
+import FastImage from '@d11/react-native-fast-image';
 
 export const CheckBox = memo(function ({ disabled = false, initChecked = false, rightWrapStyle, rightChild, onChecked }: Props) {
   const [isChecked, setIsChecked] = useState<boolean>(initChecked);

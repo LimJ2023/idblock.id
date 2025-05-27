@@ -2,7 +2,7 @@ import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 
 import { StatusBar, View } from 'react-native';
 
-import FastImage from 'react-native-fast-image';
+import FastImage from '@d11/react-native-fast-image';
 import WebView from 'react-native-webview';
 import Modal from 'react-native-modal';
 

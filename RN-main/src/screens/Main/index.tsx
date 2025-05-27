@@ -7,7 +7,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { firebase } from '@react-native-firebase/messaging';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import PushNotification from 'react-native-push-notification';
-import FastImage, { Source } from 'react-native-fast-image';
+import FastImage, { Source } from '@d11/react-native-fast-image';
 import DeviceInfo from 'react-native-device-info';
 import Modal from 'react-native-modal';
 

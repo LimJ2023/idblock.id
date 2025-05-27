@@ -21,7 +21,7 @@ import Util from '~/utils/common';
 import style from './style';
 import { CheckBox } from '~/components/CheckBox';
 import { COLOR } from '~/utils/guide';
-import FastImage from 'react-native-fast-image';
+import FastImage from '@d11/react-native-fast-image';
 
 export const Signin = memo(function () {
   const navigation = useNavigation<StackNavigationProp<any>>();

@@ -1,17 +1,11 @@
-import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
-
-import { StatusBar, View } from 'react-native';
-
-import Scanner, { DetectedRectangle, PictureCallbackProps } from 'react-native-rectangle-scanner';
-import FastImage from 'react-native-fast-image';
+import React, { memo, useCallback, useState } from 'react';
+import { StatusBar, View, Image, Alert } from 'react-native';
+import DocumentScanner from 'react-native-document-scanner-plugin';
 import Modal from 'react-native-modal';
 
-import { CameraDecorator } from '~/components/CameraDecorator';
 import { Button } from '~/components/Button';
 import { Text } from '~/components/Text';
-
 import { useDimension } from '~/zustands/app';
-
 import { MODAL_ANIMATION_TIMING, STATIC_IMAGE } from '~/utils/constant';
 import { COLOR } from '~/utils/guide';
 import { font } from '~/style';
@@ -19,45 +13,26 @@ import { font } from '~/style';
 import style from './style';
 
 export const ModalRectangleScanner = memo(function ({ isVisible, onSubmit, onClose }: Props) {
-  const scannerRef = useRef<any>();
-
-  const [isLoaded, setIsLoaded] = useState<boolean>(false);
-  const [detectedRectangle, setDetectedRectangle] = useState<DetectedRectangle>();
-
+  const [scannedImage, setScannedImage] = useState<string | undefined>(undefined);
   const { dimension } = useDimension();
-
-  const handleShow = useCallback(() => {
-    setIsLoaded(true);
-  }, []);
 
   const handleClose = useCallback(() => {
     onClose?.();
-  }, []);
+    setScannedImage(undefined);
+  }, [onClose]);
 
-  const handleRectangleDetected = useCallback((data: { detectedRectangle: DetectedRectangle }) => {
-    if (data.detectedRectangle?.dimensions?.width > 100 && data.detectedRectangle?.dimensions?.height > 100) {
-      setDetectedRectangle(data.detectedRectangle);
-    } else {
-      setDetectedRectangle(undefined);
+  const handleScan = useCallback(async () => {
+    try {
+      const { scannedImages, status } = await DocumentScanner.scanDocument();
+      if (status === 'success' && scannedImages.length > 0) {
+        setScannedImage(scannedImages[0]);
+        onSubmit?.(scannedImages[0]);
+        handleClose();
+      }
+    } catch (e) {
+      Alert.alert('스캔 실패', '문서 스캔 중 오류가 발생했습니다.');
     }
-  }, []);
-
-  const handleCapture = useCallback(() => {
-    scannerRef.current?.capture();
-  }, []);
-
-  const handleImageProcessed = useCallback((data: PictureCallbackProps) => {
-    handleClose();
-    onSubmit?.(data.initialImage);
-  }, []);
-
-  useEffect(() => {
-    setDetectedRectangle(undefined);
-
-    if (!isVisible) {
-      setIsLoaded(false);
-    }
-  }, [isVisible]);
+  }, [onSubmit, handleClose]);
 
   return (
     <Modal
@@ -71,31 +46,22 @@ export const ModalRectangleScanner = memo(function ({ isVisible, onSubmit, onClo
       animationOut="fadeOut"
       animationOutTiming={MODAL_ANIMATION_TIMING}
       useNativeDriver={true}
-      onModalShow={handleShow}
       onBackButtonPress={handleClose}
-      onBackdropPress={handleClose}>
+      onBackdropPress={handleClose}
+    >
       <View style={style.container}>
         <View style={style.header}>
           <Button style={style.headerCloseButton} onPress={handleClose}>
-            <FastImage source={STATIC_IMAGE.CLOSE_WHITE} style={style.headerCloseButtonImage} resizeMode="contain" />
+            <Image source={STATIC_IMAGE.CLOSE_WHITE} style={style.headerCloseButtonImage} resizeMode="contain" />
           </Button>
         </View>
         <View style={style.cameraWrap}>
-          <CameraDecorator isVisible={isLoaded} isActivated={!!detectedRectangle} />
-          <Scanner
-            ref={scannerRef}
-            style={{ flex: 1 }}
-            onRectangleDetected={handleRectangleDetected}
-            onPictureProcessed={handleImageProcessed}
-          />
-          <View style={style.captureButtonWrap}>
-            <Button
-              style={[style.captureButton, { backgroundColor: detectedRectangle ? COLOR.PRI_1_500 : COLOR.DISABLED }]}
-              disabled={!detectedRectangle}
-              onPress={handleCapture}>
-              <Text style={[font.BODY3_B, { color: detectedRectangle ? COLOR.WHITE : COLOR.PRI_3_600 }]}>Take a photo</Text>
-            </Button>
-          </View>
+          <Button
+            style={[style.captureButton, { backgroundColor: COLOR.PRI_1_500 }]}
+            onPress={handleScan}
+          >
+            <Text style={[font.BODY3_B, { color: COLOR.WHITE }]}>scannedImage</Text>
+          </Button>
         </View>
       </View>
     </Modal>

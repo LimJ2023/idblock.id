@@ -5,7 +5,7 @@ import { ScrollView, View, Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Route, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import FastImage from 'react-native-fast-image';
+import FastImage from '@d11/react-native-fast-image';
 import Toast from 'react-native-simple-toast';
 
 import { ModalFaceDetectCamera } from '~/components/ModalFaceDetectCamera';

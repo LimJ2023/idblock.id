@@ -49,10 +49,6 @@ target 'crosshub' do
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
-  target 'crosshubTests' do
-    inherit! :complete
-    # Pods for testing
-  end
 
   post_install do |installer|
     installer.pods_project.targets.each do |target|

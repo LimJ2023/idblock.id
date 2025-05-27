@@ -15,6 +15,44 @@ const axios: AxiosInstance = Axios.create({
   headers: { 'Cache-Control': 'no-cache' },
 });
 
+// 요청 인터셉터 추가
+axios.interceptors.request.use(
+  (config) => {
+    console.log('🚀 Request:', {
+      url: config.url,
+      method: config.method,
+      data: config.data,
+      headers: config.headers,
+    });
+    return config;
+  },
+  (error) => {
+    console.log('❌ Request Error:', error);
+    return Promise.reject(error);
+  }
+);
+
+// 응답 인터셉터 추가
+axios.interceptors.response.use(
+  (response) => {
+    console.log('✅ Response:', {
+      url: response.config.url,
+      status: response.status,
+      data: response.data,
+    });
+    return response;
+  },
+  (error) => {
+    console.log('❌ Response Error:', {
+      url: error.config?.url,
+      status: error.response?.status,
+      data: error.response?.data,
+      message: error.message,
+    });
+    return Promise.reject(error);
+  }
+);
+
 interface Store {
   baseUrl: string;
   signout: () => Promise<void>;

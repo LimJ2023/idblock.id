@@ -3,7 +3,7 @@ import React, { memo, useCallback, useEffect, useState } from 'react';
 import { StatusBar, View } from 'react-native';
 
 import Modal from 'react-native-modal';
-import FastImage from 'react-native-fast-image';
+import FastImage from '@d11/react-native-fast-image';
 import Pdf, { Source } from 'react-native-pdf';
 
 import { Button } from '~/components/Button';

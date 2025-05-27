@@ -5,7 +5,7 @@ import { ScrollView, View } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { Shadow } from 'react-native-shadow-2';
-import FastImage from 'react-native-fast-image';
+import FastImage from '@d11/react-native-fast-image';
 
 import { Header } from '~/components/Header';
 import { Button } from '~/components/Button';

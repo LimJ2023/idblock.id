@@ -3,7 +3,7 @@ import { ScrollView, View, ActivityIndicator, TextInput, Platform } from 'react-
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Route, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import FastImage from 'react-native-fast-image';
+import FastImage from '@d11/react-native-fast-image';
 import Toast from 'react-native-simple-toast';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 
@@ -38,7 +38,7 @@ export const SignupPassport = memo(function ({ route }: Params) {
   const { cameraPermissionCheck } = usePermissionCheck();
   const { apiPostRecogPassport } = useApiPostRecogPassport();
   const permissionRequestCount = useRef<number>(0);
-  const imageRef = useRef<string>();
+  const imageRef = useRef<string>('');
 
   if (imageRef.current !== image) {
     imageRef.current = image;

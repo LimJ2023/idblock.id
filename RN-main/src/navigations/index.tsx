@@ -4,7 +4,7 @@ import { View } from 'react-native';
 
 import { NavigationContainer, NavigationContainerRef } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import FastImage from 'react-native-fast-image';
+import FastImage from '@d11/react-native-fast-image';
 
 import { ModalSpinner } from '~/components/ModalSpinner';
 import { StackNavigator } from './Stack';

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 import { Image } from 'react-native';
-import FastImage from 'react-native-fast-image';
+import FastImage from '@d11/react-native-fast-image';
 
 import { STATIC_IMAGE } from '~/utils/constant';
 
