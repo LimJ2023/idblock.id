@@ -225,12 +225,21 @@ export class AuthController {
     }
     const [user] = created;
 
+    // 항상 먼저 UserVerificationDocument 생성
+    const [document] = await this.authService.createUserVerificationDocument(
+      user.id, 
+      body.data.passportImageKey, 
+      body.data.profileImageKey
+    );
+
     // 자동 인증 처리
-    const isAutoApproved = await this.authService.argosFaceCompare(body.data.passportImageKey, body.data.profileImageKey);
+    const isAutoApproved = await this.authService.argosFaceCompare(
+      body.data.passportImageKey, 
+      body.data.profileImageKey
+    );
+    
     if(isAutoApproved) {
-      await this.authService.autoApproveUser(user.id);
-    } else {
-      await this.authService.createUserVerificationDocument(user.id, body.data.passportImageKey, body.data.profileImageKey);
+      await this.authService.autoApproveUser(document.id);
     }
 
     return user;

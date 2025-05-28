@@ -237,7 +237,7 @@ export class AuthService {
       userId,
       passportImageKey,
       profileImageKey,
-    });
+    }).returning({ id: UserVerificationDocument.id });
   }
 
   async getProfile(userId: bigint) {
@@ -453,15 +453,23 @@ export class AuthService {
   }
 
   async argosFaceCompare(
-    originFace: string,
-    targetFace: string,
+    originFaceKey: string,
+    targetFaceKey: string,
   ) {
     try {
+      // S3 키에서 presigned URL 생성
+      const originFaceUrl = await this.s3Service.createPresignedUrlWithClient(originFaceKey);
+      const targetFaceUrl = await this.s3Service.createPresignedUrlWithClient(targetFaceKey);
+      
+      // URL에서 이미지를 가져와서 base64로 변환
+      const originFaceBase64 = await this.fetchImageAsBase64(originFaceUrl);
+      const targetFaceBase64 = await this.fetchImageAsBase64(targetFaceUrl);
+
       const response = await axios.post<FaceCompareResponse>(
         'https://idverify-api.argosidentity.com/modules/compare',
         {
-          originFace,
-          targetFace,
+          originFace: originFaceBase64,
+          targetFace: targetFaceBase64,
         },
         {
           headers: {
@@ -473,8 +481,8 @@ export class AuthService {
       const similarity = response.data.result.faceMatch.similarity;
       const confidence = response.data.result.faceMatch.confidence;
 
+      console.log(`user similarity: ${similarity}, confidence: ${confidence}`);
       if(similarity >= 95 && confidence >= 95) {
-        console.log(`user similarity: ${similarity}, confidence: ${confidence}`);
         return true;
       }
       return false;
@@ -489,11 +497,22 @@ export class AuthService {
     console.log(`autoApproveUser documentId: ${documentId}`);
     
     return this.db.transaction(async (trx) => {
-      const [{ userId }] = await trx
+      // 먼저 UserVerificationDocument에서 userId를 조회
+      const document = await trx.query.UserVerificationDocument.findFirst({
+        where: (table, { eq }) => eq(table.id, documentId),
+      });
+
+      if (!document) {
+        throw new BadRequestException('Document not found');
+      }
+
+      const userId = document.userId;
+
+      // approvalStatus 업데이트
+      await trx
         .update(UserVerificationDocument)
         .set({ approvalStatus: 1 })
-        .where(eq(UserVerificationDocument.id, documentId))
-        .returning();
+        .where(eq(UserVerificationDocument.id, documentId));
 
       const [{ id: approvalId }] = await trx
         .insert(UserApproval)
