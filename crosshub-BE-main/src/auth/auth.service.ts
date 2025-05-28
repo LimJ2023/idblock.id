@@ -27,8 +27,9 @@ import QRCode from 'qrcode';
 import { ERROR_CODE } from 'src/common/error-code';
 import axios from 'axios';
 import sharp from 'sharp';
-import { RecognitionResponse } from 'src/user/user.service';
 import { EnvService } from 'src/env/env.service';
+import { ThirdwebService } from 'src/thirdweb/thirdweb.service';
+import { NotificationService } from 'src/notification/notification.service';
 @Injectable()
 export class AuthService {
   constructor(
@@ -37,6 +38,8 @@ export class AuthService {
     private readonly emailService: EmailService,
     private readonly s3Service: S3Service,
     private readonly envService: EnvService,
+    private readonly thirdwebService: ThirdwebService,
+    private readonly notificationService: NotificationService,
   ) {}
 
   private validateBirthday(dateString: string) {
@@ -440,7 +443,7 @@ export class AuthService {
       );
 
       // console.log('recognition raw data >>>>>>.', JSON.stringify(response.data.result.data.raw, null, 2));
-      console.log('recognition ocr data >>>>>>.', JSON.stringify(response.data.result.data.ocr, null, 2));
+      console.log('recognition ocr data >>>>>>.', JSON.stringify(response.data.result.data, null, 2));
       const ocrData = response.data.result.data.ocr;
       return ocrData;
     } catch (error) {
@@ -448,4 +451,157 @@ export class AuthService {
       throw new BadRequestException('Failed to fetch Argos Recognition');
     }
   }
+
+  async argosFaceCompare(
+    originFace: string,
+    targetFace: string,
+  ) {
+    try {
+      const response = await axios.post<FaceCompareResponse>(
+        'https://idverify-api.argosidentity.com/modules/compare',
+        {
+          originFace,
+          targetFace,
+        },
+        {
+          headers: {
+            'x-api-key': this.envService.get('ARGOS_API_KEY'),
+          },
+        },
+      );
+
+      const similarity = response.data.result.faceMatch.similarity;
+      const confidence = response.data.result.faceMatch.confidence;
+
+      if(similarity >= 95 && confidence >= 95) {
+        console.log(`user similarity: ${similarity}, confidence: ${confidence}`);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Error fetching Argos Face Compare:', error);
+      throw new BadRequestException('Failed to fetch Argos Face Compare');
+    }
+  }
+
+  async autoApproveUser(documentId: bigint) {
+
+    console.log(`autoApproveUser documentId: ${documentId}`);
+    
+    return this.db.transaction(async (trx) => {
+      const [{ userId }] = await trx
+        .update(UserVerificationDocument)
+        .set({ approvalStatus: 1 })
+        .where(eq(UserVerificationDocument.id, documentId))
+        .returning();
+
+      const [{ id: approvalId }] = await trx
+        .insert(UserApproval)
+        .values({
+          documentId,
+          userId,
+          approvedBy: 1,
+        })
+        .returning();
+
+      const txHash = await this.thirdwebService.generateNFT([
+        {
+          trait_trpe: 'userId',
+          value: userId.toString(),
+        },
+        {
+          trait_trpe: 'approvalId',
+          value: approvalId,
+        },
+      ]);
+
+      await trx
+        .update(User)
+        .set({ approvalId })
+        .where(eq(User.id, userId));
+
+      await this.notificationService.sendNotification({
+        userId,
+        title: 'The Mobile ID registration was successful',
+        content: 'Confirm your Mobile ID now',
+      });
+      await trx
+        .update(UserApproval)
+        .set({
+          txHash,
+        })
+        .where(eq(UserApproval.id, approvalId));
+    });
+  }
+
+
+}
+export interface IdLivenessResponse {
+  apiType: string;
+  transactionId: string;
+  result: {
+    screenReplay: LivenessScore;
+    paperPrinted: LivenessScore;
+    replacePortraits: LivenessScore;
+  };
+}
+
+export interface FaceCompareResponse {
+  apiType: string;
+  transactionId: string;
+  result: {
+    face: Face;
+    faceMatch: FaceMatch;
+  };
+}
+
+export interface RecognitionResponse {
+  apiType: string;
+  transactionId: string;
+  result: any
+}
+
+export interface FaceLivenessResponse {
+  apiType: string;
+  transactionId: string;
+  result: LivenessScore;
+}
+interface LivenessScore {
+  liveness_score: number;
+}
+interface Face {
+  isAvailable: boolean;
+  boundingBox: BoundingBox;
+}
+
+interface FaceMatch {
+  isAvailable: boolean;
+  boundingBox: BoundingBox;
+  similarity: number;
+  confidence: number;
+  landmarks: Landmark[];
+  pose: Pose;
+  quality: Quality;
+}
+interface BoundingBox {
+  Width: number;
+  Height: number;
+  Left: number;
+  Top: number;
+}
+interface Landmark {
+  Type: string;
+  X: number;
+  Y: number;
+}
+
+interface Pose {
+  Roll: number;
+  Yaw: number;
+  Pitch: number;
+}
+
+interface Quality {
+  Brightness: number;
+  Sharpness: number;
 }

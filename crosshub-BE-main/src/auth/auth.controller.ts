@@ -224,11 +224,15 @@ export class AuthController {
       throw new BadRequestException(ERROR_CODE.ALREADY_USED_EMAIL);
     }
     const [user] = created;
-    await this.authService.createUserVerificationDocument(
-      user.id,
-      body.data.passportImageKey,
-      body.data.profileImageKey,
-    );
+
+    // 자동 인증 처리
+    const isAutoApproved = await this.authService.argosFaceCompare(body.data.passportImageKey, body.data.profileImageKey);
+    if(isAutoApproved) {
+      await this.authService.autoApproveUser(user.id);
+    } else {
+      await this.authService.createUserVerificationDocument(user.id, body.data.passportImageKey, body.data.profileImageKey);
+    }
+
     return user;
   }
 

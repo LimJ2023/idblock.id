@@ -456,7 +456,7 @@ export class UserService {
         },
       ]);
 
-      await await trx
+      await trx
         .update(User)
         .set({ approvalId })
         .where(eq(User.id, userId));
