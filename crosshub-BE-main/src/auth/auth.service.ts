@@ -241,56 +241,58 @@ export class AuthService {
   }
 
   async getProfile(userId: bigint) {
-    const [{ user, user_approval, user_verification_document, city }] =
-      await this.db
-        .select()
-        .from(User)
-        .leftJoin(City, eq(User.cityId, City.id))
-        .leftJoin(UserApproval, eq(User.id, UserApproval.userId))
-        .leftJoin(
-          UserVerificationDocument,
-          eq(UserVerificationDocument.id, UserApproval.documentId),
-        )
-        .where(eq(User.id, userId));
+    const user = await this.db.query.User.findFirst({
+      where: (table, { eq }) => eq(table.id, userId),
+      with: {
+        city: true,
+        approval: {
+          with: {
+            document: true
+          }
+        }
+      }
+    });
 
     if (!user) {
       throw new BadRequestException(ERROR_CODE.USER_NOT_FOUND);
     }
 
-    const document = await this.db.query.UserVerificationDocument.findFirst({
+    const latestDocument = await this.db.query.UserVerificationDocument.findFirst({
       where: (table, { eq }) => eq(table.userId, userId),
       orderBy: (table, { desc }) => desc(table.id),
     });
+
+    console.log('latestDocument >>>>>>.', latestDocument)
 
     return {
       id: user.id,
       email: user.email,
       name: user.name,
       city: {
-        id: city?.id,
-        name: city?.name,
-        country: city?.country,
-        coutryCode: city?.countryCode,
+        id: user.city?.id,
+        name: user.city?.name,
+        country: user.city?.country,
+        coutryCode: user.city?.countryCode,
       },
       ...(user.approvalId !== null ?
         {
           status: 'APPROVED',
           profileImage: await this.s3Service.createPresignedUrlWithClient(
-            user_verification_document?.profileImageKey as string,
+            user.approval.document?.profileImageKey as string,
           ),
         }
-      : document?.approvalStatus === 2 ?
+      : latestDocument?.approvalStatus === 2 ?
         {
           status: 'REJECTED',
-          reason: document?.rejectReason,
+          reason: latestDocument?.rejectReason,
           profileImage: await this.s3Service.createPresignedUrlWithClient(
-            document?.profileImageKey as string,
+            latestDocument?.profileImageKey as string,
           ),
         }
       : {
           status: 'PENDING',
           profileImage: await this.s3Service.createPresignedUrlWithClient(
-            document?.profileImageKey as string,
+            latestDocument?.profileImageKey as string,
           ),
         }),
     };

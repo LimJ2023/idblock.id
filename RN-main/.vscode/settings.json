@@ -1,5 +1,0 @@
-{
-  "java.compile.nullAnalysis.mode": "automatic",
-  "java.configuration.updateBuildConfiguration": "automatic",
-  "typescript.tsdk": "node_modules\\typescript\\lib"
-}
