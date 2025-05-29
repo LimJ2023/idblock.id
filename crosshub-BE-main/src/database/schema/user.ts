@@ -9,6 +9,7 @@ import {
   text,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
+import { relations } from 'drizzle-orm';
 import { Country } from './country';
 import { UserApproval } from './user-approval';
 import { City } from './city';
@@ -57,3 +58,14 @@ export const User = pgTable(
     };
   },
 );
+
+export const userRelations = relations(User, ({ one }) => ({
+  city: one(City, {
+    fields: [User.cityId],
+    references: [City.id],
+  }),
+  approval: one(UserApproval, {
+    fields: [User.approvalId],
+    references: [UserApproval.id],
+  }),
+}));

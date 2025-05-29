@@ -7,6 +7,7 @@ import {
   text,
   timestamp,
 } from 'drizzle-orm/pg-core';
+import { relations } from 'drizzle-orm';
 import { User } from './user';
 import { AdminUser } from './admin-user';
 import { UserVerificationDocument } from './user-verification-document';
@@ -51,3 +52,18 @@ export const UserApproval = pgTable(
     };
   },
 );
+
+export const userApprovalRelations = relations(UserApproval, ({ one }) => ({
+  user: one(User, {
+    fields: [UserApproval.userId],
+    references: [User.id],
+  }),
+  document: one(UserVerificationDocument, {
+    fields: [UserApproval.documentId],
+    references: [UserVerificationDocument.id],
+  }),
+  approvedBy: one(AdminUser, {
+    fields: [UserApproval.approvedBy],
+    references: [AdminUser.id],
+  }),
+}));

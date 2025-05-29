@@ -92,12 +92,9 @@ export class AuthController {
     res.cookie('access_token', accessToken, {
       httpOnly: true,
       expires: addDays(new Date(), 1),
-      sameSite: 'none',
-      domain:
-        req.hostname === 'localhost' ?
-          undefined
-        : this.envService.get('COOKIE_DOMAIN'),
-      secure: true,
+      sameSite: req.hostname === 'localhost' ? 'lax' : 'none',
+      domain: req.hostname === 'localhost' ? undefined : this.envService.get('COOKIE_DOMAIN'),
+      secure: req.hostname !== 'localhost',
       path: '/',
     });
 
@@ -398,12 +395,10 @@ export class AuthController {
     res.cookie('access_token', accessToken, {
       httpOnly: true,
       expires: addDays(new Date(), 1),
-      sameSite: 'none',
-      domain:
-        req.hostname === 'localhost' ?
-          undefined
-        : this.envService.get('COOKIE_DOMAIN'),
-      secure: true,
+      sameSite: req.hostname === 'localhost' ? 'lax' : 'none',
+      domain: req.hostname === 'localhost' ? undefined : this.envService.get('COOKIE_DOMAIN'),
+      secure: req.hostname !== 'localhost',
+      path: '/',
     });
     // res.cookie('refresh_token', newRefreshToken, {
     //   httpOnly: true,
