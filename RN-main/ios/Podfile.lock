@@ -1411,6 +1411,27 @@ PODS:
     - React-Core
   - react-native-blob-util (0.19.11):
     - React-Core
+  - react-native-image-picker (8.2.1):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.01.01.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - react-native-orientation-locker (1.7.0):
     - React-Core
   - react-native-pdf (6.7.7):
@@ -1811,7 +1832,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNPermissions (5.2.5):
+  - RNPermissions (5.4.0):
     - React-Core
   - RNReanimated (3.16.7):
     - DoubleConversion
@@ -2001,6 +2022,7 @@ DEPENDENCIES:
   - React-microtasksnativemodule (from `../node_modules/react-native/ReactCommon/react/nativemodule/microtasks`)
   - react-native-biometrics (from `../node_modules/react-native-biometrics`)
   - react-native-blob-util (from `../node_modules/react-native-blob-util`)
+  - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-orientation-locker (from `../node_modules/react-native-orientation-locker`)
   - react-native-pdf (from `../node_modules/react-native-pdf`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
@@ -2159,6 +2181,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-biometrics"
   react-native-blob-util:
     :path: "../node_modules/react-native-blob-util"
+  react-native-image-picker:
+    :path: "../node_modules/react-native-image-picker"
   react-native-orientation-locker:
     :path: "../node_modules/react-native-orientation-locker"
   react-native-pdf:
@@ -2322,6 +2346,7 @@ SPEC CHECKSUMS:
   React-microtasksnativemodule: 2b73e68f0462f3175f98782db08896f8501afd20
   react-native-biometrics: 352e5a794bfffc46a0c86725ea7dc62deb085bdc
   react-native-blob-util: 39a20f2ef11556d958dc4beb0aa07d1ef2690745
+  react-native-image-picker: 80de43d19e1304fa5dfd01fb0df58c363a1221cc
   react-native-orientation-locker: 5819fd23ca89cbac0d736fb4314745f62716d517
   react-native-pdf: 73accc61238e8e9bc6e376191225028af20b996e
   react-native-safe-area-context: 141eca0fd4e4191288dfc8b96a7c7e1c2983447a
@@ -2365,7 +2390,7 @@ SPEC CHECKSUMS:
   RNFBApp: 9acbe359ef3559d6f8ca5c350db471f2b352f98a
   RNFBMessaging: b82ef70d252500d3ad104284c0c7f8e1cd22b51e
   RNGestureHandler: 7ca7ca7bddcf4853b9a6544db6163e0e5435ddfc
-  RNPermissions: a940aa79b55ef8ec2d50eb957afc9423e8f680d8
+  RNPermissions: 44b952ea5e776b068cb489752980e15f3e499e19
   RNReanimated: d1e1069c64b84cc1dc91c73d59a2106c139ed7a1
   RNRectangleScanner: 6e006d8cc34c8968c57c1dd49c25c0e2a9aef85f
   RNScreens: c7ceced6a8384cb9be5e7a5e88e9e714401fd958
@@ -2380,4 +2405,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: dd05a0d2e6664037a92e8aa30a5d4101b5fc94ba
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.16.2

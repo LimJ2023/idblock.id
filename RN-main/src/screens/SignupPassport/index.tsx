@@ -20,7 +20,7 @@ import { MENU, STATIC_IMAGE } from '~/utils/constant';
 import { COLOR } from '~/utils/guide';
 import { font } from '~/style';
 
-import { launchImageLibrary} from 'react-native-image-picker';
+import { launchImageLibrary, Asset, ImageLibraryOptions } from 'react-native-image-picker';
 
 import style from './style';
 import { useApiPostRecogPassport } from '~/hooks/api.post.recog.passport';
@@ -79,20 +79,30 @@ export const SignupPassport = memo(function ({ route }: Params) {
   }, []);
 
   const openGallery = () => {
-    launchImageLibrary(
-      {mediaType: 'photo'},
-      (response) => {
-        if (response.didCancel) return;
-        if (response.errorCode) {
-          console.log('Gallery Error: ', response.errorMessage);
-          return;
-        }
-        if (response.assets && response.assets.length > 0) {
-          const asset = response.assets[0];
-          setImage(asset.uri);
-        }
+    const options: ImageLibraryOptions = {
+      mediaType: 'photo',
+      selectionLimit: 1,
+    };
+
+    launchImageLibrary(options, (response) => {
+      if (response.didCancel) {
+        console.log('사용자가 갤러리를 취소했습니다.');
+        return;
       }
-    );
+
+      if (response.errorCode) {
+        console.log('Gallery Error: ', response.errorMessage);
+        return;
+      }
+
+      const asset: Asset | undefined = response.assets?.[0];
+      if (asset?.uri) {
+        console.log('선택된 이미지 URI:', asset.uri);
+        setImage(asset.uri);
+      } else {
+        console.warn('이미지 자산을 찾을 수 없습니다.');
+      }
+    });
   };
 
   const handlePostRecogPassport = useCallback(async () => {
@@ -104,24 +114,26 @@ export const SignupPassport = memo(function ({ route }: Params) {
         type: 'image/jpeg',
       });
       setIsLoading(true);
-      const response = await apiPostRecogPassport({formData});
+      const response = await apiPostRecogPassport({ formData });
 
       console.log('response : ', response);
-      if(!response.ocr_fullName && !response.ocr_birthDate && !response.ocr_issueDate && !response.ocr_expireDate) {
-        Toast.show('Please select a passport image', Toast.SHORT)
+      if (!response.ocr_fullName && !response.ocr_birthDate && !response.ocr_issueDate && !response.ocr_expireDate) {
+        Toast.show('Please select a passport image', Toast.SHORT);
       } else {
         setPassportData(response);
       }
       setIsLoading(false);
-    }
-    else{
-      Toast.show('Please select a passport image', Toast.SHORT)
+    } else {
+      Toast.show('Please select a passport image', Toast.SHORT);
     }
   }, [image]);
 
-  const handlePassportDataChange = useCallback((key: string, value: string) => {
-    setPassportData({ ...passportData, [key]: value });
-  }, [passportData]);
+  const handlePassportDataChange = useCallback(
+    (key: string, value: string) => {
+      setPassportData({ ...passportData, [key]: value });
+    },
+    [passportData],
+  );
 
   useEffect(() => {
     handlePostRecogPassport();
@@ -189,65 +201,67 @@ export const SignupPassport = memo(function ({ route }: Params) {
               )}
               {passportData.ocr_fullName ? (
                 <View>
-                <Text style={[font.BODY2_B, style.guideContentTitleText]}>인식된 여권의 정보를 확인해주세요</Text>
-                <View style={style.inputContainer}>
-                  <Text style={[font.BODY2_B, style.passportDataText]}>이름:</Text>
-                  <TextInput
-                    style={style.input}
-                    value={passportData?.ocr_fullName}
-                    onChangeText={(value) => handlePassportDataChange('ocr_fullName', value)}
-                  />
+                  <Text style={[font.BODY2_B, style.guideContentTitleText]}>인식된 여권의 정보를 확인해주세요</Text>
+                  <View style={style.inputContainer}>
+                    <Text style={[font.BODY2_B, style.passportDataText]}>이름:</Text>
+                    <TextInput
+                      style={style.input}
+                      value={passportData?.ocr_fullName}
+                      onChangeText={(value) => handlePassportDataChange('ocr_fullName', value)}
+                    />
+                  </View>
+                  <View style={style.inputContainer}>
+                    <Text style={[font.BODY2_B, style.passportDataText]}>성별:</Text>
+                    <TextInput
+                      style={style.input}
+                      value={passportData?.ocr_gender}
+                      onChangeText={(value) => handlePassportDataChange('ocr_gender', value)}
+                    />
+                  </View>
+                  <View style={style.inputContainer}>
+                    <Text style={[font.BODY2_B, style.passportDataText]}>생년월일:</Text>
+                    <TextInput
+                      style={style.input}
+                      value={passportData?.ocr_birthDate}
+                      onChangeText={(value) => handlePassportDataChange('ocr_birthDate', value)}
+                    />
+                  </View>
+                  <View style={style.inputContainer}>
+                    <Text style={[font.BODY2_B, style.passportDataText]}>발급일:</Text>
+                    <TextInput
+                      style={style.input}
+                      value={passportData?.ocr_issueDate}
+                      onChangeText={(value) => handlePassportDataChange('ocr_issueDate', value)}
+                    />
+                  </View>
+                  <View style={style.inputContainer}>
+                    <Text style={[font.BODY2_B, style.passportDataText]}>만료일:</Text>
+                    <TextInput
+                      style={style.input}
+                      value={passportData?.ocr_expireDate}
+                      onChangeText={(value) => handlePassportDataChange('ocr_expireDate', value)}
+                    />
+                  </View>
+                  <View style={style.inputContainer}>
+                    <Text style={[font.BODY2_B, style.passportDataText]}>국적:</Text>
+                    <TextInput
+                      style={style.input}
+                      value={passportData?.ocr_nationality}
+                      onChangeText={(value) => handlePassportDataChange('ocr_nationality', value)}
+                    />
+                  </View>
+                  <View style={style.inputContainer}>
+                    <Text style={[font.BODY2_B, style.passportDataText]}>여권번호:</Text>
+                    <TextInput
+                      style={style.input}
+                      value={passportData?.ocr_number}
+                      onChangeText={(value) => handlePassportDataChange('ocr_number', value)}
+                    />
+                  </View>
                 </View>
-                <View style={style.inputContainer}>
-                  <Text style={[font.BODY2_B, style.passportDataText]}>성별:</Text>
-                  <TextInput
-                    style={style.input}
-                    value={passportData?.ocr_gender}
-                    onChangeText={(value) => handlePassportDataChange('ocr_gender', value)}
-                  />
-                </View>
-                <View style={style.inputContainer}>
-                  <Text style={[font.BODY2_B, style.passportDataText]}>생년월일:</Text>
-                  <TextInput
-                    style={style.input}
-                    value={passportData?.ocr_birthDate}
-                    onChangeText={(value) => handlePassportDataChange('ocr_birthDate', value)}
-                  />
-                </View>
-                <View style={style.inputContainer}>
-                  <Text style={[font.BODY2_B, style.passportDataText]}>발급일:</Text>
-                  <TextInput
-                    style={style.input}
-                    value={passportData?.ocr_issueDate}
-                    onChangeText={(value) => handlePassportDataChange('ocr_issueDate', value)}
-                  />
-                </View>
-                <View style={style.inputContainer}>
-                  <Text style={[font.BODY2_B, style.passportDataText]}>만료일:</Text>
-                  <TextInput
-                    style={style.input}
-                    value={passportData?.ocr_expireDate}
-                    onChangeText={(value) => handlePassportDataChange('ocr_expireDate', value)}
-                  />
-                </View>
-                <View style={style.inputContainer}>
-                  <Text style={[font.BODY2_B, style.passportDataText]}>국적:</Text>
-                  <TextInput
-                    style={style.input}
-                    value={passportData?.ocr_nationality}
-                    onChangeText={(value) => handlePassportDataChange('ocr_nationality', value)}
-                  />
-                </View>
-                <View style={style.inputContainer}>
-                  <Text style={[font.BODY2_B, style.passportDataText]}>여권번호:</Text>
-                  <TextInput
-                    style={style.input}
-                    value={passportData?.ocr_number}
-                    onChangeText={(value) => handlePassportDataChange('ocr_number', value)}
-                  />
-                </View>
-              </View>
-              ) : (<></>)}
+              ) : (
+                <></>
+              )}
             </View>
           </View>
           <View style={style.nextButtonWrap}>
@@ -263,7 +277,7 @@ export const SignupPassport = memo(function ({ route }: Params) {
             </Button>
           </View>
           <View style={style.passportCameraButtonWrap}>
-            <Button style={[style.passportCameraButton, { backgroundColor: COLOR.PRI_1_400 }]} onPress={openGallery} >
+            <Button style={[style.passportCameraButton, { backgroundColor: COLOR.PRI_1_400 }]} onPress={openGallery}>
               <Text style={[font.BODY3_SB, { color: COLOR.WHITE }]}>Select from Gallery</Text>
             </Button>
           </View>
