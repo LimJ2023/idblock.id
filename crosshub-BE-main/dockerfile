@@ -1,0 +1,34 @@
+# ---------- 1) 빌더 단계 ----------
+FROM node:20-alpine AS builder
+WORKDIR /app
+
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+# 종속성 캐시 최적화
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
+
+# 소스 복사 후 빌드
+COPY . .
+RUN pnpm run build
+RUN pnpm prune --prod && pnpm store prune && rm -rf /root/.cache
+# ---------- 2) 프로덕션 단계 ----------
+FROM node:20-alpine
+WORKDIR /app
+
+ENV NODE_ENV=production \
+    TZ=Asia/Seoul
+
+# 빌드 산출물 + prod 의존성만 복사
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/admin-fe ./admin-fe
+COPY --from=builder /app/manager-fe ./manager-fe
+COPY --from=builder /app/views ./views
+COPY package*.json ./
+
+# 애플리케이션 포트
+EXPOSE 8080
+
+# 실행 명령
+CMD ["node", "dist/main.js"]

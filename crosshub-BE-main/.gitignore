@@ -60,4 +60,3 @@ secret/
 
 crosshub_idblock_gcp_key.json
 .dockerignore
-dockerfile
