@@ -7,9 +7,3 @@ services:
         - name=crosshub/idblock-public:2.8
     image: crosshub/idblock-public:2.8
     ports: ['8080:8080']
-    volumes:
-      - ./crosshub_idblock_gcp_key.json:/var/secrets/gcp/key.json:ro
-    env_file:
-      - .env
-    environment:
-      - GOOGLE_APPLICATION_CREDENTIALS=/var/secrets/gcp/key.json
