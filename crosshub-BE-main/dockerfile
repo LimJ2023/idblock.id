@@ -25,7 +25,7 @@ COPY --from=builder /app/views ./views
 COPY package*.json ./
 
 # 애플리케이션 포트
-EXPOSE 8080
+EXPOSE 8989
 
 # 실행 명령
 CMD ["node", "dist/main.js"]
