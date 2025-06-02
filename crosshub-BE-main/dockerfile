@@ -16,9 +16,6 @@ RUN pnpm prune --prod && pnpm store prune && rm -rf /root/.cache
 FROM node:20-alpine
 WORKDIR /app
 
-ENV NODE_ENV=production \
-    TZ=Asia/Seoul
-
 # 빌드 산출물 + prod 의존성만 복사
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
