@@ -72,11 +72,7 @@ import { ApiKeyGuard } from './api/api-key.guard';
     GcsModule,
     FirebaseModule,
     EmailModule,
-    ConditionalModule.registerWhen(
-      AuthModule,
-      (env: NodeJS.ProcessEnv) =>
-        (env as unknown as TEnv).API_SCOPE === 'PUBLIC',
-    ),
+    AuthModule,
     ConditionalModule.registerWhen(
       AdminAuthModule,
       (env: NodeJS.ProcessEnv) =>

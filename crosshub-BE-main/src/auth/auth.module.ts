@@ -12,5 +12,6 @@ import { NotificationModule } from 'src/notification/notification.module';
   imports: [DatabaseModule, EmailModule, S3Module, ThirdwebModule, NotificationModule],
   controllers: [AuthController],
   providers: [AuthService],
+  exports: [AuthService],
 })
 export class AuthModule {}
