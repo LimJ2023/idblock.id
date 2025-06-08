@@ -20,6 +20,7 @@ import { font } from '~/style';
 import Util from '~/utils/common';
 
 import style from './style';
+import { getNextScreenInFlow, RESET_PASSWORD_FLOW } from '~/utils/screenFlow';
 
 export const ResetFormPassword = memo(function ({ route }: Params) {
   const { uuid, mail, code } = route.params;
@@ -106,13 +107,19 @@ export const ResetFormPassword = memo(function ({ route }: Params) {
     });
 
     if (isSuccess) {
-      navigation.push(MENU.STACK.SCREEN.RESET_FORM_RESULT, {
-        uuid,
-        mail,
-        code,
-        pw,
-        pw2,
-      });
+      const nextScreen = getNextScreenInFlow(RESET_PASSWORD_FLOW, MENU.STACK.SCREEN.RESET_FORM_PASSWORD);
+      
+      if (nextScreen) {
+        navigation.push(nextScreen, {
+          uuid,
+          mail,
+          code,
+          pw,
+          pw2,
+        });
+      } else {
+        console.warn('No next screen found in reset password flow');
+      }
     }
   }, []);
 

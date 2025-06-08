@@ -22,6 +22,7 @@ import { COLOR } from '~/utils/guide';
 import { font } from '~/style';
 
 import style from './style';
+import { getNextScreenInFlow, RESET_PASSWORD_FLOW } from '~/utils/screenFlow';
 
 export const ResetFormCode = memo(function ({ route }: Params) {
   const { uuid, mail } = route.params;
@@ -89,11 +90,17 @@ export const ResetFormCode = memo(function ({ route }: Params) {
       return;
     }
 
-    navigation.push(MENU.STACK.SCREEN.RESET_FORM_PASSWORD, {
-      uuid,
-      mail,
-      code: codeRef.current,
-    });
+    const nextScreen = getNextScreenInFlow(RESET_PASSWORD_FLOW, MENU.STACK.SCREEN.RESET_FORM_CODE);
+    
+    if (nextScreen) {
+      navigation.push(nextScreen, {
+        uuid,
+        mail,
+        code: codeRef.current,
+      });
+    } else {
+      console.warn('No next screen found in reset password flow');
+    }
   }, []);
 
   const isVisibleNextButton = code.length === 6;

@@ -26,13 +26,16 @@ export class ManagerAuthController {
       body.data,
     );
     await this.authService.createSession(userId, refreshToken);
+    
+    const cookieDomain = this.envService.get('COOKIE_DOMAIN');
+    const domain = req.hostname === 'localhost' || !cookieDomain || cookieDomain.trim() === '' 
+      ? undefined 
+      : cookieDomain;
+    
     res.cookie('access_token', accessToken, {
       httpOnly: true,
       sameSite: 'none',
-      domain:
-        req.hostname === 'localhost' ?
-          undefined
-        : this.envService.get('COOKIE_DOMAIN'),
+      domain,
       secure: true,
       expires: addHours(new Date(), 1),
       path: '/',
@@ -40,10 +43,7 @@ export class ManagerAuthController {
     res.cookie('refresh_token', refreshToken, {
       httpOnly: true,
       sameSite: 'none',
-      domain:
-        req.hostname === 'localhost' ?
-          undefined
-        : this.envService.get('COOKIE_DOMAIN'),
+      domain,
       secure: true,
       expires: addDays(new Date(), 1),
       path: '/',
@@ -58,23 +58,23 @@ export class ManagerAuthController {
     @CurrentUser() userId: string,
   ) {
     await this.authService.deleteSession(userId);
+    
+    const cookieDomain = this.envService.get('COOKIE_DOMAIN');
+    const domain = req.hostname === 'localhost' || !cookieDomain || cookieDomain.trim() === '' 
+      ? undefined 
+      : cookieDomain;
+    
     res.clearCookie('access_token', {
       httpOnly: true,
       sameSite: 'none',
-      domain:
-        req.hostname === 'localhost' ?
-          undefined
-        : this.envService.get('COOKIE_DOMAIN'),
+      domain,
       secure: true,
       path: '/',
     });
     res.clearCookie('refresh_token', {
       httpOnly: true,
       sameSite: 'none',
-      domain:
-        req.hostname === 'localhost' ?
-          undefined
-        : this.envService.get('COOKIE_DOMAIN'),
+      domain,
       secure: true,
       path: '/',
     });

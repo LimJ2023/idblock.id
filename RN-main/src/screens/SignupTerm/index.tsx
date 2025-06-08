@@ -21,6 +21,7 @@ import { COLOR } from '~/utils/guide';
 import { font } from '~/style';
 
 import style from './style';
+import { getNextScreenInFlow, SIGNUP_FLOW } from '~/utils/screenFlow';
 
 export const SignupTerm = memo(function ({ route }: Params) {
   const { uuid, mail } = route.params;
@@ -62,11 +63,17 @@ export const SignupTerm = memo(function ({ route }: Params) {
   }, []);
 
   const handleNext = useCallback(() => {
-    navigation.push(MENU.STACK.SCREEN.SIGNUP_FORM, {
-      uuid,
-      mail,
-    });
-  }, []);
+    const nextScreen = getNextScreenInFlow(SIGNUP_FLOW, MENU.STACK.SCREEN.SIGNUP_TERM);
+    
+    if (nextScreen) {
+      navigation.push(nextScreen, {
+        uuid,
+        mail,
+      });
+    } else {
+      console.warn('No next screen found in signup flow');
+    }
+  }, [uuid, mail]);
 
   const MemoAllCheckLeftChild = useMemo(() => {
     if (isAllChecked) {

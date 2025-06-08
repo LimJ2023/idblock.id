@@ -24,6 +24,7 @@ import { launchImageLibrary, Asset, ImageLibraryOptions } from 'react-native-ima
 
 import style from './style';
 import { useApiPostRecogPassport } from '~/hooks/api.post.recog.passport';
+import { getNextScreenInFlow, SIGNUP_FLOW } from '~/utils/screenFlow';
 
 export const SignupPassport = memo(function ({ route }: Params) {
   const { uuid, mail, pw, name, country, honorary, birth, passport } = route.params;
@@ -65,18 +66,26 @@ export const SignupPassport = memo(function ({ route }: Params) {
   }, []);
 
   const handleNext = useCallback(() => {
-    navigation.push(MENU.STACK.SCREEN.SIGNUP_FACE, {
-      uuid,
-      mail,
-      pw,
-      name,
-      country,
-      honorary,
-      birth,
-      passport,
-      passportImage: imageRef.current,
-    });
-  }, []);
+    // 동적으로 다음 화면 결정
+    const nextScreen = getNextScreenInFlow(SIGNUP_FLOW, MENU.STACK.SCREEN.SIGNUP_PASSPORT);
+    
+    if (nextScreen) {
+      navigation.push(nextScreen, {
+        uuid,
+        mail,
+        pw,
+        name,
+        country,
+        honorary,
+        birth,
+        passport,
+        passportImage: imageRef.current,
+      });
+    } else {
+      // 플로우 마지막이면 메인 화면이나 결과 화면으로
+      console.warn('No next screen found in signup flow');
+    }
+  }, [uuid, mail, pw, name, country, honorary, birth, passport]);
 
   const openGallery = () => {
     const options: ImageLibraryOptions = {

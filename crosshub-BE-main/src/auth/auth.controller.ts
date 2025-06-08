@@ -89,11 +89,17 @@ export class AuthController {
       body.data,
     );
     await this.authService.createSession(userId, refreshToken);
+    
+    const cookieDomain = this.envService.get('COOKIE_DOMAIN');
+    const domain = req.hostname === 'localhost' || !cookieDomain || cookieDomain.trim() === '' 
+      ? undefined 
+      : cookieDomain;
+    
     res.cookie('access_token', accessToken, {
       httpOnly: true,
       expires: addDays(new Date(), 1),
       sameSite: req.hostname === 'localhost' ? 'lax' : 'none',
-      domain: req.hostname === 'localhost' ? undefined : this.envService.get('COOKIE_DOMAIN'),
+      domain,
       secure: req.hostname !== 'localhost',
       path: '/',
     });
@@ -102,10 +108,7 @@ export class AuthController {
       httpOnly: true,
       expires: addYears(new Date(), 1),
       sameSite: 'none',
-      domain:
-        req.hostname === 'localhost' ?
-          undefined
-        : this.envService.get('COOKIE_DOMAIN'),
+      domain,
       secure: true,
       path: '/',
     });
@@ -121,23 +124,23 @@ export class AuthController {
     @CurrentUser() userId: string,
   ) {
     await this.authService.deleteSession(userId);
+    
+    const cookieDomain = this.envService.get('COOKIE_DOMAIN');
+    const domain = req.hostname === 'localhost' || !cookieDomain || cookieDomain.trim() === '' 
+      ? undefined 
+      : cookieDomain;
+    
     res.clearCookie('access_token', {
       httpOnly: true,
       sameSite: 'none',
-      domain:
-        req.hostname === 'localhost' ?
-          undefined
-        : this.envService.get('COOKIE_DOMAIN'),
+      domain,
       secure: true,
       path: '/',
     });
     res.clearCookie('refresh_token', {
       httpOnly: true,
       sameSite: 'none',
-      domain:
-        req.hostname === 'localhost' ?
-          undefined
-        : this.envService.get('COOKIE_DOMAIN'),
+      domain,
       secure: true,
       path: '/',
     });
@@ -392,11 +395,17 @@ export class AuthController {
     } = await this.authService.refeshAccessToken(refreshToken);
 
     // await this.authService.createSession(userId, newRefreshToken);
+    
+    const cookieDomain = this.envService.get('COOKIE_DOMAIN');
+    const domain = req.hostname === 'localhost' || !cookieDomain || cookieDomain.trim() === '' 
+      ? undefined 
+      : cookieDomain;
+    
     res.cookie('access_token', accessToken, {
       httpOnly: true,
       expires: addDays(new Date(), 1),
       sameSite: req.hostname === 'localhost' ? 'lax' : 'none',
-      domain: req.hostname === 'localhost' ? undefined : this.envService.get('COOKIE_DOMAIN'),
+      domain,
       secure: req.hostname !== 'localhost',
       path: '/',
     });

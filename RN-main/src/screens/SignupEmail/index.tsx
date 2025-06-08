@@ -24,6 +24,7 @@ import Util from '~/utils/common';
 
 import style from './style';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { getNextScreenInFlow, SIGNUP_FLOW } from '~/utils/screenFlow';
 
 export const SignupEmail = memo(function () {
   const navigation = useNavigation<StackNavigationProp<any>>();
@@ -131,10 +132,16 @@ export const SignupEmail = memo(function () {
         setIsVisibleLoading(false);
         setAlertMessage('');
 
-        navigation.push(MENU.STACK.SCREEN.SIGNUP_TERM, {
-          uuid: uuidRef.current,
-          mail: mailRef.current,
-        });
+        const nextScreen = getNextScreenInFlow(SIGNUP_FLOW, MENU.STACK.SCREEN.SIGNUP_EMAIL);
+        
+        if (nextScreen) {
+          navigation.push(nextScreen, {
+            uuid: uuidRef.current,
+            mail: mailRef.current,
+          });
+        } else {
+          console.warn('No next screen found in signup flow');
+        }
       }
     } catch (error) {
       console.log(error);

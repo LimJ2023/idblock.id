@@ -29,6 +29,7 @@ import { font } from '~/style';
 import Util from '~/utils/common';
 
 import style from './style';
+import { getNextScreenInFlow, SIGNUP_FLOW } from '~/utils/screenFlow';
 
 export const SignupFace = memo(function ({ route }: Params) {
   const { uuid, mail, pw, name, country, honorary, birth, passport, passportImage } = route.params;
@@ -240,8 +241,18 @@ export const SignupFace = memo(function ({ route }: Params) {
 
         console.log('최종 isSuccessSignup:', isSuccessSignup);
         if (isSuccessSignup) {
-          console.log('결과 화면으로 이동:', MENU.STACK.SCREEN.SIGNUP_RESULT);
-          navigation.push(MENU.STACK.SCREEN.SIGNUP_RESULT);
+          const nextScreen = getNextScreenInFlow(SIGNUP_FLOW, MENU.STACK.SCREEN.SIGNUP_FACE);
+          
+          if (nextScreen) {
+            console.log('결과 화면으로 이동:', nextScreen);
+            navigation.push(nextScreen);
+          } else {
+            console.log('플로우 마지막 - 메인으로 이동');
+            navigation.reset({
+              index: 0,
+              routes: [{ name: MENU.STACK.SCREEN.MAIN }],
+            });
+          }
         } else {
           console.log('회원가입/정보수정 실패');
           Toast.show('Registration failed. Please try again.', Toast.SHORT);

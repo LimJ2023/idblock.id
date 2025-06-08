@@ -29,6 +29,7 @@ import { font } from '~/style';
 import Util from '~/utils/common';
 
 import style from './style';
+import { getNextScreenInFlow, SIGNUP_FLOW } from '~/utils/screenFlow';
 
 export const SignupForm = memo(function ({ route }: Params) {
   const { uuid, mail } = route.params;
@@ -387,16 +388,22 @@ export const SignupForm = memo(function ({ route }: Params) {
       return;
     }
 
-    navigation.push(MENU.STACK.SCREEN.SIGNUP_PASSPORT, {
-      uuid,
-      mail,
-      pw: pwRef.current,
-      name: nameRef.current,
-      country: countryListRef.current[countryIndexRef.current].code,
-      honorary: cityListRef.current?.[cityIndexRef.current]?.id || undefined,
-      birth: birthRef.current,
-      passport: passportRef.current,
-    });
+    const nextScreen = getNextScreenInFlow(SIGNUP_FLOW, MENU.STACK.SCREEN.SIGNUP_FORM);
+    
+    if (nextScreen) {
+      navigation.push(nextScreen, {
+        uuid,
+        mail,
+        pw: pwRef.current,
+        name: nameRef.current,
+        country: countryListRef.current[countryIndexRef.current].code,
+        honorary: cityListRef.current?.[cityIndexRef.current]?.id || undefined,
+        birth: birthRef.current,
+        passport: passportRef.current,
+      });
+    } else {
+      console.warn('No next screen found in signup flow');
+    }
   }, []);
 
   useEffect(() => {

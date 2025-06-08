@@ -21,6 +21,7 @@ import { font } from '~/style';
 import Util from '~/utils/common';
 
 import style from './style';
+import { getNextScreenInFlow, RESET_PASSWORD_FLOW } from '~/utils/screenFlow';
 
 export const ResetFormEmail = memo(function () {
   const navigation = useNavigation<StackNavigationProp<any>>();
@@ -55,10 +56,16 @@ export const ResetFormEmail = memo(function () {
     });
 
     if (response.uuid) {
-      navigation.push(MENU.STACK.SCREEN.RESET_FORM_CODE, {
-        uuid: response.uuid,
-        mail: mailRef.current,
-      });
+      const nextScreen = getNextScreenInFlow(RESET_PASSWORD_FLOW, MENU.STACK.SCREEN.RESET_FORM_EMAIL);
+      
+      if (nextScreen) {
+        navigation.push(nextScreen, {
+          uuid: response.uuid,
+          mail: mailRef.current,
+        });
+      } else {
+        console.warn('No next screen found in reset password flow');
+      }
     } else {
       setMailMessage({
         text: 'The email address does not exist',
