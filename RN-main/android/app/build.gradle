@@ -89,6 +89,11 @@ android {
         pickFirst 'lib/armeabi-v7a/libc++_shared.so'
     }
 
+    dexOptions {
+        javaMaxHeapSize "4g"
+        maxProcessCount 8
+    }
+
     defaultConfig {
         applicationId "com.crosshub.idblock"
         minSdkVersion rootProject.ext.minSdkVersion
