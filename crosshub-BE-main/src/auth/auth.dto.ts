@@ -88,7 +88,10 @@ export class Step1VerificationDto extends TypeschemaDto(VStep1Veification) {
   })
   passportNumber: string;
 }
-
+const VSignupSimpleDto = v.object({
+  email: VEmail,
+  password: VPassword
+})
 const VSignUpDto = v.pipe(
   v.object({
     uuid: v.pipe(v.string(), v.uuid()),
@@ -112,7 +115,22 @@ const VSignUpDto = v.pipe(
     ['passwordCheck'],
   ),
 );
-
+export class SignupSimpleDto extends TypeschemaDto(VSignupSimpleDto) {
+  @ApiProperty({
+    title: '이메일',
+    description: '이메일',
+    example: 'heuristic2022@gmail.com',
+    required: true,
+  })
+  email: string;
+  @ApiProperty({
+    title: '비밀번호',
+    description: '비밀번호',
+    example: '12345678',
+    required: true
+  })
+  password: string;
+}
 export class SignUpDto extends TypeschemaDto(VSignUpDto) {
   @ApiProperty({
     title: 'UUID',

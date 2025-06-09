@@ -27,6 +27,7 @@ import {
   UpdateInfoDto,
   DeleteEmailVerificationDto,
   DeleteUserDto,
+  SignupSimpleDto,
 } from './auth.dto';
 import { Request, Response } from 'express';
 import * as v from 'valibot';
@@ -204,6 +205,17 @@ export class AuthController {
   }
 
   @Public()
+  @Post('sign-up/simple')
+  @ApiOperation({ summary: '이메일로 가입'})
+  @ApiBadRequestResponse({
+    example: {
+      message: ERROR_CODE.ALREADY_USED_EMAIL,
+    }
+  })
+  async signupSimple(@Body() body: SignupSimpleDto) {
+    return this.authService.signupSimple(body.data);
+  }
+  @Public()
   @Post('sign-up')
   @ApiOperation({ summary: '회원가입' })
   @ApiBadRequestResponse({
@@ -212,10 +224,10 @@ export class AuthController {
     },
   })
   async signup(@Body() body: SignUpDto) {
-    await this.authService.emailVerificationCheck(
-      body.data.uuid,
-      body.data.email,
-    );
+    // await this.authService.emailVerificationCheck(
+    //   body.data.uuid,
+    //   body.data.email,
+    // );
 
     const created = await this.authService.createUser(
       v.parse(insertUserSchema, body.data, {}),

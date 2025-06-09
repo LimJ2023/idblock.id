@@ -20,12 +20,12 @@ export const User = pgTable(
     id: bigserial({ mode: 'bigint' }).primaryKey().notNull(),
     email: text().notNull(),
     password: text().notNull(),
-    name: text().notNull(),
-    countryCode: text('country_code').notNull(),
-    birthday: date().notNull(),
-    passportNumber: text('passport_number').notNull(),
+    name: text().notNull().default('guest'),
+    countryCode: text('country_code').notNull().default('TEMP_COUNTRY'),
+    birthday: date(),
+    passportNumber: text('passport_number').notNull().default('TEMP_PASSPORT_NUMBER'),
     approvalId: bigint('approval_id', { mode: 'bigint' }),
-    cityId: text('city_id').notNull(),
+    cityId: text('city_id').notNull().default('TEMP_CITY_ID'),
   },
   (table) => {
     return {

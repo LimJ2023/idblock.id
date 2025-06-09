@@ -63,7 +63,26 @@ export class AuthService {
       date.getDate() === day
     );
   }
+  async signupSimple(data: { email: string, password: string}) {
+    const isAlreadyUserEmail = await this.checkIsUser(data.email);
 
+    if (isAlreadyUserEmail) {
+      throw new BadRequestException(ERROR_CODE.ALREADY_USED_EMAIL);
+    }
+    return await this.db.insert(User).values({
+      email: data.email,
+      password: await this.hashPassword(data.password),
+      name: 'guest',
+      countryCode: 'TEMP_COUNTRY',
+      birthday: null,
+      passportNumber: 'TEMP_PASSPORT_NUMBER',
+      approvalId: null,
+      cityId: 'TEMP_CITY_ID',
+    }).returning({
+      id: User.id,
+      email: User.email,
+    })
+  }
   async signupVerifyStep1(data: { birthday: string; passportNumber: string }) {
     const isValidBirthday = this.validateBirthday(data.birthday);
     if (!isValidBirthday) {
@@ -196,11 +215,11 @@ export class AuthService {
   }
 
   async createUser(data: typeof User.$inferInsert) {
-    const isAlreadyUsedPassport = await this.db.query.User.findFirst({
-      where: (table, { eq }) => eq(table.passportNumber, data.passportNumber),
+    const isAlreadyUsedEmail = await this.db.query.User.findFirst({
+      where: (table, { eq }) => eq(table.email, data.email),
     });
-    if (isAlreadyUsedPassport) {
-      throw new BadRequestException(ERROR_CODE.ALREADY_USED_PASSPORT_NUMBER);
+    if (isAlreadyUsedEmail) {
+      throw new BadRequestException(ERROR_CODE.ALREADY_USED_EMAIL);
     }
     return this.db
       .insert(User)
