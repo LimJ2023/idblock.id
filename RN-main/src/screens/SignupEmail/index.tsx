@@ -16,7 +16,7 @@ import { useAppRootAction } from '~/zustands/app';
 
 import { useApiPostMailConfirm } from '~/hooks/api.post.mail.confirm';
 import { useApiPostMailVerify } from '~/hooks/api.post.mail.verify';
-
+import { useApiPostAuthSignup } from '~/hooks/api.post.auth.signup';
 import { MENU, MODAL_ANIMATION_TIMING } from '~/utils/constant';
 import { COLOR } from '~/utils/guide';
 import { font } from '~/style';
@@ -35,14 +35,17 @@ export const SignupEmail = memo(function () {
   const [isVerified, setIsVerified] = useState<boolean>(false);
   const [mail, setMail] = useState<string>('');
   const [code, setCode] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [passwordMessage, setPasswordMessage] = useState<InputMessage>();
   const [codeMessage, setCodeMessage] = useState<InputMessage>();
-
+  const [passwordConfirm, setPasswordConfirm] = useState<string>('');
+  const [passwordConfirmMessage, setPasswordConfirmMessage] = useState<InputMessage>();
   const { bottom } = useSafeAreaInsets();
   const { setIsVisibleLoading } = useAppRootAction();
 
   const { apiPostMailConfirm } = useApiPostMailConfirm();
   const { apiPostMailVerify } = useApiPostMailVerify();
-
+  const { apiPostAuthSignupSimple} = useApiPostAuthSignup();
   const mailRef = useRef<string>();
 
   if (mailRef.current !== mail) {
@@ -117,6 +120,35 @@ export const SignupEmail = memo(function () {
       setIsVisibleLoading(false);
     }
   }, []);
+  const handlePassword = useCallback((text: string) => {
+    setPasswordMessage(undefined);
+
+    const value = text.trim();
+
+    if (value.length < 8) {
+      setPasswordMessage({
+        text: message.PASSWORD_MESSAGE,
+        color: COLOR.ERROR,
+      });
+    } else {
+      setPasswordMessage(undefined);
+    }
+    setPassword(value);
+  }, []);
+  const handlePasswordConfirm = useCallback((text: string) => {
+    setPasswordConfirmMessage(undefined);
+    const value = text.trim();
+
+    if (value !== password) {
+      setPasswordConfirmMessage({
+        text: message.PASSWORD_CONFIRM_MESSAGE,
+        color: COLOR.ERROR,
+      });
+    } else {
+      setPasswordConfirmMessage(undefined);
+    }
+    setPasswordConfirm(value);
+  }, [password])
 
   const handleNext = useCallback(async () => {
     try {
@@ -128,7 +160,7 @@ export const SignupEmail = memo(function () {
         uuid: uuidRef.current,
       });
 
-      if (isConfirm) {
+      if (isConfirm && password === passwordConfirm) {
         setIsVisibleLoading(false);
         setAlertMessage('');
 
@@ -154,6 +186,23 @@ export const SignupEmail = memo(function () {
       setIsVisibleLoading(false);
     }
   }, []);
+
+  const handleSignUp = useCallback(async () => {
+    try {
+      setIsVisibleLoading(true);
+
+      const isSignUp = await apiPostAuthSignupSimple( {
+        email: mailRef.current,
+        password: password
+      })
+
+      if (isSignUp) {
+        setIsVisibleLoading(false);
+        setAlertMessage('');
+        
+      }
+    } catch (error) {}
+  })
 
   useEffect(() => {
     return () => {
@@ -190,7 +239,7 @@ export const SignupEmail = memo(function () {
               wrapperStyle={style.inputWrapper}
               onChangeText={handleMail}
             />
-            <Button
+                        <Button
               style={[style.verifyButton, { backgroundColor: isVisibleVerifyButton ? COLOR.PRI_2_500 : COLOR.PRI_2_200 }]}
               disabled={!isVisibleVerifyButton}
               onPress={handleVerify}>
@@ -198,6 +247,25 @@ export const SignupEmail = memo(function () {
                 Send Verification Code
               </Text>
             </Button>
+            <Text style={[font.BODY2_M, style.labelText]}>Enter Password</Text>
+              <Input
+              secureTextEntry={true}
+              value={password}
+              placeholder="Enter Password"
+              wrapperStyle={style.inputWrapper}
+              message={passwordMessage}
+              onChangeText={handlePassword}
+              />
+              <Text style={[font.BODY2_M, style.labelText]}>Password Confirmation</Text>
+              <Input
+                secureTextEntry={true}
+                value={passwordConfirm}
+                placeholder='Confirm Password'
+                wrapperStyle={style.inputWrapper}
+                message={passwordConfirmMessage}
+                onChangeText={handlePasswordConfirm}
+              />
+
             <Text style={[font.BODY2_M, style.labelText]}>Enter Verification Code</Text>
             <Input
               keyboardType="decimal-pad"
@@ -207,14 +275,15 @@ export const SignupEmail = memo(function () {
               message={codeMessage}
               onChangeText={handleCode}
             />
+
           </View>
         </View>
         <View style={style.nextButtonWrap}>
           <Button
             style={[style.nextButton, { backgroundColor: isVisibleNextButton ? COLOR.PRI_1_500 : COLOR.DISABLED }]}
             disabled={!isVisibleNextButton}
-            onPress={handleNext}>
-            <Text style={[font.BODY3_SB, { color: isVisibleNextButton ? COLOR.WHITE : COLOR.PRI_3_600 }]}>Verification Confirmation</Text>
+            onPress={handleSignUp}>
+            <Text style={[font.BODY3_SB, { color: isVisibleNextButton ? COLOR.WHITE : COLOR.PRI_3_600 }]}>Sign Up</Text>
           </Button>
         </View>
       </KeyboardAwareScrollView>
@@ -225,4 +294,6 @@ export const SignupEmail = memo(function () {
 const message = {
   SEND_CODE: 'We sent the Verification Code!\nPlease check your email.',
   ALREADY_EXIST: 'This email address is already in use.',
+  PASSWORD_MESSAGE: 'Password must be at least 8 characters long.',
+  PASSWORD_CONFIRM_MESSAGE: 'Passwords do not match.'
 };
