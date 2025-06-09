@@ -43,16 +43,24 @@ export class AuthService {
   ) {}
 
   private validateBirthday(dateString: string) {
-    // Check if the date string matches the format YYYYMMDD
-    if (!/^\d{8}$/.test(dateString)) {
+    let year: number, month: number, day: number;
+
+    // Check if the date string matches the format YYYYMMDD (8 digits)
+    if (/^\d{8}$/.test(dateString)) {
+      [year, month, day] = [
+        dateString.substring(0, 4),
+        dateString.substring(4, 6),
+        dateString.substring(6, 8),
+      ].map(Number);
+    }
+    // Check if the date string matches the format YYYY-MM-DD
+    else if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+      [year, month, day] = dateString.split('-').map(Number);
+    }
+    // Invalid format
+    else {
       return false;
     }
-
-    const [year, month, day] = [
-      dateString.substring(0, 4),
-      dateString.substring(4, 6),
-      dateString.substring(6, 8),
-    ].map(Number);
 
     const date = new Date(year, month - 1, day);
 
@@ -63,13 +71,13 @@ export class AuthService {
       date.getDate() === day
     );
   }
-  async signupSimple(data: { email: string, password: string}) {
+  async signupSimple(data: { email: string, password: string }) {
     const isAlreadyUserEmail = await this.checkIsUser(data.email);
 
     if (isAlreadyUserEmail) {
       throw new BadRequestException(ERROR_CODE.ALREADY_USED_EMAIL);
     }
-    return await this.db.insert(User).values({
+    const [user] = await this.db.insert(User).values({
       email: data.email,
       password: await this.hashPassword(data.password),
       name: 'guest',
@@ -82,8 +90,12 @@ export class AuthService {
       id: User.id,
       email: User.email,
     })
+
+    return user;
   }
   async signupVerifyStep1(data: { birthday: string; passportNumber: string }) {
+
+    console.log('signupVerifyStep1 >>>>>>.', data);
     const isValidBirthday = this.validateBirthday(data.birthday);
     if (!isValidBirthday) {
       throw new BadRequestException(ERROR_CODE.INVALID_DATE_FORMAT);
@@ -91,6 +103,9 @@ export class AuthService {
     const isAlreadyUsedPassport = await this.db.query.User.findFirst({
       where: (table, { eq }) => eq(table.passportNumber, data.passportNumber),
     });
+
+    console.log('isAlreadyUsedPassport >>>>>>.', isAlreadyUsedPassport);
+    
     if (isAlreadyUsedPassport) {
       throw new BadRequestException(ERROR_CODE.ALREADY_USED_PASSPORT_NUMBER);
     }
@@ -259,9 +274,15 @@ export class AuthService {
     }).returning({ id: UserVerificationDocument.id });
   }
 
-  async getProfile(userId: bigint) {
+  async getUserId(email: string) {
     const user = await this.db.query.User.findFirst({
-      where: (table, { eq }) => eq(table.id, userId),
+      where: (table, { eq }) => eq(table.email, email),
+    });
+    return user?.id;
+  }
+  async getProfile(email: string) {
+    const user = await this.db.query.User.findFirst({
+      where: (table, { eq }) => eq(table.email, email),
       with: {
         city: true,
         approval: {
@@ -277,7 +298,7 @@ export class AuthService {
     }
 
     const latestDocument = await this.db.query.UserVerificationDocument.findFirst({
-      where: (table, { eq }) => eq(table.userId, userId),
+      where: (table, { eq }) => eq(table.userId, user.id),
       orderBy: (table, { desc }) => desc(table.id),
     });
 

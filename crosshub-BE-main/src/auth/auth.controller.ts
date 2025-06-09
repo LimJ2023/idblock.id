@@ -92,25 +92,31 @@ export class AuthController {
     await this.authService.createSession(userId, refreshToken);
     
     const cookieDomain = this.envService.get('COOKIE_DOMAIN');
-    const domain = req.hostname === 'localhost' || !cookieDomain || cookieDomain.trim() === '' 
-      ? undefined 
-      : cookieDomain;
+    // 개발 환경 감지: localhost, 127.0.0.1, 10.0.2.2 (안드로이드 에뮬레이터)
+    const isDevelopment = req.hostname === 'localhost' || 
+                         req.hostname === '127.0.0.1' || 
+                         req.hostname === '10.0.2.2' ||
+                         req.hostname === '10.177.197.227' ||
+                         !cookieDomain || 
+                         cookieDomain.trim() === '';
+    
+    const domain = isDevelopment ? undefined : cookieDomain;
     
     res.cookie('access_token', accessToken, {
       httpOnly: true,
       expires: addDays(new Date(), 1),
-      sameSite: req.hostname === 'localhost' ? 'lax' : 'none',
+      sameSite: isDevelopment ? 'lax' : 'none',
       domain,
-      secure: req.hostname !== 'localhost',
+      secure: !isDevelopment,
       path: '/',
     });
 
     res.cookie('refresh_token', refreshToken, {
       httpOnly: true,
       expires: addYears(new Date(), 1),
-      sameSite: 'none',
+      sameSite: isDevelopment ? 'lax' : 'none',
       domain,
-      secure: true,
+      secure: !isDevelopment,
       path: '/',
     });
     return { accessToken, refreshToken };
@@ -127,22 +133,28 @@ export class AuthController {
     await this.authService.deleteSession(userId);
     
     const cookieDomain = this.envService.get('COOKIE_DOMAIN');
-    const domain = req.hostname === 'localhost' || !cookieDomain || cookieDomain.trim() === '' 
-      ? undefined 
-      : cookieDomain;
+    // 개발 환경 감지: localhost, 127.0.0.1, 10.0.2.2 (안드로이드 에뮬레이터)
+    const isDevelopment = req.hostname === 'localhost' || 
+                         req.hostname === '127.0.0.1' || 
+                         req.hostname === '10.0.2.2' ||
+                         req.hostname === '10.177.197.227' ||
+                         !cookieDomain || 
+                         cookieDomain.trim() === '';
+    
+    const domain = isDevelopment ? undefined : cookieDomain;
     
     res.clearCookie('access_token', {
       httpOnly: true,
-      sameSite: 'none',
+      sameSite: isDevelopment ? 'lax' : 'none',
       domain,
-      secure: true,
+      secure: !isDevelopment,
       path: '/',
     });
     res.clearCookie('refresh_token', {
       httpOnly: true,
-      sameSite: 'none',
+      sameSite: isDevelopment ? 'lax' : 'none',
       domain,
-      secure: true,
+      secure: !isDevelopment,
       path: '/',
     });
 
@@ -215,6 +227,7 @@ export class AuthController {
   async signupSimple(@Body() body: SignupSimpleDto) {
     return this.authService.signupSimple(body.data);
   }
+  
   @Public()
   @Post('sign-up')
   @ApiOperation({ summary: '회원가입' })
@@ -229,17 +242,22 @@ export class AuthController {
     //   body.data.email,
     // );
 
-    const created = await this.authService.createUser(
-      v.parse(insertUserSchema, body.data, {}),
-    );
-    if (!created) {
+    // const created = await this.authService.createUser(
+    //   v.parse(insertUserSchema, body.data, {}),
+    // );
+    // if (!created) {
+    //   throw new BadRequestException(ERROR_CODE.ALREADY_USED_EMAIL);
+    // }
+    // const [user] = created;
+
+    const userId = await this.authService.getUserId(body.data.email);
+    if (!userId) {
       throw new BadRequestException(ERROR_CODE.ALREADY_USED_EMAIL);
     }
-    const [user] = created;
 
     // 항상 먼저 UserVerificationDocument 생성
     const [document] = await this.authService.createUserVerificationDocument(
-      user.id, 
+      userId,
       body.data.passportImageKey, 
       body.data.profileImageKey
     );
@@ -254,7 +272,7 @@ export class AuthController {
       await this.authService.autoApproveUser(document.id);
     }
 
-    return user;
+    return userId;
   }
 
   @Public()
@@ -409,16 +427,22 @@ export class AuthController {
     // await this.authService.createSession(userId, newRefreshToken);
     
     const cookieDomain = this.envService.get('COOKIE_DOMAIN');
-    const domain = req.hostname === 'localhost' || !cookieDomain || cookieDomain.trim() === '' 
-      ? undefined 
-      : cookieDomain;
+    // 개발 환경 감지: localhost, 127.0.0.1, 10.0.2.2 (안드로이드 에뮬레이터)
+    const isDevelopment = req.hostname === 'localhost' || 
+                         req.hostname === '127.0.0.1' || 
+                         req.hostname === '10.0.2.2' ||
+                         req.hostname === '10.177.197.227' ||
+                         !cookieDomain || 
+                         cookieDomain.trim() === '';
+    
+    const domain = isDevelopment ? undefined : cookieDomain;
     
     res.cookie('access_token', accessToken, {
       httpOnly: true,
       expires: addDays(new Date(), 1),
-      sameSite: req.hostname === 'localhost' ? 'lax' : 'none',
+      sameSite: isDevelopment ? 'lax' : 'none',
       domain,
-      secure: req.hostname !== 'localhost',
+      secure: !isDevelopment,
       path: '/',
     });
     // res.cookie('refresh_token', newRefreshToken, {
