@@ -27,7 +27,7 @@ import { useApiPostRecogPassport } from '~/hooks/api.post.recog.passport';
 import { getNextScreenInFlow, SIGNUP_FLOW } from '~/utils/screenFlow';
 
 export const SignupPassport = memo(function ({ route }: Params) {
-  const { uuid, mail, pw, name, country, honorary, birth, passport } = route.params;
+  const { uuid, email, pw, name, country, honorary, birth, passport } = route.params;
 
   const navigation = useNavigation<StackNavigationProp<any>>();
   const { apiPostRecogPassport } = useApiPostRecogPassport();
@@ -72,7 +72,7 @@ export const SignupPassport = memo(function ({ route }: Params) {
     if (nextScreen) {
       navigation.push(nextScreen, {
         uuid,
-        mail,
+        email,
         pw,
         name,
         country,
@@ -80,12 +80,20 @@ export const SignupPassport = memo(function ({ route }: Params) {
         birth,
         passport,
         passportImage: imageRef.current,
+        // OCR로 처리된 여권 데이터 전달
+        ocr_fullName: passportData?.ocr_fullName,
+        ocr_gender: passportData?.ocr_gender,
+        ocr_birthDate: passportData?.ocr_birthDate,
+        ocr_nationality: passportData?.ocr_nationality,
+        ocr_number: passportData?.ocr_number,
+        ocr_issueDate: passportData?.ocr_issueDate,
+        ocr_expireDate: passportData?.ocr_expireDate,
       });
     } else {
       // 플로우 마지막이면 메인 화면이나 결과 화면으로
       console.warn('No next screen found in signup flow');
     }
-  }, [uuid, mail, pw, name, country, honorary, birth, passport]);
+  }, [uuid, email, pw, name, country, honorary, birth, passport, passportData]);
 
   const openGallery = () => {
     const options: ImageLibraryOptions = {
@@ -302,7 +310,7 @@ interface Params {
 
 interface NavigationParams {
   uuid: string;
-  mail: string;
+  email: string;
   pw: string;
   name: string;
   birth: string;

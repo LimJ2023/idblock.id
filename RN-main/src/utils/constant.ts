@@ -9,7 +9,7 @@ const DEV_API_OPTIONS = {
   // Android 에뮬레이터용 (호스트 머신 접근)
   EMULATOR: 'http://10.0.2.2:8989/api',
   // 실제 기기용 (Wi-Fi IP 사용)
-  DEVICE: 'http://10.177.199.248:8989/api',
+  DEVICE: 'http://10.177.197.227:8989/api',
   // ADB 포트 포워딩 사용시
   LOCALHOST: 'http://localhost:8989/api',
   
@@ -46,6 +46,7 @@ export const MENU = {
       SIGNUP_PASSPORT: 'SIGNUP_PASSPORT',
       SIGNUP_FACE: 'SIGNUP_FACE',
       SIGNUP_RESULT: 'SIGNUP_RESULT',
+      SIGNUP_SIMPLE_RESULT: 'SIGNUP_SIMPLE_RESULT',
       MAIN: 'MAIN',
       ALARM: 'ALARM',
       ID_CARD_PENDING: 'ID_CARD_PENDING',

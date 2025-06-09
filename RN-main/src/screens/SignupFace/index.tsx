@@ -32,7 +32,7 @@ import style from './style';
 import { getNextScreenInFlow, SIGNUP_FLOW } from '~/utils/screenFlow';
 
 export const SignupFace = memo(function ({ route }: Params) {
-  const { uuid, mail, pw, name, country, honorary, birth, passport, passportImage } = route.params;
+  const { uuid, email, pw, name, country, honorary, birth, passport, passportImage } = route.params;
 
   const navigation = useNavigation<StackNavigationProp<any>>();
 
@@ -188,20 +188,21 @@ export const SignupFace = memo(function ({ route }: Params) {
           } else {
             console.log('신규 회원가입 진행');
             
-            // 재시도 로직 추가
-            let retryCount = 0;
+            // 개선된 재시도 로직
             const maxRetries = 3;
+            let lastError = null;
             
-            while (retryCount < maxRetries && !isSuccessSignup) {
+            for (let retryCount = 0; retryCount < maxRetries; retryCount++) {
               try {
                 if (retryCount > 0) {
                   console.log(`회원가입 재시도 ${retryCount}/${maxRetries}`);
                   await new Promise(resolve => setTimeout(resolve, 2000)); // 2초 대기
                 }
                 
+                console.log(`회원가입 시도 ${retryCount + 1}/${maxRetries}`);
                 isSuccessSignup = await apiPostAuthSignup({
                   uuid,
-                  email: mail,
+                  email: email,
                   password: pw,
                   passwordCheck: pw,
                   name,
@@ -212,19 +213,34 @@ export const SignupFace = memo(function ({ route }: Params) {
                   passportImageKey: passportUploadResult.key,
                   profileImageKey: faceUploadResult.key,
                 });
-                console.log('apiPostAuthSignup 결과:', isSuccessSignup);
+                
+                console.log(`회원가입 시도 ${retryCount + 1} 결과:`, isSuccessSignup);
                 
                 if (isSuccessSignup) {
+                  console.log('회원가입 성공!');
                   break; // 성공하면 루프 종료
+                } else {
+                  console.log(`회원가입 실패 - 시도 ${retryCount + 1}/${maxRetries}`);
+                  if (retryCount === maxRetries - 1) {
+                    // 마지막 시도였다면 Toast 표시
+                    Toast.show('Registration failed after multiple attempts. Please try again.', Toast.SHORT);
+                  }
                 }
               } catch (retryError) {
-                console.log(`회원가입 시도 ${retryCount + 1} 실패:`, retryError);
-                retryCount++;
+                console.log(`회원가입 시도 ${retryCount + 1} 에러:`, retryError);
+                lastError = retryError;
                 
-                if (retryCount >= maxRetries) {
-                  throw retryError; // 최대 재시도 횟수 도달시 에러 throw
+                if (retryCount === maxRetries - 1) {
+                  // 마지막 시도였다면 에러를 throw
+                  throw retryError;
                 }
               }
+            }
+            
+            // 모든 재시도가 끝났는데도 성공하지 못한 경우
+            if (!isSuccessSignup && !lastError) {
+              console.log('모든 재시도 실패 - API는 성공했지만 결과가 false');
+              Toast.show('Registration failed. Please contact support.', Toast.SHORT);
             }
           }
         } catch (error) {
@@ -275,7 +291,7 @@ export const SignupFace = memo(function ({ route }: Params) {
     } finally {
       setIsVisibleLoading(false);
     }
-  }, [uuid, mail, pw, name, birth, country, honorary, passport, passportImage, navigation]);
+  }, [uuid, email, pw, name, birth, country, honorary, passport, passportImage, navigation]);
 
   return (
     <View style={[style.container, { paddingBottom: bottom }]}>
@@ -371,7 +387,7 @@ interface Params {
 
 interface NavigationParams {
   uuid: string;
-  mail: string;
+  email: string;
   pw: string;
   name: string;
   birth: string;

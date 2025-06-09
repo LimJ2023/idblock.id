@@ -47,9 +47,19 @@ export const SignupEmail = memo(function () {
   const { apiPostMailVerify } = useApiPostMailVerify();
   const { apiPostAuthSignupSimple} = useApiPostAuthSignup();
   const mailRef = useRef<string>();
+  const passwordRef = useRef<string>();
+  const passwordConfirmRef = useRef<string>();
 
   if (mailRef.current !== mail) {
     mailRef.current = mail;
+  }
+
+  if (passwordRef.current !== password) {
+    passwordRef.current = password;
+  }
+
+  if (passwordConfirmRef.current !== passwordConfirm) {
+    passwordConfirmRef.current = passwordConfirm;
   }
 
   const codeRef = useRef<string>();
@@ -193,16 +203,29 @@ export const SignupEmail = memo(function () {
 
       const isSignUp = await apiPostAuthSignupSimple( {
         email: mailRef.current,
-        password: password
+        password: passwordRef.current
       })
-
+      console.log('isSignUp : ', isSignUp);
       if (isSignUp) {
-        setIsVisibleLoading(false);
-        setAlertMessage('');
-        
+        const nextScreen = getNextScreenInFlow(SIGNUP_FLOW, MENU.STACK.SCREEN.SIGNUP_EMAIL);
+
+        if (nextScreen) {
+          console.log('email 전송직전 : ', mailRef.current);
+          navigation.push(nextScreen, {
+            uuid: uuidRef.current,
+            email: mailRef.current,
+            pw: passwordRef.current,
+          });
+        } else {
+          console.warn('No next screen found in signup flow');
+        }
       }
-    } catch (error) {}
-  })
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsVisibleLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     return () => {

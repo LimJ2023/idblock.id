@@ -4,7 +4,7 @@ import { Keyboard, Platform, View } from 'react-native';
 
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Route, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import FastImage from 'react-native-fast-image';
 import dayjs from 'dayjs';
@@ -32,7 +32,10 @@ import style from './style';
 import { getNextScreenInFlow, SIGNUP_FLOW } from '~/utils/screenFlow';
 
 export const SignupForm = memo(function ({ route }: Params) {
-  const { uuid, mail } = route.params;
+  const { uuid, email, pw, ocr_fullName, ocr_gender, ocr_birthDate, ocr_nationality, ocr_number, ocr_issueDate, ocr_expireDate, passportImage } = route.params;
+
+  // 디버깅: 전달받은 값들 확인
+  // console.log('SignupForm params:', { email, pw, uuid });
 
   const navigation = useNavigation<StackNavigationProp<any>>();
 
@@ -47,83 +50,12 @@ export const SignupForm = memo(function ({ route }: Params) {
       id: '1838524',
       country: 'South Korea',
       name: 'Busan',
-    },
-    {
-      id: '1835329',
-      country: 'South Korea',
-      name: 'Daegu',
-    },
-    {
-      id: '1843564',
-      country: 'South Korea',
-      name: 'Incheon',
-    },
-    {
-      id: '1841810',
-      country: 'South Korea',
-      name: 'Gwangju',
-    },
-    {
-      id: '1835235',
-      country: 'South Korea',
-      name: 'Daejeon',
-    },
-    {
-      id: '1835235',
-      country: 'South Korea',
-      name: 'Daejeon',
-    },
-    {
-      id: '1841988',
-      country: 'South Korea',
-      name: 'Gyeonggi',
-    },
-    {
-      id: '1844174',
-      country: 'South Korea',
-      name: 'Gangwon',
-    },
-    {
-      id: '1840211',
-      country: 'South Korea',
-      name: 'Chungnam',
-    },
-    {
-      id: '1845033',
-      country: 'South Korea',
-      name: 'Chungbuk',
-    },
-    {
-      id: '1840536',
-      country: 'South Korea',
-      name: 'Jeonnam',
-    },
-    {
-      id: '1842939',
-      country: 'South Korea',
-      name: 'Jeonbuk',
-    },
-    {
-      id: '1832828',
-      country: 'South Korea',
-      name: 'Gyeongnam',
-    },
-    {
-      id: '1841598',
-      country: 'South Korea',
-      name: 'Gyeongbuk',
-    },
-    {
-      id: '1846266',
-      country: 'South Korea',
-      name: 'Jeju City',
-    },
+    }
   ]);
 
   const [isVisibleCountryPicker, setIsVisibleCountryPicker] = useState<boolean>(false);
   const [isVisibleCityPicker, setIsVisibleCityPicker] = useState<boolean>(false);
 
-  const [pw, setPw] = useState<string>('');
   const [pw2, setPw2] = useState<string>('');
   const [name, setName] = useState<string>('');
   const [countryIndex, setCountryIndex] = useState<number>();
@@ -162,6 +94,12 @@ export const SignupForm = memo(function ({ route }: Params) {
 
   if (cityListRef.current !== cityList) {
     cityListRef.current = cityList;
+  }
+
+  const passportImageRef = useRef<string>();
+
+  if (passportImageRef.current !== passportImage) {
+    passportImageRef.current = passportImage;
   }
 
   const pwRef = useRef<string>();
@@ -206,10 +144,7 @@ export const SignupForm = memo(function ({ route }: Params) {
     passportRef.current = passport;
   }
 
-  const handlePw = useCallback((text: string) => {
-    setPwMessage(undefined);
-    setPw(text);
-  }, []);
+ 
 
   const handlePw2 = useCallback((text: string) => {
     setPw2Message(undefined);
@@ -290,6 +225,11 @@ export const SignupForm = memo(function ({ route }: Params) {
     let isValid = true;
 
     if (!accessTokenRef.current) {
+
+      console.log('pwRef.current : ', pwRef.current);
+      console.log('birthRef : ', birthRef.current);
+      console.log('passportNumber : ', passportRef.current);
+
       if (!pwRef.current) {
         isValid = false;
 
@@ -306,23 +246,23 @@ export const SignupForm = memo(function ({ route }: Params) {
         });
       }
 
-      if (!pw2Ref.current) {
-        isValid = false;
+      // if (!pw2Ref.current) {
+      //   isValid = false;
 
-        setPw2Message({
-          text: 'Please enter password again.',
-          color: COLOR.ERROR,
-        });
-      }
+      //   setPw2Message({
+      //     text: 'Please enter password again.',
+      //     color: COLOR.ERROR,
+      //   });
+      // }
 
-      if (pwRef.current && pw2Ref.current && pwRef.current !== pw2Ref.current) {
-        isValid = false;
+      // if (pwRef.current && pw2Ref.current && pwRef.current !== pw2Ref.current) {
+      //   isValid = false;
 
-        setPw2Message({
-          text: 'Password does not match.',
-          color: COLOR.ERROR,
-        });
-      }
+      //   setPw2Message({
+      //     text: 'Password does not match.',
+      //     color: COLOR.ERROR,
+      //   });
+      // }
     }
 
     if (!nameRef.current) {
@@ -352,7 +292,8 @@ export const SignupForm = memo(function ({ route }: Params) {
       });
     }
 
-    if (birthRef.current?.length !== 8) {
+    console.log('birthRef.current : ', birthRef.current);
+    if (birthRef.current?.length < 8) {
       isValid = false;
 
       setBirthMessage({
@@ -361,6 +302,7 @@ export const SignupForm = memo(function ({ route }: Params) {
       });
     }
 
+    console.log('passportRef.current : ', passportRef.current);
     if (!passportRef.current) {
       isValid = false;
 
@@ -374,7 +316,7 @@ export const SignupForm = memo(function ({ route }: Params) {
       birthday: birthRef.current,
       passportNumber: passportRef.current,
     });
-
+    console.log('verifyPassportResult : ', verifyPassportResult);
     if (!verifyPassportResult) {
       isValid = false;
 
@@ -383,6 +325,8 @@ export const SignupForm = memo(function ({ route }: Params) {
         color: COLOR.ERROR,
       });
     }
+
+    console.log('isValid : ', isValid);
 
     if (!isValid) {
       return;
@@ -393,13 +337,14 @@ export const SignupForm = memo(function ({ route }: Params) {
     if (nextScreen) {
       navigation.push(nextScreen, {
         uuid,
-        mail,
+        email,
         pw: pwRef.current,
         name: nameRef.current,
         country: countryListRef.current[countryIndexRef.current].code,
         honorary: cityListRef.current?.[cityIndexRef.current]?.id || undefined,
         birth: birthRef.current,
         passport: passportRef.current,
+        passportImage: passportImageRef.current,
       });
     } else {
       console.warn('No next screen found in signup flow');
@@ -417,6 +362,19 @@ export const SignupForm = memo(function ({ route }: Params) {
     //   setCityList(list);
     // });
   }, []);
+
+  // OCR 데이터를 초기값으로 설정
+  useEffect(() => {
+    if (ocr_fullName) {
+      setName(ocr_fullName);
+    }
+    if (ocr_birthDate) {
+      setBirth(ocr_birthDate);
+    }
+    if (ocr_number) {
+      setPassport(ocr_number);
+    }
+  }, [ocr_fullName, ocr_birthDate, ocr_number]);
 
   return (
     <View style={[style.container, { paddingBottom: bottom }]}>
@@ -454,31 +412,31 @@ export const SignupForm = memo(function ({ route }: Params) {
                 <Text style={[font.BODY2_M, style.labelText]}>Email</Text>
                 <Input
                   keyboardType="email-address"
-                  value={mail}
+                  value={email || ''}
                   placeholder="Email Address"
                   wrapperStyle={style.inputWrapper}
                   containerStyle={style.inputDisabledContainer}
                   style={style.inputDisabledText}
-                  disabled={true}
+                  editable={false}
                 />
                 <Text style={[font.BODY2_M, style.labelText]}>Password</Text>
                 <Input
                   secureTextEntry={true}
-                  value={pw}
+                  value={pw || ''}
                   placeholder="Enter Password"
                   wrapperStyle={style.inputWrapper}
                   message={pwMessage}
-                  onChangeText={handlePw}
+                  editable={false}
                 />
-                <Text style={[font.BODY2_M, style.labelText]}>Enter Password Again</Text>
-                <Input
+                {/* <Text style={[font.BODY2_M, style.labelText]}>Enter Password Again</Text> */}
+                {/* <Input
                   secureTextEntry={true}
                   value={pw2}
                   placeholder="Enter Password Again"
                   wrapperStyle={style.inputWrapper}
                   message={pw2Message}
                   onChangeText={handlePw2}
-                />
+                /> */}
               </>
             )}
             <Text style={[font.BODY2_M, style.labelText]}>Name</Text>
@@ -529,10 +487,26 @@ export const SignupForm = memo(function ({ route }: Params) {
 });
 
 interface Params {
-  route: Route<string, NavigationParams>;
+  route: {
+    params: NavigationParams;
+  };
 }
 
 interface NavigationParams {
   uuid?: string;
-  mail?: string;
+  email?: string;
+  pw?: string;
+  name?: string;
+  country?: string;
+  honorary?: string;
+  birth?: string;
+  passport?: string;
+  ocr_fullName?: string;
+  ocr_gender?: string;
+  ocr_birthDate?: string;
+  ocr_nationality?: string;
+  ocr_number?: string;
+  ocr_issueDate?: string;
+  ocr_expireDate?: string;
+  passportImage?: string;
 }

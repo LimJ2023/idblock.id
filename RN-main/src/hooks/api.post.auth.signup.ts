@@ -15,7 +15,7 @@ export function useApiPostAuthSignup() {
       const response: HttpResponse<HttpResponseSignup> = await post('/v1/auth/sign-up', params);
       console.log('/v1/auth/sign-up response : ', response);
       
-      const isSuccess = !!response?.data?.id;
+      const isSuccess = !!response?.data;
       console.log('회원가입 성공 여부:', isSuccess);
       
       return isSuccess;
@@ -34,8 +34,7 @@ export function useApiPostAuthSignup() {
     try{
     const response: HttpResponse<HttpResponseSignupSimple> = await post('/v1/auth/sign-up/simple', params);
 
-    const isSuccess = !!response?.data?.id;
-    return isSuccess;
+    return response?.data;
   } catch (error) {
     console.log('=== 회원가입 API 에러 ===');
     console.log('error:', error);

@@ -10,6 +10,7 @@ import { ResetFormCode } from '~/screens/ResetFormCode';
 import { IdCardPending } from '~/screens/IdCardPending';
 import { IdCardDenied } from '~/screens/IdCardDenied';
 import { SignupResult } from '~/screens/SignupResult';
+import { SignupSimpleResult } from '~/screens/SignupSimpleResult';
 import { SignupEmail } from '~/screens/SignupEmail';
 import { SignupFace } from '~/screens/SignupFace';
 import { SignupForm } from '~/screens/SignupForm';
@@ -86,6 +87,11 @@ export const StackNavigator = memo(function () {
       <Stack.Screen
         name={MENU.STACK.SCREEN.SIGNUP_RESULT}
         component={SignupResult}
+        options={{ headerShown: false, gestureEnabled: false }}
+      />
+      <Stack.Screen
+        name={MENU.STACK.SCREEN.SIGNUP_SIMPLE_RESULT}
+        component={SignupSimpleResult}
         options={{ headerShown: false, gestureEnabled: false }}
       />
       <Stack.Screen name={MENU.STACK.SCREEN.SIGNUP_TERM} component={SignupTerm} options={{ headerShown: false, gestureEnabled: false }} />
