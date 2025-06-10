@@ -14,4 +14,4 @@ export * from './user-session';
 export * from './user-verification-document';
 export * from './user';
 export * from './user-fcm-token';
-export * from './externalAPI-key';
+export * from './external-api-key';

@@ -3,7 +3,7 @@ import { INJECT_DRIZZLE } from "src/database/drizzle.provider";
 import { DrizzleDB } from "src/database/drizzle.provider";
 import { eq } from "drizzle-orm";
 import  crypto  from "crypto";
-import { externalAPIKey } from "src/database/schema/externalAPI-key";
+import { externalAPIKey } from "src/database/schema/external-api-key";
 
 @Injectable()
 export class ExternalApiKeyService {
