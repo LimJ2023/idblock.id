@@ -9,11 +9,11 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import { AdminAuthService } from './admin-auth.service';
+import { AdminAuthService } from 'src/admin-auth/admin-auth.service';
 import { AdminPermissionGuard } from 'src/auth/admin-permission.guard';
 import { RequireAdminPermission } from 'src/auth/admin-permission.decorator';
 import { AdminPermission } from 'src/database/schema/admin-user';
-import { CreateAdminDto, UpdateAdminPermissionDto } from './admin-management.dto';
+import { CreateAdminDto, UpdateAdminPermissionDto } from 'src/admin-auth/admin-management.dto';
 import { CurrentUser } from 'src/auth/current-user.decorator';
 
 @ApiTags('관리자 관리')

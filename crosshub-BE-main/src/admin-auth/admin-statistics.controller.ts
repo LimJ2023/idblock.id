@@ -3,7 +3,7 @@ import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AdminPermissionGuard } from 'src/auth/admin-permission.guard';
 import { RequireAdminPermission } from 'src/auth/admin-permission.decorator';
 import { AdminPermission } from 'src/database/schema/admin-user';
-import { AdminStatisticsService } from './admin-statistics.service';
+import { AdminStatisticsService } from 'src/admin-auth/admin-statistics.service';
 
 @ApiTags('시스템 통계 (루트 관리자 전용)')
 @Controller('admin-statistics')
