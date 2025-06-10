@@ -94,7 +94,7 @@ export class AdminAuthController {
     );
   }
 
-  
+
 
   @Get('protected')
   async protected() {

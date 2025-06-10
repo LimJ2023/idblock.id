@@ -10,10 +10,11 @@ import {
   UploadedFile,
   UseInterceptors,
   BadRequestException,
+  UseGuards,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UserService } from './user.service';
-import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiOperation, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { CurrentUser } from 'src/auth/current-user.decorator';
 import {
   ApproveUserDto,
@@ -24,9 +25,14 @@ import {
 } from './admin.user.dto';
 import { FileUploadDto } from 'src/s3/s3.dto';
 import { S3Service } from 'src/s3/s3.service';
+import { AdminPermissionGuard } from 'src/auth/admin-permission.guard';
+import { RequireAdminPermission } from 'src/auth/admin-permission.decorator';
+import { AdminPermission } from 'src/database/schema/admin-user';
 
 @ApiTags('회원 관리')
 @Controller('user')
+@ApiBearerAuth()
+@UseGuards(AdminPermissionGuard)
 export class AdminUserController {
   constructor(
     private readonly userService: UserService,
@@ -34,25 +40,41 @@ export class AdminUserController {
   ) {}
 
   @Get('')
-  @ApiOperation({ summary: '회원 목록 조회' })
+  @ApiOperation({ 
+    summary: '회원 목록 조회',
+    description: '모든 회원의 목록을 조회합니다. (일반 관리자 이상 접근 가능)'
+  })
+  @RequireAdminPermission(AdminPermission.GENERAL)
   async listUsers(@Query() q: QueryUserDto) {
     return this.userService.listUsers(q.data.status);
   }
 
   @Get(':documentId')
-  @ApiOperation({ summary: '회원 상세 조회' })
+  @ApiOperation({ 
+    summary: '회원 상세 조회',
+    description: '특정 회원의 상세 정보를 조회합니다. (일반 관리자 이상 접근 가능)'
+  })
+  @RequireAdminPermission(AdminPermission.GENERAL)
   async getUser(@Param() param: UserVerificationDocumetDetailDto) {
     return this.userService.getUserVerificationDocument(param.data.documentId);
   }
 
   @Post('argos-id-liveness')
-  @ApiOperation({ summary: '회원 Argos ID Liveness' })
+  @ApiOperation({ 
+    summary: '회원 Argos ID Liveness',
+    description: 'Argos ID Liveness 검증을 수행합니다. (중간 관리자 이상 접근 가능)'
+  })
+  @RequireAdminPermission(AdminPermission.MIDDLE)
   async getArgosIdLiveness(@Body() body: UserVerificationDocumetDetailDto) {
     return await this.userService.argosProcessPipeline(body.data.documentId);
   }
 
   @Post('argos-recognition')
-  @ApiOperation({ summary: '회원 Argos Recognition' })
+  @ApiOperation({ 
+    summary: '회원 Argos Recognition',
+    description: 'Argos Recognition을 수행합니다. (중간 관리자 이상 접근 가능)'
+  })
+  @RequireAdminPermission(AdminPermission.MIDDLE)
   @UseInterceptors(FileInterceptor('file', {
     fileFilter: (req, file, callback) => {
       if (!file.mimetype.match(/\/(jpg|jpeg|png)$/)) {
@@ -85,7 +107,11 @@ export class AdminUserController {
   }
 
   @Post('approve')
-  @ApiOperation({ summary: '회원 승인' })
+  @ApiOperation({ 
+    summary: '회원 승인',
+    description: '회원 가입을 승인합니다. (중간 관리자 이상 접근 가능)'
+  })
+  @RequireAdminPermission(AdminPermission.MIDDLE)
   async approveUser(
     @CurrentUser() adminId: number,
     @Body() body: ApproveUserDto,
@@ -94,13 +120,21 @@ export class AdminUserController {
   }
 
   @Patch('reject')
-  @ApiOperation({ summary: '회원 거부' })
+  @ApiOperation({ 
+    summary: '회원 거부',
+    description: '회원 가입을 거부합니다. (중간 관리자 이상 접근 가능)'
+  })
+  @RequireAdminPermission(AdminPermission.MIDDLE)
   async rejectUser(@Body() body: RejectUserDto) {
     return this.userService.declineUser(body.data.documentId, body.data.reason);
   }
 
   @Delete(':documentId')
-  @ApiOperation({ summary: '회원 삭제' })
+  @ApiOperation({ 
+    summary: '회원 삭제',
+    description: '회원을 삭제합니다. (루트 관리자만 접근 가능)'
+  })
+  @RequireAdminPermission(AdminPermission.ROOT)
   async deleteUser(@Param() param: UserVerificationDocumetDetailDto) {
     return this.userService.deleteUser(param.data.documentId);
   }
