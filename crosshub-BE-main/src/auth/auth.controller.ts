@@ -337,8 +337,8 @@ export class AuthController {
       },
     },
   })
-  async getProfile(@CurrentUser() userId: bigint) {
-    return this.authService.getProfile(userId);
+  async getProfile(@CurrentUser() email: string) {
+    return this.authService.getProfile(email);
   }
 
   @Put('information')
