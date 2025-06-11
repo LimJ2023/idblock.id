@@ -65,7 +65,7 @@ export class AdminAuthController {
     
     const cookieDomain = this.envService.get('COOKIE_DOMAIN');
     const domain = req.hostname === 'localhost' || !cookieDomain || cookieDomain.trim() === '' 
-      ? undefined 
+      ? undefined
       : cookieDomain;
     
     res.clearCookie('access_token', {
