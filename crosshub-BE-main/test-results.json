@@ -1,0 +1,578 @@
+{
+  "timestamp": "2025-06-11T08:37:55.557Z",
+  "summary": {
+    "totalTests": 62,
+    "successCount": 61,
+    "errorCount": 1,
+    "correctPredictions": 29,
+    "accuracy": 46.774193548387096,
+    "precision": 0.030303030303030304,
+    "recall": 1,
+    "f1Score": 0.05882352941176471,
+    "averageProcessingTime": 915.672131147541,
+    "truePositives": 1,
+    "falsePositives": 32,
+    "trueNegatives": 29,
+    "falseNegatives": 0
+  },
+  "results": [
+    {
+      "imageName": "match_01",
+      "similarity": 99.9793930053711,
+      "confidence": 99.99974060058594,
+      "isMatch": true,
+      "expectedMatch": true,
+      "correct": true,
+      "processingTime": 2790
+    },
+    {
+      "imageName": "nomatch_1",
+      "similarity": 1.9512795209884644,
+      "confidence": 99.99786376953125,
+      "isMatch": true,
+      "expectedMatch": false,
+      "correct": false,
+      "processingTime": 1337
+    },
+    {
+      "imageName": "nomatch_10",
+      "similarity": 1.8473502397537231,
+      "confidence": 99.99961853027344,
+      "isMatch": true,
+      "expectedMatch": false,
+      "correct": false,
+      "processingTime": 966
+    },
+    {
+      "imageName": "nomatch_11",
+      "similarity": 3.0026190280914307,
+      "confidence": 99.99946594238281,
+      "isMatch": true,
+      "expectedMatch": false,
+      "correct": false,
+      "processingTime": 661
+    },
+    {
+      "imageName": "nomatch_12",
+      "similarity": 0.33799248933792114,
+      "confidence": 99.9996337890625,
+      "isMatch": false,
+      "expectedMatch": false,
+      "correct": true,
+      "processingTime": 596
+    },
+    {
+      "imageName": "nomatch_13",
+      "similarity": 0.6254423260688782,
+      "confidence": 99.99909210205078,
+      "isMatch": false,
+      "expectedMatch": false,
+      "correct": true,
+      "processingTime": 1186
+    },
+    {
+      "imageName": "nomatch_14",
+      "similarity": 1.491203784942627,
+      "confidence": 99.99995422363281,
+      "isMatch": true,
+      "expectedMatch": false,
+      "correct": false,
+      "processingTime": 925
+    },
+    {
+      "imageName": "nomatch_15",
+      "similarity": 1.2943497896194458,
+      "confidence": 99.99964141845703,
+      "isMatch": true,
+      "expectedMatch": false,
+      "correct": false,
+      "processingTime": 688
+    },
+    {
+      "imageName": "nomatch_16",
+      "similarity": 2.611004114151001,
+      "confidence": 99.99996185302734,
+      "isMatch": true,
+      "expectedMatch": false,
+      "correct": false,
+      "processingTime": 602
+    },
+    {
+      "imageName": "nomatch_17",
+      "similarity": 1.072043776512146,
+      "confidence": 99.99947357177734,
+      "isMatch": true,
+      "expectedMatch": false,
+      "correct": false,
+      "processingTime": 887
+    },
+    {
+      "imageName": "nomatch_18",
+      "similarity": 0.8037578463554382,
+      "confidence": 99.99991607666016,
+      "isMatch": true,
+      "expectedMatch": false,
+      "correct": false,
+      "processingTime": 630
+    },
+    {
+      "imageName": "nomatch_19",
+      "similarity": 1.0491442680358887,
+      "confidence": 99.99989318847656,
+      "isMatch": true,
+      "expectedMatch": false,
+      "correct": false,
+      "processingTime": 787
+    },
+    {
+      "imageName": "nomatch_2",
+      "similarity": 0.42429572343826294,
+      "confidence": 99.99995422363281,
+      "isMatch": false,
+      "expectedMatch": false,
+      "correct": true,
+      "processingTime": 1163
+    },
+    {
+      "imageName": "nomatch_20",
+      "similarity": 3.3942840099334717,
+      "confidence": 99.99964141845703,
+      "isMatch": true,
+      "expectedMatch": false,
+      "correct": false,
+      "processingTime": 916
+    },
+    {
+      "imageName": "nomatch_21",
+      "similarity": 1.6931625604629517,
+      "confidence": 99.9996337890625,
+      "isMatch": true,
+      "expectedMatch": false,
+      "correct": false,
+      "processingTime": 921
+    },
+    {
+      "imageName": "nomatch_22",
+      "similarity": 1.5486491918563843,
+      "confidence": 99.99964141845703,
+      "isMatch": true,
+      "expectedMatch": false,
+      "correct": false,
+      "processingTime": 614
+    },
+    {
+      "imageName": "nomatch_23",
+      "similarity": 1.6061197519302368,
+      "confidence": 99.99971008300781,
+      "isMatch": true,
+      "expectedMatch": false,
+      "correct": false,
+      "processingTime": 747
+    },
+    {
+      "imageName": "nomatch_24",
+      "similarity": 1.4541469812393188,
+      "confidence": 99.99903106689453,
+      "isMatch": true,
+      "expectedMatch": false,
+      "correct": false,
+      "processingTime": 730
+    },
+    {
+      "imageName": "nomatch_25",
+      "similarity": 0.5070420503616333,
+      "confidence": 99.99944305419922,
+      "isMatch": false,
+      "expectedMatch": false,
+      "correct": true,
+      "processingTime": 687
+    },
+    {
+      "imageName": "nomatch_26",
+      "similarity": 0.9324744343757629,
+      "confidence": 99.9994888305664,
+      "isMatch": true,
+      "expectedMatch": false,
+      "correct": false,
+      "processingTime": 1664
+    },
+    {
+      "imageName": "nomatch_27",
+      "similarity": 0.2884069085121155,
+      "confidence": 99.9996337890625,
+      "isMatch": false,
+      "expectedMatch": false,
+      "correct": true,
+      "processingTime": 1046
+    },
+    {
+      "imageName": "nomatch_28",
+      "similarity": 0.6156458258628845,
+      "confidence": 99.99958038330078,
+      "isMatch": false,
+      "expectedMatch": false,
+      "correct": true,
+      "processingTime": 916
+    },
+    {
+      "imageName": "nomatch_29",
+      "similarity": 0.41632553935050964,
+      "confidence": 99.99996185302734,
+      "isMatch": false,
+      "expectedMatch": false,
+      "correct": true,
+      "processingTime": 633
+    },
+    {
+      "imageName": "nomatch_3",
+      "similarity": 0.2641136646270752,
+      "confidence": 99.99982452392578,
+      "isMatch": false,
+      "expectedMatch": false,
+      "correct": true,
+      "processingTime": 1616
+    },
+    {
+      "imageName": "nomatch_30",
+      "similarity": 0.2165927290916443,
+      "confidence": 99.99925994873047,
+      "isMatch": false,
+      "expectedMatch": false,
+      "correct": true,
+      "processingTime": 608
+    },
+    {
+      "imageName": "nomatch_31",
+      "similarity": 1.1031516790390015,
+      "confidence": 99.99991607666016,
+      "isMatch": true,
+      "expectedMatch": false,
+      "correct": false,
+      "processingTime": 1006
+    },
+    {
+      "imageName": "nomatch_32",
+      "similarity": 0.16318674385547638,
+      "confidence": 99.99894714355469,
+      "isMatch": false,
+      "expectedMatch": false,
+      "correct": true,
+      "processingTime": 648
+    },
+    {
+      "imageName": "nomatch_33",
+      "similarity": 0.5467571020126343,
+      "confidence": 99.99974060058594,
+      "isMatch": false,
+      "expectedMatch": false,
+      "correct": true,
+      "processingTime": 1829
+    },
+    {
+      "imageName": "nomatch_34",
+      "similarity": 0.28049054741859436,
+      "confidence": 99.99993133544922,
+      "isMatch": false,
+      "expectedMatch": false,
+      "correct": true,
+      "processingTime": 715
+    },
+    {
+      "imageName": "nomatch_35",
+      "similarity": 0.41533148288726807,
+      "confidence": 99.99996185302734,
+      "isMatch": false,
+      "expectedMatch": false,
+      "correct": true,
+      "processingTime": 1221
+    },
+    {
+      "imageName": "nomatch_36",
+      "similarity": 0.4413430988788605,
+      "confidence": 99.99979400634766,
+      "isMatch": false,
+      "expectedMatch": false,
+      "correct": true,
+      "processingTime": 621
+    },
+    {
+      "imageName": "nomatch_37",
+      "similarity": 0.5348721742630005,
+      "confidence": 99.99974822998047,
+      "isMatch": false,
+      "expectedMatch": false,
+      "correct": true,
+      "processingTime": 1053
+    },
+    {
+      "imageName": "nomatch_38",
+      "similarity": 0.04939461871981621,
+      "confidence": 99.99976348876953,
+      "isMatch": false,
+      "expectedMatch": false,
+      "correct": true,
+      "processingTime": 641
+    },
+    {
+      "imageName": "nomatch_39",
+      "similarity": 0.07167967408895493,
+      "confidence": 99.99991607666016,
+      "isMatch": false,
+      "expectedMatch": false,
+      "correct": true,
+      "processingTime": 1090
+    },
+    {
+      "imageName": "nomatch_4",
+      "similarity": 1.3207439184188843,
+      "confidence": 99.99995422363281,
+      "isMatch": true,
+      "expectedMatch": false,
+      "correct": false,
+      "processingTime": 790
+    },
+    {
+      "imageName": "nomatch_40",
+      "similarity": 1.5785822868347168,
+      "confidence": 65.35725402832031,
+      "isMatch": true,
+      "expectedMatch": false,
+      "correct": false,
+      "processingTime": 1457
+    },
+    {
+      "imageName": "nomatch_41",
+      "similarity": 0.06884907186031342,
+      "confidence": 99.9993667602539,
+      "isMatch": false,
+      "expectedMatch": false,
+      "correct": true,
+      "processingTime": 797
+    },
+    {
+      "imageName": "nomatch_42",
+      "similarity": 0.6546618342399597,
+      "confidence": 99.99968719482422,
+      "isMatch": false,
+      "expectedMatch": false,
+      "correct": true,
+      "processingTime": 973
+    },
+    {
+      "imageName": "nomatch_43",
+      "similarity": 0.7856202125549316,
+      "confidence": 99.99987030029297,
+      "isMatch": true,
+      "expectedMatch": false,
+      "correct": false,
+      "processingTime": 623
+    },
+    {
+      "imageName": "nomatch_44",
+      "similarity": 1.0242494344711304,
+      "confidence": 99.99655151367188,
+      "isMatch": true,
+      "expectedMatch": false,
+      "correct": false,
+      "processingTime": 988
+    },
+    {
+      "imageName": "nomatch_45",
+      "similarity": 0.5207697749137878,
+      "confidence": 99.99859619140625,
+      "isMatch": false,
+      "expectedMatch": false,
+      "correct": true,
+      "processingTime": 632
+    },
+    {
+      "imageName": "nomatch_46",
+      "similarity": 1.2506375312805176,
+      "confidence": 99.99625396728516,
+      "isMatch": true,
+      "expectedMatch": false,
+      "correct": false,
+      "processingTime": 643
+    },
+    {
+      "imageName": "nomatch_47",
+      "similarity": 0,
+      "confidence": 0,
+      "isMatch": false,
+      "expectedMatch": false,
+      "correct": false,
+      "processingTime": 0
+    },
+    {
+      "imageName": "nomatch_48",
+      "similarity": 0.08103204518556595,
+      "confidence": 99.99938201904297,
+      "isMatch": false,
+      "expectedMatch": false,
+      "correct": true,
+      "processingTime": 888
+    },
+    {
+      "imageName": "nomatch_49",
+      "similarity": 0.04110046848654747,
+      "confidence": 99.99990844726562,
+      "isMatch": false,
+      "expectedMatch": false,
+      "correct": true,
+      "processingTime": 1293
+    },
+    {
+      "imageName": "nomatch_5",
+      "similarity": 1.8323789834976196,
+      "confidence": 99.99980926513672,
+      "isMatch": true,
+      "expectedMatch": false,
+      "correct": false,
+      "processingTime": 616
+    },
+    {
+      "imageName": "nomatch_50",
+      "similarity": 0.02022753469645977,
+      "confidence": 99.99958038330078,
+      "isMatch": false,
+      "expectedMatch": false,
+      "correct": true,
+      "processingTime": 919
+    },
+    {
+      "imageName": "nomatch_51",
+      "similarity": 0.03552531078457832,
+      "confidence": 99.99984741210938,
+      "isMatch": false,
+      "expectedMatch": false,
+      "correct": true,
+      "processingTime": 690
+    },
+    {
+      "imageName": "nomatch_53",
+      "similarity": 0.1441129744052887,
+      "confidence": 99.99984741210938,
+      "isMatch": false,
+      "expectedMatch": false,
+      "correct": true,
+      "processingTime": 680
+    },
+    {
+      "imageName": "nomatch_54",
+      "similarity": 0.8479241132736206,
+      "confidence": 99.2794418334961,
+      "isMatch": true,
+      "expectedMatch": false,
+      "correct": false,
+      "processingTime": 1105
+    },
+    {
+      "imageName": "nomatch_55",
+      "similarity": 5.824901103973389,
+      "confidence": 99.85021209716797,
+      "isMatch": true,
+      "expectedMatch": false,
+      "correct": false,
+      "processingTime": 962
+    },
+    {
+      "imageName": "nomatch_56",
+      "similarity": 0.17666004598140717,
+      "confidence": 99.9986801147461,
+      "isMatch": false,
+      "expectedMatch": false,
+      "correct": true,
+      "processingTime": 596
+    },
+    {
+      "imageName": "nomatch_57",
+      "similarity": 0.8416657447814941,
+      "confidence": 99.99445343017578,
+      "isMatch": true,
+      "expectedMatch": false,
+      "correct": false,
+      "processingTime": 736
+    },
+    {
+      "imageName": "nomatch_58",
+      "similarity": 3.3840866088867188,
+      "confidence": 99.99946594238281,
+      "isMatch": true,
+      "expectedMatch": false,
+      "correct": false,
+      "processingTime": 1175
+    },
+    {
+      "imageName": "nomatch_59",
+      "similarity": 2.1966140270233154,
+      "confidence": 99.99974822998047,
+      "isMatch": true,
+      "expectedMatch": false,
+      "correct": false,
+      "processingTime": 975
+    },
+    {
+      "imageName": "nomatch_6",
+      "similarity": 0.9222806692123413,
+      "confidence": 99.99972534179688,
+      "isMatch": true,
+      "expectedMatch": false,
+      "correct": false,
+      "processingTime": 563
+    },
+    {
+      "imageName": "nomatch_61",
+      "similarity": 1.1579419374465942,
+      "confidence": 99.99569702148438,
+      "isMatch": true,
+      "expectedMatch": false,
+      "correct": false,
+      "processingTime": 832
+    },
+    {
+      "imageName": "nomatch_62",
+      "similarity": 2.933966636657715,
+      "confidence": 99.82012176513672,
+      "isMatch": true,
+      "expectedMatch": false,
+      "correct": false,
+      "processingTime": 538
+    },
+    {
+      "imageName": "nomatch_67",
+      "similarity": 1.646134853363037,
+      "confidence": 99.99993133544922,
+      "isMatch": true,
+      "expectedMatch": false,
+      "correct": false,
+      "processingTime": 800
+    },
+    {
+      "imageName": "nomatch_7",
+      "similarity": 0.8984094262123108,
+      "confidence": 99.99977111816406,
+      "isMatch": true,
+      "expectedMatch": false,
+      "correct": false,
+      "processingTime": 1105
+    },
+    {
+      "imageName": "nomatch_8",
+      "similarity": 0.05256498232483864,
+      "confidence": 99.9998779296875,
+      "isMatch": false,
+      "expectedMatch": false,
+      "correct": true,
+      "processingTime": 592
+    },
+    {
+      "imageName": "nomatch_9",
+      "similarity": 0.03945651277899742,
+      "confidence": 99.99980926513672,
+      "isMatch": false,
+      "expectedMatch": false,
+      "correct": true,
+      "processingTime": 748
+    }
+  ]
+}

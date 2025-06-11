@@ -134,7 +134,7 @@ export class SignupSimpleDto extends TypeschemaDto(VSignupSimpleDto) {
 export class SignUpDto extends TypeschemaDto(VSignUpDto) {
   @ApiProperty({
     title: 'UUID',
-    description: '이메잃 인증시 사용한 UUID',
+    description: '이메일 인증시 사용한 UUID',
     example: '812204a0-2432-40e0-90cb-b1ad8019b9c1',
   })
   uuid: string;
@@ -142,7 +142,7 @@ export class SignUpDto extends TypeschemaDto(VSignUpDto) {
   @ApiProperty({
     title: '이메일',
     description: '이메일',
-    example: 'hkchae@buttersoft.io',
+    example: 'heuristic2022@gmail.com',
   })
   email: string;
 
@@ -162,14 +162,14 @@ export class SignUpDto extends TypeschemaDto(VSignUpDto) {
   @ApiProperty({
     title: '이름',
     description: '이름',
-    example: '홍길동',
+    example: '임요한',
   })
   name: string;
 
   @ApiProperty({
     title: '생년월일',
     description: '생년월일',
-    example: '19900101',
+    example: '19940501',
   })
   birthday: string;
 
@@ -190,7 +190,7 @@ export class SignUpDto extends TypeschemaDto(VSignUpDto) {
   @ApiProperty({
     title: '여권 번호',
     description: '여권 번호',
-    example: '12345678',
+    example: 'm12345678',
   })
   passportNumber: string;
 
@@ -198,7 +198,7 @@ export class SignUpDto extends TypeschemaDto(VSignUpDto) {
     title: '여권 이미지 키',
     description: '여권 이미지 키',
     example:
-      'private/passport/c4da74d81d1414f7d8df9133dbfc6a686800c3a0993ee55e9deb9bf73a60362e',
+      'private/passport/9cfd74bb7e8280e15139d1e142c0f96ccf23e9bb684f20ea62d084f505fa140f',
   })
   passportImageKey: string;
 
@@ -206,7 +206,7 @@ export class SignUpDto extends TypeschemaDto(VSignUpDto) {
     title: '프로필 이미지 키',
     description: '프로필 이미지 키',
     example:
-      'private/profile/6d60d03bb9497e4478d33d1ba40d8e285beaada2a2e39f4388194fbb866d6662',
+      'private/profile/1005aa23b5e4f2ca0e448345741cefc35aaa0eed639673ec134de5898ddf18a5',
   })
   profileImageKey: string;
 }
