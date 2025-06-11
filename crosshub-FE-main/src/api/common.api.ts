@@ -1,5 +1,5 @@
 type ErrorResponse = {
-  message: string;
+  message: string | Array<{message: string; path: string[]}>;
   error: string;
   statusCode: number;
 };

@@ -64,11 +64,21 @@ const SitetNewForm = () => {
         description: "관광지가 등록되었습니다.",
       });
       navigate("..", { relative: "route" });
+    } else if(result.success === false) {
+      const errorMessage = Array.isArray(result.error.message) 
+        ? result.error.message[0]?.message || "알 수 없는 오류가 발생했습니다."
+        : result.error.message || "알 수 없는 오류가 발생했습니다.";
+      console.log("관광지 등록 실패 : ", errorMessage);
+      toast({
+        variant: "destructive",
+        title: "관광지 등록 실패",
+        description: errorMessage,
+      });
     }
   };
 
   const onInvalid: SubmitErrorHandler<AddSite> = (error) => {
-    console.error(error);
+    console.log("관광지 등록 중 문제 발생", error)
   };
 
   const isSubmitDisabled = isLoading || !isValid;
