@@ -19,7 +19,6 @@ WORKDIR /app
 # 빌드 산출물 + prod 의존성만 복사
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/admin-fe ./admin-fe
 COPY --from=builder /app/manager-fe ./manager-fe
 COPY --from=builder /app/views ./views
 COPY package*.json ./
