@@ -101,44 +101,28 @@ export const SignupFace = memo(function ({ route }: Params) {
         );
   }, []);
 
-  const handleMockImage = useCallback(() => {
-    // 개발 환경에서 사용할 더미 이미지 URL
-    const mockImageUrl = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face';
-    setImage(mockImageUrl);
-    Toast.show('Mock image set for testing', Toast.SHORT);
-  }, []);
-
   const handleNext = useCallback(async () => {
     try {
-      console.log('=== handleNext 시작 ===');
       setIsVisibleLoading(true);
 
-      console.log('passportImage:', passportImage);
-      console.log('imageRef.current:', imageRef.current);
 
       // 필수 데이터 검증
       if (!passportImage) {
-        console.log('passportImage가 없습니다');
         Toast.show('Passport image is required', Toast.SHORT);
         return;
       }
 
       if (!imageRef.current) {
-        console.log('face image가 없습니다');
         Toast.show('Face image is required', Toast.SHORT);
         return;
       }
 
-      console.log('=== 여권 이미지 업로드 시작 ===');
-      console.log('여권 이미지 업로드 직전 - 메모리 체크');
       let passportUploadResult: any;
       try {
         passportUploadResult = await apiPostAuthPassport({
           formData: Util.getFileAppendedFormData(passportImage),
         });
-        console.log('여권 이미지 업로드 완료:', passportUploadResult);
       } catch (error) {
-        console.log('여권 업로드 에러:', error);
         if (error?.code === 'ECONNABORTED') {
           Toast.show('여권 이미지 업로드 시간이 초과되었습니다. 다시 시도해주세요.', Toast.SHORT);
         } else if (error?.code === 'ERR_NETWORK') {
@@ -149,16 +133,12 @@ export const SignupFace = memo(function ({ route }: Params) {
         return;
       }
 
-      console.log('=== 얼굴 이미지 업로드 시작 ===');
-      console.log('얼굴 이미지 업로드 직전 - 메모리 체크');
       let faceUploadResult: any;
       try {
         faceUploadResult = await apiPostAuthFace({
           formData: Util.getFileAppendedFormData(imageRef.current),
         });
-        console.log('얼굴 이미지 업로드 완료:', faceUploadResult);
       } catch (error) {
-        console.log('얼굴 업로드 에러:', error);
         if (error?.code === 'ECONNABORTED') {
           Toast.show('얼굴 이미지 업로드 시간이 초과되었습니다. 다시 시도해주세요.', Toast.SHORT);
         } else if (error?.code === 'ERR_NETWORK') {
@@ -169,20 +149,12 @@ export const SignupFace = memo(function ({ route }: Params) {
         return;
       }
 
-      console.log('=== 업로드 결과 검증 ===');
-      console.log('passportUploadResult?.key:', passportUploadResult?.key);
-      console.log('faceUploadResult?.key:', faceUploadResult?.key);
+
 
       if (passportUploadResult?.key && faceUploadResult?.key) {
-        console.log('파일 업로드 성공, 회원가입/정보수정 진행');
         let isSuccessSignup = false;
-
-        console.log('=== 회원가입/정보수정 API 호출 시작 ===');
-        console.log('accessTokenRef.current:', accessTokenRef.current);
         try {
           if (accessTokenRef.current) {
-            console.log('기존 사용자 정보 수정 진행');
-            console.log('apiPutAuthInformation 호출 직전');
             isSuccessSignup = await apiPutAuthInformation({
               name,
               birthday: birth,
@@ -211,8 +183,6 @@ export const SignupFace = memo(function ({ route }: Params) {
                 console.log(`회원가입 시도 완료, 결과:`, isSuccessSignup);
           }
         } catch (error) {
-          console.log('회원가입/정보수정 API 에러:', error);
-          console.error('API 에러 스택:', error?.stack);
           if (error?.code === 'ECONNABORTED') {
             Toast.show('요청 시간이 초과되었습니다. 다시 시도해주세요.', Toast.SHORT);
           } else if (error?.code === 'ERR_NETWORK') {
@@ -223,44 +193,28 @@ export const SignupFace = memo(function ({ route }: Params) {
           return;
         }
 
-        console.log('=== 네비게이션 처리 시작 ===');
-        console.log('최종 isSuccessSignup:', isSuccessSignup);
         if (isSuccessSignup) {
-          console.log('네비게이션 처리 시작');
           try {
             const nextScreen = getNextScreenInFlow(SIGNUP_FLOW, MENU.STACK.SCREEN.SIGNUP_FACE);
-            console.log('nextScreen 계산 완료:', nextScreen);
             
             if (nextScreen) {
-              console.log('다음 화면으로 이동:', nextScreen);
               navigation.push(nextScreen);
-              console.log('navigation.push 완료');
             } else {
-              console.log('플로우 마지막 - 메인으로 이동');
               navigation.reset({
                 index: 0,
                 routes: [{ name: MENU.STACK.SCREEN.MAIN }],
               });
-              console.log('navigation.reset 완료');
             }
           } catch (navError) {
-            console.error('네비게이션 에러:', navError);
-            console.error('네비게이션 에러 스택:', navError?.stack);
             Toast.show('화면 이동 중 오류가 발생했습니다.', Toast.SHORT);
           }
         } else {
-          console.log('회원가입/정보수정 실패');
           Toast.show('Registration failed. Please try again.', Toast.SHORT);
         }
       } else {
-        console.log('파일 업로드 실패');
-        console.log('passportUploadResult:', passportUploadResult);
-        console.log('faceUploadResult:', faceUploadResult);
         Toast.show('File upload failed. Please try again.', Toast.SHORT);
       }
     } catch (error) {
-      console.log('handleNext 전체 에러:', error);
-      console.error('handleNext 에러 스택:', error?.stack);
       if (error?.code === 'ECONNABORTED') {
         Toast.show('요청 시간이 초과되었습니다. 네트워크 상태를 확인해주세요.', Toast.SHORT);
       } else if (error?.code === 'ERR_NETWORK') {
@@ -269,7 +223,6 @@ export const SignupFace = memo(function ({ route }: Params) {
         Toast.show('An error occurred. Please try again.', Toast.SHORT);
       }
     } finally {
-      console.log('=== handleNext 완료, 로딩 해제 ===');
       setIsVisibleLoading(false);
     }
   }, [uuid, email, pw, name, birth, country, honorary, passport, passportImage, navigation]);

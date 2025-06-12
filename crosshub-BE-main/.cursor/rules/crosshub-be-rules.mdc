@@ -1,0 +1,16 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+이 프로젝트의 주요 기술 스택
+- 프레임워크: NestJS (TypeScript 기반)
+- 언어: TypeScript
+- ORM: Drizzle
+- 이메일 서비스:  Resend
+- 스토리지: AWS S3, GCP gcs
+- 푸시 알림: Firebase FCM
+
+
+
+- 테스트: Jest
