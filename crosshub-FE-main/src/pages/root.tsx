@@ -82,7 +82,7 @@ const RootPage = () => {
             </Label>
             <div
               className={cn(
-                "flex h-14 rounded-[1.25rem] border border-[#CECECE] bg-white px-4 py-2",
+                "flex h-14 rounded-2xl border border-[#CECECE] bg-white px-4 py-2",
                 errors.email ? "border-[#FF0000]" : "",
                 serverError !== "" ? "border-[#FF0000]" : "",
               )}
@@ -111,7 +111,7 @@ const RootPage = () => {
             </Label>
             <div
               className={cn(
-                "flex h-14 rounded-[1.25rem] border border-[#CECECE] bg-white px-4 py-2",
+                "flex h-14 rounded-2xl border border-[#CECECE] bg-white px-4 py-2",
                 errors.password ? "border-[#FF0000]" : "",
                 serverError !== "" ? "border-[#FF0000]" : "",
               )}
@@ -162,7 +162,7 @@ const RootPage = () => {
           <Button
             type="submit"
             className={cn(
-              "h-14 rounded-2xl font-pretendard text-lg font-semibold",
+              "h-14 rounded-2xl font-pretendard text-xl font-semibold",
               isLoading ? "bg-primary/90" : "",
             )}
           >
