@@ -55,7 +55,7 @@ const SideNavigation = () => {
             <NavLink
               data-state={pathname === "/main/users" ? "active" : "inactive"}
               className={cn(
-                "mb-2 flex items-center gap-4 rounded-lg px-5 py-3 text-sm text-[#333333] transition-colors",
+                "mb-1 flex items-center gap-4 rounded-lg px-3.5 py-2.5 text-sm text-[#333333] transition-colors",
                 "hover:bg-[#FF5520] hover:text-white",
                 "data-[state=active]:bg-[#FF5520] data-[state=active]:text-white",
               )}
@@ -67,7 +67,7 @@ const SideNavigation = () => {
             <NavLink
               data-state={pathname === "/main/sites" ? "active" : "inactive"}
               className={cn(
-                "flex items-center gap-4 rounded-lg px-5 py-3 text-sm text-[#333333] transition-colors",
+                "flex items-center gap-4 rounded-lg px-3.5 py-2.5 text-sm text-[#333333] transition-colors",
                 "hover:bg-[#FF5520] hover:text-white",
                 "data-[state=active]:bg-[#FF5520] data-[state=active]:text-white",
               )}
@@ -82,7 +82,7 @@ const SideNavigation = () => {
             <Button
               variants="secondary"
               className={cn(
-                "flex w-full gap-2 rounded-lg bg-[#F4F4F4] px-5 py-3 font-pretendard text-sm text-[#666666]",
+                "flex w-full gap-2 rounded-lg bg-[#F4F4F4] px-3.5 py-2.5 font-pretendard text-sm text-[#666666]",
                 "hover:bg-[#415776] hover:text-white",
                 "[&_svg]:size-6",
               )}
