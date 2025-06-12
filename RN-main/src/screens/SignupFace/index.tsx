@@ -11,6 +11,7 @@ import { launchImageLibrary } from 'react-native-image-picker';
 
 import { ModalFaceDetectCamera } from '~/components/ModalFaceDetectCamera';
 import { ModalPermissionGuide } from '~/components/ModalPermissionGuide';
+import { ProgressBar } from '~/components/ProgressBar';
 import { Header } from '~/components/Header';
 import { Button } from '~/components/Button';
 import { Text } from '~/components/Text';
@@ -39,6 +40,9 @@ export const SignupFace = memo(function ({ route }: Params) {
   const [isVisiblePermission, setIsVisiblePermission] = useState<boolean>(false);
   const [isVisibleFaceDetectCamera, setIsVisibleFaceDetectCamera] = useState<boolean>(false);
   const [image, setImage] = useState<string>('');
+  const [progressVisible, setProgressVisible] = useState<boolean>(false);
+  const [currentStep, setCurrentStep] = useState<number>(0);
+  const [currentStepText, setCurrentStepText] = useState<string>('');
 
   const { setIsVisibleLoading } = useAppRootAction();
   const { accessToken } = useAccessToken();
@@ -101,10 +105,13 @@ export const SignupFace = memo(function ({ route }: Params) {
         );
   }, []);
 
+  const stepLabels = ['여권 이미지 업로드', '얼굴 이미지 업로드', '회원가입 처리', '완료'];
+
   const handleNext = useCallback(async () => {
     try {
-      setIsVisibleLoading(true);
-
+      setProgressVisible(true);
+      setCurrentStep(0);
+      setCurrentStepText('이미지를 업로드하기 전 검증을 진행하고 있습니다...');
 
       // 필수 데이터 검증
       if (!passportImage) {
@@ -117,6 +124,9 @@ export const SignupFace = memo(function ({ route }: Params) {
         return;
       }
 
+      // 1단계: 여권 이미지 업로드
+      setCurrentStep(1);
+      setCurrentStepText('여권 이미지를 업로드하고 있습니다...');
       let passportUploadResult: any;
       try {
         passportUploadResult = await apiPostAuthPassport({
@@ -133,6 +143,9 @@ export const SignupFace = memo(function ({ route }: Params) {
         return;
       }
 
+      // 2단계: 얼굴 이미지 업로드
+      setCurrentStep(2);
+      setCurrentStepText('얼굴 이미지를 업로드하고 있습니다...');
       let faceUploadResult: any;
       try {
         faceUploadResult = await apiPostAuthFace({
@@ -149,9 +162,10 @@ export const SignupFace = memo(function ({ route }: Params) {
         return;
       }
 
-
-
       if (passportUploadResult?.key && faceUploadResult?.key) {
+        // 3단계: 회원가입 처리
+        setCurrentStep(3);
+        setCurrentStepText('회원가입을 처리하고 있습니다...');
         let isSuccessSignup = false;
         try {
           if (accessTokenRef.current) {
@@ -164,9 +178,7 @@ export const SignupFace = memo(function ({ route }: Params) {
               passportImageKey: passportUploadResult.key,
               profileImageKey: faceUploadResult.key,
             });
-            console.log('apiPutAuthInformation 호출 완료, 결과:', isSuccessSignup);
           } else {
-            console.log('apiPostAuthSignup 호출 직전');
                 isSuccessSignup = await apiPostAuthSignup({
                   uuid,
                   email: email,
@@ -180,7 +192,6 @@ export const SignupFace = memo(function ({ route }: Params) {
                   passportImageKey: passportUploadResult.key,
                   profileImageKey: faceUploadResult.key,
                 });
-                console.log(`회원가입 시도 완료, 결과:`, isSuccessSignup);
           }
         } catch (error) {
           if (error?.code === 'ECONNABORTED') {
@@ -194,20 +205,27 @@ export const SignupFace = memo(function ({ route }: Params) {
         }
 
         if (isSuccessSignup) {
-          try {
-            const nextScreen = getNextScreenInFlow(SIGNUP_FLOW, MENU.STACK.SCREEN.SIGNUP_FACE);
-            
-            if (nextScreen) {
-              navigation.push(nextScreen);
-            } else {
-              navigation.reset({
-                index: 0,
-                routes: [{ name: MENU.STACK.SCREEN.MAIN }],
-              });
+          // 4단계: 완료
+          setCurrentStep(4);
+          setCurrentStepText('회원가입이 완료되었습니다. 다음 화면으로 이동합니다...');
+          
+          // 약간의 지연 후 화면 이동 (완료 상태를 보여주기 위해)
+          setTimeout(() => {
+            try {
+              const nextScreen = getNextScreenInFlow(SIGNUP_FLOW, MENU.STACK.SCREEN.SIGNUP_FACE);
+              
+              if (nextScreen) {
+                navigation.push(nextScreen);
+              } else {
+                navigation.reset({
+                  index: 0,
+                  routes: [{ name: MENU.STACK.SCREEN.MAIN }],
+                });
+              }
+            } catch (navError) {
+              Toast.show('화면 이동 중 오류가 발생했습니다.', Toast.SHORT);
             }
-          } catch (navError) {
-            Toast.show('화면 이동 중 오류가 발생했습니다.', Toast.SHORT);
-          }
+          }, 1000);
         } else {
           Toast.show('Registration failed. Please try again.', Toast.SHORT);
         }
@@ -223,7 +241,9 @@ export const SignupFace = memo(function ({ route }: Params) {
         Toast.show('An error occurred. Please try again.', Toast.SHORT);
       }
     } finally {
-      setIsVisibleLoading(false);
+      setProgressVisible(false);
+      setCurrentStep(0);
+      setCurrentStepText('');
     }
   }, [uuid, email, pw, name, birth, country, honorary, passport, passportImage, navigation]);
 
@@ -238,6 +258,13 @@ export const SignupFace = memo(function ({ route }: Params) {
         isVisible={isVisibleFaceDetectCamera}
         onSubmit={handleDetect}
         onClose={() => setIsVisibleFaceDetectCamera(false)}
+      />
+      <ProgressBar
+        isVisible={progressVisible}
+        currentStep={currentStep}
+        totalSteps={stepLabels.length}
+        stepLabels={stepLabels}
+        currentStepText={currentStepText}
       />
       <Header title="Face Verification" />
       <ScrollView contentContainerStyle={style.scrollContainer} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
