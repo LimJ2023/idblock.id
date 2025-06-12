@@ -61,7 +61,7 @@ const SideNavigation = () => {
               )}
               to="/main/users"
             >
-              <User className="w-[20px]" />
+              <User className="h-[20px] w-[20px]" />
               <span>사용자 관리</span>
             </NavLink>
             <NavLink
@@ -73,7 +73,7 @@ const SideNavigation = () => {
               )}
               to="/main/sites"
             >
-              <MapPinned className="w-[20px]" />
+              <MapPinned className="h-[20px] w-[20px]" />
               <span>관광지 관리</span>
             </NavLink>
           </nav>
