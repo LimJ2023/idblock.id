@@ -65,7 +65,7 @@ const RootPage = () => {
       <main className="flex h-fit w-[36.375rem] flex-col gap-[3.125rem] rounded-[2.5rem] px-[4.375rem] py-[4.625rem]">
         <img src="/logo.png" alt="" className="mx-auto w-[100px]" />
         <h1 className="text-center text-base text-[#333333]">
-          로그인을 통해 관광지 방문을 확인할 수 있습니다
+          로그인을 통해 관리자 페이지를 확인할 수 있습니다
         </h1>
         <form
           className="flex flex-col gap-7"
