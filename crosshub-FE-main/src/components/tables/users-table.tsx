@@ -59,7 +59,7 @@ const UsersTable = <TData, TValue>({
   });
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 text-[#333333]">
       <Table captionSide={captionSide}>
         <TableCaption>{caption}</TableCaption>
         <TableHeader>

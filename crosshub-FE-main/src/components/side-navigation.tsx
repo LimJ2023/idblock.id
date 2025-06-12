@@ -35,10 +35,10 @@ const SideNavigation = () => {
   };
 
   return (
-    <div className="flex max-h-screen flex-col bg-[#17171F] p-10 font-pretendard text-white">
+    <div className="flex max-h-screen w-[240px] flex-col border border-[#E5E7EB] bg-[#FFFFFF] p-5 font-pretendard text-white">
       <div className="flex-1">
-        <div className="flex h-full flex-col gap-4">
-          <img src="/logo.png" alt="" />
+        <div className="flex h-full w-full flex-col gap-4">
+          <img className="w-[42px]" src="/logo.png" alt="" />
 
           <nav className="flex flex-1 flex-col justify-start pt-11">
             {/* <NavLink
@@ -55,40 +55,40 @@ const SideNavigation = () => {
             <NavLink
               data-state={pathname === "/main/users" ? "active" : "inactive"}
               className={cn(
-                "flex gap-4 px-6 py-4 text-[#929295] transition-colors",
-                "hover:font-bold hover:text-white",
-                "data-[state=active]:font-bold data-[state=active]:text-white",
+                "mb-2 flex items-center gap-4 rounded-lg px-5 py-3 text-sm text-[#333333] transition-colors",
+                "hover:bg-[#FF5520] hover:text-white",
+                "data-[state=active]:bg-[#FF5520] data-[state=active]:text-white",
               )}
               to="/main/users"
             >
-              <User />
+              <User className="w-[20px]" />
               <span>사용자 관리</span>
             </NavLink>
             <NavLink
               data-state={pathname === "/main/sites" ? "active" : "inactive"}
               className={cn(
-                "flex gap-4 px-6 py-4 text-[#929295] transition-colors",
-                "hover:font-bold hover:text-white",
-                "data-[staactte=ive]:font-bold data-[state=active]:text-white",
+                "flex items-center gap-4 rounded-lg px-5 py-3 text-sm text-[#333333] transition-colors",
+                "hover:bg-[#FF5520] hover:text-white",
+                "data-[state=active]:bg-[#FF5520] data-[state=active]:text-white",
               )}
               to="/main/sites"
             >
-              <MapPinned />
+              <MapPinned className="w-[20px]" />
               <span>관광지 관리</span>
             </NavLink>
           </nav>
 
-          <div className="flex p-4">
+          <div className="flex">
             <Button
               variants="secondary"
               className={cn(
-                "flex h-14 w-full gap-2 font-pretendard text-xl",
-                "hover:bg-red-600",
+                "flex w-full gap-2 rounded-lg bg-[#F4F4F4] px-5 py-3 font-pretendard text-sm text-[#666666]",
+                "hover:bg-[#415776] hover:text-white",
                 "[&_svg]:size-6",
               )}
               onClick={handleLogOut}
             >
-              <LogOut />
+              <LogOut className="max-w-[20px]" />
               <span>로그아웃</span>
             </Button>
           </div>
