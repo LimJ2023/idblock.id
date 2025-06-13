@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { useFormContext } from "react-hook-form";
+import { useFormContext, UseFormWatch } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,9 +10,13 @@ import { cn } from "@/lib/utils";
 import { Upload } from "lucide-react";
 
 import type { ChangeEventHandler } from "react";
-import { uploadThumbnail } from "@/api/sites.api";
+import { SiteDetail, uploadThumbnail } from "@/api/sites.api";
 
-const ThumbnailUploadForm = () => {
+const ThumbnailUploadForm = ({
+  watch,
+}: {
+  watch: UseFormWatch<SiteDetail>;
+}) => {
   const { setValue } = useFormContext();
 
   const { mutateAsync } = useMutation({ mutationFn: uploadThumbnail });
@@ -34,10 +38,21 @@ const ThumbnailUploadForm = () => {
   };
 
   return (
-    <section className="flex flex-col gap-2">
+    <section className="flex flex-col gap-5">
       <Label className="font-pretendard" aria-required>
-        썸네일
+        관광지 이미지
       </Label>
+
+      <div className="flex h-32 w-32 gap-2">
+        {watch("thumbnail") && (
+          <img
+            className="h-full w-full object-cover"
+            src={watch("thumbnail").url}
+            alt="썸네일 이미지"
+          />
+        )}
+      </div>
+
       <Button
         type="button"
         className={cn(
@@ -47,7 +62,10 @@ const ThumbnailUploadForm = () => {
         asChild
       >
         <Label
-          className={cn("font-pretendard", "hover:cursor-pointer")}
+          className={cn(
+            "border-[#E5E7EB] bg-[#415776] font-pretendard text-white",
+            "hover:cursor-pointer",
+          )}
           htmlFor="thumbnail"
         >
           <Upload className="h-6 w-6" /> 이미지 업로드
