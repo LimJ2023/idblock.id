@@ -30,61 +30,67 @@ const VisitorDetailDialog = ({
   return (
     <Dialog onOpenChange={() => {}}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="max-h-screen max-w-5xl gap-8 overflow-auto rounded-[1.25rem] font-pretendard">
-        <DialogHeader>
-          <DialogTitle className="text-center text-xl">
-            승인하시겠습니까?
+      <DialogContent className="max-h-screen max-w-3xl gap-8 overflow-auto rounded-[1.25rem] p-10 font-pretendard">
+        <DialogHeader className="flex-col gap-3">
+          <DialogTitle className="text-center text-2xl">
+            방문자 신분증
           </DialogTitle>
           <DialogDescription className=""></DialogDescription>
         </DialogHeader>
 
         {result && result.success && (
-          <div className="mb-12">
-            <h1 className="mb-12 text-center text-3xl font-bold">
+          <div>
+            {/* <h1 className="mb-12 text-center text-3xl font-bold">
               방문자 신분증
-            </h1>
-            <div className="flex gap-5">
-              <div className="basis-52">
-                <img
-                  src={result.value.profileImageKey}
-                  alt="방문자 사진"
-                  className="w-full"
-                />
+            </h1> */}
+            <div className="flex gap-10 border-t border-[#666666] pt-6">
+              <div className="flex w-full flex-1 flex-col justify-between gap-4 pt-3">
+                <div className="h-[16rem] w-[12rem] overflow-hidden rounded-xl border border-[#E5E7EB]">
+                  <img
+                    src={result.value.profileImageKey}
+                    alt="방문자 사진"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
               </div>
-              <div className="flex flex-1 flex-col gap-5 divide-y border-t border-black">
-                <div className="flex pt-5">
-                  <div className="flex flex-1 font-bold text-black">이름</div>
-                  <div className="flex flex-1 text-[#666666]">
+              <div className="flex-2 flex flex-col gap-4 divide-y">
+                <div className="flex pt-4">
+                  <div className="w-36 shrink-0 font-medium text-[#333333]">
+                    이름
+                  </div>
+                  <div className="text-sm text-[#666666]">
                     {result.value.name}
                   </div>
                 </div>
-                <div className="flex pt-5">
-                  <div className="flex flex-1 font-bold text-black">국가</div>
-                  <div className="flex flex-1 text-[#666666]">
+                <div className="flex pt-4">
+                  <div className="w-36 shrink-0 font-medium text-[#333333]">
+                    국가
+                  </div>
+                  <div className="text-sm text-[#666666]">
                     {result.value.countryCode}
                   </div>
                 </div>
-                <div className="flex pt-5">
-                  <div className="flex flex-1 font-bold text-black">
+                <div className="flex pt-4">
+                  <div className="w-36 shrink-0 font-medium text-[#333333]">
                     명예시민
                   </div>
-                  <div className="flex flex-1 text-[#666666]">
+                  <div className="text-sm text-[#666666]">
                     {result.value.cityId}
                   </div>
                 </div>
-                <div className="flex pt-5">
-                  <div className="flex flex-1 font-bold text-black">
+                <div className="flex pt-4">
+                  <div className="w-36 shrink-0 font-medium text-[#333333]">
                     생년월일
                   </div>
-                  <div className="flex flex-1 text-[#666666]">
+                  <div className="text-sm text-[#666666]">
                     {result.value.birthday}
                   </div>
                 </div>
-                <div className="flex pt-5">
-                  <div className="flex flex-1 font-bold text-black">
+                <div className="flex pt-4">
+                  <div className="w-36 shrink-0 font-medium text-[#333333]">
                     블록체인 주소
                   </div>
-                  <div className="flex flex-1 text-wrap break-all text-[#666666]">
+                  <div className="text-wrap break-all text-sm text-[#666666]">
                     {result.value.txHash}
                   </div>
                 </div>
@@ -93,12 +99,11 @@ const VisitorDetailDialog = ({
           </div>
         )}
 
-        <DialogFooter className="flex justify-center gap-2">
+        <DialogFooter className="flex justify-end gap-4 pt-8">
           <DialogClose asChild>
             <Button
               className={cn(
-                "h-[3.75rem] w-full rounded-2xl font-pretendard text-xl",
-                "hover:bg-[#232323]/80",
+                "h-[2.5rem] rounded-lg border border-[#E5E7EB] font-pretendard text-base",
               )}
               variants={"default"}
             >

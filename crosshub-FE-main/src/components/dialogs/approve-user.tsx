@@ -56,6 +56,7 @@ const ApproveUserDialog = ({ selected }: { selected: string }) => {
           승인
         </Button>
       </DialogTrigger>
+
       <DialogContent className="gap-8 rounded-[1rem] font-pretendard">
         <DialogHeader className="flex-col gap-3">
           <DialogTitle className="text-center text-2xl">
@@ -68,6 +69,7 @@ const ApproveUserDialog = ({ selected }: { selected: string }) => {
         <section className="flex items-center justify-center text-lg">
           {/* {message} */}
         </section>
+
         <DialogFooter className="flex justify-center gap-4">
           <DialogClose asChild>
             <Button
