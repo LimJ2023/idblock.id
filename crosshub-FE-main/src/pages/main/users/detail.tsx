@@ -69,7 +69,7 @@ const UserDetailPage = () => {
             <header className="flex w-full flex-col gap-5 pb-5">
               <div className="flex gap-4">
                 <h1 className="p-1 text-center font-pretendard text-2xl font-medium leading-[1.35rem]">
-                  승인 사용자 상세
+                  사용자 상세정보
                 </h1>
               </div>
             </header>
@@ -161,32 +161,32 @@ const UserDetailPage = () => {
               </div>
             </header>
             <div className="mb-2"></div>
-            <div className="flex-2 flex flex-col gap-5 divide-y border-t border-[#999999]">
+            <div className="flex-2 box-border flex flex-col gap-5 divide-y border-t border-[#999999]">
               <Label className="pt-5 font-pretendard">여권 및 얼굴 사진</Label>
-              <div className="flex w-fit items-start items-center rounded-xl border-none bg-[#F7F7F7] p-4">
-                <div className="">
+              <div className="box-border flex w-fit items-start items-center rounded-xl border-none bg-[#F7F7F7] p-4">
+                <div className="flex-2">
                   <Link target="_blank" to={data.passportImageKey}>
-                    <div className="box-content h-[72px] w-[72px] overflow-hidden rounded-xl border border-[#E5E7EB]">
+                    <div className="box-content h-[100px] w-full overflow-hidden rounded-xl border-2 border-[#E4E4E4]">
                       <img
                         src={data.passportImageKey}
                         alt="passport"
-                        className="object-cover"
+                        className="h-full w-full object-cover"
                       />
                     </div>
                   </Link>
                 </div>
-                <div className="h-1 w-7 bg-[#FFD7CA]"></div>
-                <div className="rounded-full bg-[#FFD7CA] p-1">
-                  <ShieldCheck className="h-[32px] w-[32px] text-primary" />
+                <div className="h-0.5 w-7 bg-[#E4E4E4]"></div>
+                <div className="rounded-full bg-[#E4E4E4] p-1">
+                  <ShieldCheck className="h-[32px] w-[32px] text-[#666666]" />
                 </div>
-                <div className="h-1 w-7 bg-[#FFD7CA]"></div>
-                <div className="">
+                <div className="h-0.5 w-7 bg-[#E4E4E4]"></div>
+                <div className="flex-2">
                   <Link target="_blank" to={data.profileImageKey}>
-                    <div className="box-content h-[72px] w-[72px] overflow-hidden rounded-xl border border-[#E5E7EB]">
+                    <div className="box-content h-[100px] w-full overflow-hidden rounded-xl border-2 border-[#E4E4E4]">
                       <img
                         src={data.profileImageKey}
                         alt="profile"
-                        className="object-cover"
+                        className="h-full w-full object-cover"
                       />
                     </div>
                   </Link>
