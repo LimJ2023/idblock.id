@@ -82,7 +82,7 @@ const SideNavigation = () => {
             <Button
               variants="secondary"
               className={cn(
-                "flex w-full gap-2 rounded-lg bg-[#F4F4F4] px-3.5 py-2.5 font-pretendard text-sm text-[#666666]",
+                "flex w-full gap-2 rounded-lg bg-[#F7F7F7] px-3.5 py-2.5 font-pretendard text-sm text-[#666666]",
                 "hover:bg-[#415776] hover:text-white",
                 "[&_svg]:size-6",
               )}

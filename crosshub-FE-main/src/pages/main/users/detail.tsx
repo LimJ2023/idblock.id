@@ -46,9 +46,11 @@ const UserDetailPage = () => {
   };
 
   return (
-    <div className="flex min-h-full w-full flex-col border bg-white">
+    <div className="flex min-h-full w-full flex-col border bg-white text-[#1E1E1E]">
       <div className="p-5">
-        <h1 className="px-4 py-2 text-3xl font-semibold">사용자 관리</h1>
+        <h1 className="px-4 py-2 text-3xl font-semibold text-[#1E1E1E]">
+          사용자 관리
+        </h1>
       </div>
       <main className="flex h-full w-full flex-col border-t border-[#E5E7EB] bg-[#FAFBFC] px-6 py-4">
         <div className="flex justify-end pb-4">
@@ -159,7 +161,7 @@ const UserDetailPage = () => {
             <div className="mb-2"></div>
             <div className="flex-2 flex flex-col gap-5 divide-y border-t border-black">
               <Label className="pt-5 font-pretendard">여권 및 얼굴 사진</Label>
-              <div className="flex w-fit items-start items-center rounded-xl border-none bg-[#F4F4F4] p-4">
+              <div className="flex w-fit items-start items-center rounded-xl border-none bg-[#F7F7F7] p-4">
                 <div className="">
                   <Link target="_blank" to={data.passportImageKey}>
                     <div className="box-content h-[72px] w-[72px] overflow-hidden rounded-xl border border-[#E5E7EB]">
@@ -207,9 +209,9 @@ const UserDetailPage = () => {
                   </div>
                 </div>
 
-                <div className="divide-y rounded-xl bg-[#F4F4F4] p-4">
+                <div className="divide-y rounded-xl bg-[#F7F7F7] p-4">
                   <div className="flex pb-4 pt-2">
-                    <div className="flex basis-60 items-center gap-2 text-sm font-semibold uppercase text-[#333333]">
+                    <div className="flex basis-60 items-center gap-2 text-xs font-semibold uppercase text-[#333333]">
                       <span>Screen replay</span>
                       <TooltipProvider delayDuration={100}>
                         <Tooltip>
@@ -229,12 +231,12 @@ const UserDetailPage = () => {
                         </Tooltip>
                       </TooltipProvider>
                     </div>
-                    <div className="flex-1 text-sm text-[#666666]">
+                    <div className="flex-1 text-xs text-[#666666]">
                       {data.screenReplay ?? "-"} %
                     </div>
                   </div>
                   <div className="flex py-4">
-                    <div className="flex basis-60 items-center gap-2 text-sm font-semibold uppercase text-[#333333]">
+                    <div className="flex basis-60 items-center gap-2 text-xs font-semibold uppercase text-[#333333]">
                       <span>Paper printed</span>
                       <TooltipProvider delayDuration={100}>
                         <Tooltip>
@@ -254,12 +256,12 @@ const UserDetailPage = () => {
                         </Tooltip>
                       </TooltipProvider>
                     </div>
-                    <div className="flex-1 text-sm text-[#666666]">
+                    <div className="flex-1 text-xs text-[#666666]">
                       {data.paperPrinted ?? "-"} %
                     </div>
                   </div>
                   <div className="flex py-4">
-                    <div className="flex basis-60 items-center gap-2 text-sm font-semibold uppercase text-[#333333]">
+                    <div className="flex basis-60 items-center gap-2 text-xs font-semibold uppercase text-[#333333]">
                       <span>replace portraits</span>
                       <TooltipProvider delayDuration={100}>
                         <Tooltip>
@@ -279,12 +281,12 @@ const UserDetailPage = () => {
                         </Tooltip>
                       </TooltipProvider>
                     </div>
-                    <div className="flex-1 text-sm text-[#666666]">
+                    <div className="flex-1 text-xs text-[#666666]">
                       {data.replacePortraits ?? "-"} %
                     </div>
                   </div>
                   <div className="flex py-4">
-                    <div className="flex basis-60 items-center gap-2 text-sm font-semibold uppercase text-[#333333]">
+                    <div className="flex basis-60 items-center gap-2 text-xs font-semibold uppercase text-[#333333]">
                       <span>similarity</span>
                       <TooltipProvider delayDuration={100}>
                         <Tooltip>
@@ -304,12 +306,12 @@ const UserDetailPage = () => {
                         </Tooltip>
                       </TooltipProvider>
                     </div>
-                    <div className="flex-1 text-sm text-[#666666]">
+                    <div className="flex-1 text-xs text-[#666666]">
                       {data.matchSimilarity ?? "-"} %
                     </div>
                   </div>
                   <div className="flex py-4">
-                    <div className="flex basis-60 items-center gap-2 text-sm font-semibold uppercase text-[#333333]">
+                    <div className="flex basis-60 items-center gap-2 text-xs font-semibold uppercase text-[#333333]">
                       <span>Confidence</span>
                       <TooltipProvider delayDuration={100}>
                         <Tooltip>
@@ -329,12 +331,12 @@ const UserDetailPage = () => {
                         </Tooltip>
                       </TooltipProvider>
                     </div>
-                    <div className="flex-1 text-sm text-[#666666]">
+                    <div className="flex-1 text-xs text-[#666666]">
                       {data.matchConfidence ?? "-"} %
                     </div>
                   </div>
                   <div className="flex py-4 pb-2 pt-4">
-                    <div className="flex basis-60 items-center gap-2 text-sm font-semibold uppercase text-[#333333]">
+                    <div className="flex basis-60 items-center gap-2 text-xs font-semibold uppercase text-[#333333]">
                       <span>liveness</span>
                       <TooltipProvider delayDuration={100}>
                         <Tooltip>
@@ -351,7 +353,7 @@ const UserDetailPage = () => {
                         </Tooltip>
                       </TooltipProvider>
                     </div>
-                    <div className="flex-1 text-sm text-[#666666]">
+                    <div className="flex-1 text-xs text-[#666666]">
                       {data.faceLiveness ?? "-"} %
                     </div>
                   </div>
