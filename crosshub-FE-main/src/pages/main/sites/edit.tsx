@@ -84,17 +84,11 @@ const SiteEditForm = ({ current }: { current: SiteDetail }) => {
         <div className="flex h-full w-full gap-10">
           <section className="flex w-full flex-1 flex-col justify-between gap-4">
             <ThumbnailUploadForm watch={watch} />
-            {/* <div className="flex min-h-24 gap-2">
-              {watch("thumbnail") && (
-                <img
-                  className="w-48"
-                  src={watch("thumbnail").url}
-                  alt="썸네일 이미지"
-                />
-              )}
-            </div> */}
             <div className="flex flex-col gap-3">
-              <Label className="font-pretendard text-[14px]" aria-required>
+              <Label
+                className="font-pretendard text-[14px] font-medium"
+                aria-required
+              >
                 이름
               </Label>
               <Input
@@ -105,7 +99,10 @@ const SiteEditForm = ({ current }: { current: SiteDetail }) => {
               />
             </div>
             <div className="flex flex-col gap-3">
-              <Label className="font-pretendard text-[14px]" aria-required>
+              <Label
+                className="font-pretendard text-[14px] font-medium"
+                aria-required
+              >
                 위치
               </Label>
               <Input
@@ -119,7 +116,10 @@ const SiteEditForm = ({ current }: { current: SiteDetail }) => {
 
           <section className="flex w-full flex-1 flex-col justify-between gap-4">
             <div className="flex flex-col gap-3">
-              <Label className="font-pretendard text-[14px]" aria-required>
+              <Label
+                className="font-pretendard text-[14px] font-medium"
+                aria-required
+              >
                 설명
               </Label>
               <Input
@@ -130,7 +130,10 @@ const SiteEditForm = ({ current }: { current: SiteDetail }) => {
               />
             </div>
             <div className="flex flex-col gap-3">
-              <Label className="font-pretendard text-[14px]" aria-required>
+              <Label
+                className="font-pretendard text-[14px] font-medium"
+                aria-required
+              >
                 아이디
               </Label>
               <Input
@@ -141,7 +144,10 @@ const SiteEditForm = ({ current }: { current: SiteDetail }) => {
               />
             </div>
             <div className="flex flex-col gap-3">
-              <Label className="font-pretendard text-[14px]" aria-required>
+              <Label
+                className="font-pretendard text-[14px] font-medium"
+                aria-required
+              >
                 비밀번호
               </Label>
               <Input
@@ -152,7 +158,10 @@ const SiteEditForm = ({ current }: { current: SiteDetail }) => {
               />
             </div>
             <div className="flex flex-col gap-3">
-              <Label className="font-pretendard text-[14px]" aria-required>
+              <Label
+                className="font-pretendard text-[14px] font-medium"
+                aria-required
+              >
                 비밀번호 재입력
               </Label>
               <Input
@@ -174,7 +183,7 @@ const SiteEditForm = ({ current }: { current: SiteDetail }) => {
                 "rounded-lg border border-[#E5E7EB] px-3.5 py-2 disabled:bg-neutral-200",
               )}
             >
-              등록
+              저장
             </Button>
           </div>
         </div>
