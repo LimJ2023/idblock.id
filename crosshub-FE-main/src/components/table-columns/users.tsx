@@ -150,10 +150,11 @@ const columns: ColumnDef<User>[] = [
               </Button> */}
               <Button
                 variants="secondary"
-                className="border border-[#D8D7DB] bg-[#fff8e9] font-pretendard text-[#ffc550] hover:bg-[#ffc550] hover:text-white"
+                className="border border-[#D8D7DB] bg-[#fff8e9] font-pretendard text-[#ffc550] hover:bg-[#ffc550] hover:text-white disabled:text-[#EEEEEE]"
                 onClick={(e) => {
                   e.stopPropagation();
                 }}
+                disabled
               >
                 <CircleMinus />
                 거절
@@ -165,11 +166,11 @@ const columns: ColumnDef<User>[] = [
             <>
               <Button
                 variants="secondary"
-                className="border border-[#D8D7DB] bg-[#F3FCF3] font-pretendard text-[#33A14B] hover:bg-[#33A14B] hover:text-white"
+                className="border border-[#D8D7DB] bg-[#F3FCF3] font-pretendard text-[#33A14B] hover:bg-[#33A14B] hover:text-white disabled:text-[#EEEEEE]"
                 onClick={(e) => {
                   e.stopPropagation();
                 }}
-                // disabled
+                disabled
               >
                 <CircleCheck />
                 승인
