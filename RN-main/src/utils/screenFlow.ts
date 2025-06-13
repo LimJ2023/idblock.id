@@ -1,10 +1,10 @@
 import { MENU } from './constant';
-import { CURRENT_SIGNUP_FLOW, CURRENT_RESET_PASSWORD_FLOW } from './screenFlowConfig';
+import { CURRENT_SIGNUP_FLOW, CURRENT_RESET_PASSWORD_FLOW, CURRENT_AFTER_SIMPLE_SIGNUP_VERIFICATION_FLOW } from './screenFlowConfig';
 
 // 현재 설정된 플로우를 사용
 export const SIGNUP_FLOW = CURRENT_SIGNUP_FLOW;
 export const RESET_PASSWORD_FLOW = CURRENT_RESET_PASSWORD_FLOW;
-
+export const AFTER_SIMPLE_SIGNUP_VERIFICATION_FLOW = CURRENT_AFTER_SIMPLE_SIGNUP_VERIFICATION_FLOW;
 // 화면 플로우 관리 클래스
 export class ScreenFlowManager {
   private flow: string[];

@@ -43,11 +43,20 @@ export const DEFAULT_RESET_PASSWORD_FLOW = [
   MENU.STACK.SCREEN.RESET_FORM_RESULT,
 ];
 
+// 간편가입 후 나중에 여권인증 플로우
+export const AFTER_SIMPLE_SIGNUP_VERIFICATION_FLOW = [
+  MENU.STACK.SCREEN.SIGNUP_TERM,
+  MENU.STACK.SCREEN.SIGNUP_PASSPORT,
+  MENU.STACK.SCREEN.SIGNUP_FORM,
+  MENU.STACK.SCREEN.SIGNUP_FACE,
+  MENU.STACK.SCREEN.SIGNUP_RESULT,
+]
+
 // 현재 사용할 플로우 설정
 // 여기서 플로우를 쉽게 변경할 수 있습니다!
 export const CURRENT_SIGNUP_FLOW = SIMPLIFIED_SIGNUP_FLOW; // 다른 플로우로 변경하려면 이 부분을 수정
 export const CURRENT_RESET_PASSWORD_FLOW = DEFAULT_RESET_PASSWORD_FLOW;
-
+export const CURRENT_AFTER_SIMPLE_SIGNUP_VERIFICATION_FLOW = AFTER_SIMPLE_SIGNUP_VERIFICATION_FLOW;
 /**
  * 플로우 변경 가이드:
  * 
@@ -102,6 +111,11 @@ export const FLOW_METADATA = {
   [JSON.stringify(SIMPLIFIED_SIGNUP_FLOW)]: {
     name: 'Simplified Flow',
     description: '간소화된 회원가입 플로우',
+    estimatedTime: '3-5 minutes',
+  },
+  [JSON.stringify(AFTER_SIMPLE_SIGNUP_VERIFICATION_FLOW)]: {
+    name: 'After Simple Signup Verification Flow',
+    description: '간편가입 후 나중에 여권인증 플로우',
     estimatedTime: '3-5 minutes',
   },
 }; 
