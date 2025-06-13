@@ -530,7 +530,8 @@ export class AuthService {
       return false;
     } catch (error) {
       console.error('Error fetching Argos Face Compare:', error);
-      throw new BadRequestException('Failed to fetch Argos Face Compare');
+      return false;
+      // throw new BadRequestException('Failed to fetch Argos Face Compare');
     }
   }
 

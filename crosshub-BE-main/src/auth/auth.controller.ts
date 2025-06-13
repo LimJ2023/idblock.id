@@ -237,7 +237,7 @@ export class AuthController {
     },
   })
   async signup(@Body() body: SignUpDto) {
-
+    console.log("body : ", body);
 
     const created = await this.authService.createUser(
       v.parse(insertUserSchema, body.data, {}),

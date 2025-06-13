@@ -209,6 +209,13 @@ export class SignUpDto extends TypeschemaDto(VSignUpDto) {
       'private/profile/1005aa23b5e4f2ca0e448345741cefc35aaa0eed639673ec134de5898ddf18a5',
   })
   profileImageKey: string;
+
+  @ApiProperty({
+    title: "승인유형",
+    description: "승인유형",
+    example: "1",
+  })
+  approvalId: string;
 }
 
 const VDeleteUserDto = v.object({
