@@ -84,6 +84,7 @@ const VisitReviewTable = <TData, TValue>({
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && "selected"}
+                className="hover:bg-transparent"
                 onClick={() => {}}
               >
                 {row.getVisibleCells().map((cell) => (

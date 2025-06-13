@@ -37,7 +37,11 @@ type TableHeaderProps = React.ComponentPropsWithoutRef<"thead"> & {};
 
 const TableHeader = React.forwardRef<HTMLTableSectionElement, TableHeaderProps>(
   ({ className, ...props }, ref) => (
-    <thead ref={ref} className={cn("[&_tr]:border-b", className)} {...props} />
+    <thead
+      ref={ref}
+      className={cn("[&_tr]:border-b [&_tr]:hover:bg-white", className)}
+      {...props}
+    />
   ),
 );
 TableHeader.displayName = "TableHeader";
@@ -76,8 +80,8 @@ const TableRow = React.forwardRef<HTMLTableRowElement, TableRowProps>(
       ref={ref}
       className={cn(
         "border-b transition-colors",
-        "hover:bg-gray-600/20",
-        "data-[state=selected]:bg-gray-600/50",
+        "hover:bg-[#F4F4F4]",
+        "data-[state=selected]:bg-[#F4F4F4]",
         className,
       )}
       {...props}
