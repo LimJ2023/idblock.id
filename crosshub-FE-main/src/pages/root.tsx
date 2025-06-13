@@ -61,11 +61,11 @@ const RootPage = () => {
   const onInvalid: SubmitErrorHandler<AdminLogin> = () => {};
 
   return (
-    <div className="flex h-full items-center justify-center bg-[#17171F] font-pretendard">
+    <div className="flex h-full items-center justify-center bg-[#FFFFFF] font-pretendard">
       <main className="flex h-fit w-[36.375rem] flex-col gap-[3.125rem] rounded-[2.5rem] px-[4.375rem] py-[4.625rem]">
-        <img src="/logo.png" alt="" className="mx-auto w-[240px]" />
-        <h1 className="text-center text-4xl font-bold text-white">
-          관리자 로그인
+        <img src="/logo.png" alt="" className="mx-auto w-[100px]" />
+        <h1 className="text-center text-base text-[#333333]">
+          로그인을 통해 관리자 페이지를 확인할 수 있습니다
         </h1>
         <form
           className="flex flex-col gap-7"
@@ -77,19 +77,19 @@ const RootPage = () => {
           onSubmit={handleSubmit(onValid, onInvalid)}
         >
           <div className="flex flex-col gap-2">
-            <Label htmlFor="email" className="font-pretendard text-white">
-              아이디
+            <Label htmlFor="email" className="font-pretendard text-[#999999]">
+              이메일
             </Label>
             <div
               className={cn(
-                "flex h-14 rounded-[1.25rem] border border-[#CECECE] bg-white px-4 py-2",
+                "flex h-14 rounded-2xl border border-[#CECECE] bg-white px-4 py-2",
                 errors.email ? "border-[#FF0000]" : "",
                 serverError !== "" ? "border-[#FF0000]" : "",
               )}
             >
               <Input
                 {...register("email", { required: true })}
-                placeholder="이메일 아이디"
+                placeholder="이메일"
                 className={cn(
                   "border-transparent bg-transparent px-2 font-pretendard text-base font-normal",
                   "placeholder:text-base placeholder:text-[#AEAEAE]",
@@ -99,16 +99,19 @@ const RootPage = () => {
             </div>
 
             {errors.email && (
-              <p className="text-xs text-[#FF0000]">아이디를 입력하세요.</p>
+              <p className="text-xs text-[#FF0000]">이메일을 입력하세요.</p>
             )}
           </div>
           <div className="flex flex-col gap-2">
-            <Label htmlFor="password" className="font-pretendard text-white">
+            <Label
+              htmlFor="password"
+              className="font-pretendard text-[#999999]"
+            >
               비밀번호
             </Label>
             <div
               className={cn(
-                "flex h-14 rounded-[1.25rem] border border-[#CECECE] bg-white px-4 py-2",
+                "flex h-14 rounded-2xl border border-[#CECECE] bg-white px-4 py-2",
                 errors.password ? "border-[#FF0000]" : "",
                 serverError !== "" ? "border-[#FF0000]" : "",
               )}
@@ -152,14 +155,14 @@ const RootPage = () => {
               id="save"
               name="save"
             />
-            <Label htmlFor="save" className="font-pretendard text-[#717171]">
+            <Label htmlFor="save" className="font-pretendard text-[#999999]">
               아이디 저장
             </Label>
           </div>
           <Button
             type="submit"
             className={cn(
-              "h-14 rounded-full font-pretendard text-2xl font-bold",
+              "h-14 rounded-2xl font-pretendard text-xl font-semibold",
               isLoading ? "bg-primary/90" : "",
             )}
           >

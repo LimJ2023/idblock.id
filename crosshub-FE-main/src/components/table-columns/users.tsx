@@ -5,6 +5,7 @@ import { RejectUserDialog } from "../dialogs/reject-user";
 import { Link } from "react-router-dom";
 import { Button } from "../ui/button";
 import { DeleteUserDialog } from "../dialogs/delete-user";
+import { CircleCheck, CircleMinus, CircleX } from "lucide-react";
 
 const columns: ColumnDef<User>[] = [
   {
@@ -40,12 +41,14 @@ const columns: ColumnDef<User>[] = [
         to={`/main/users/${(row.row.original as { id: string }).id}`}
         className="flex h-full items-center justify-center"
       >
-        <div className="mx-auto max-w-24 text-center">
-          <img
-            src={row.getValue<string>()}
-            alt="passport"
-            className="mx-auto"
-          />
+        <div className="max-w-24 text-center">
+          <div className="box-content h-[72px] w-[72px] overflow-hidden rounded-full border border-[#E5E7EB]">
+            <img
+              src={row.getValue<string>()}
+              alt="passport"
+              className="h-full w-full object-cover"
+            />
+          </div>
         </div>
       </Link>
     ),
@@ -59,7 +62,13 @@ const columns: ColumnDef<User>[] = [
         className="flex h-full items-center justify-center"
       >
         <div className="mx-auto max-w-24 text-center">
-          <img src={row.getValue<string>()} alt="profile" className="mx-auto" />
+          <div className="box-content h-[72px] w-[72px] overflow-hidden rounded-full border border-[#E5E7EB]">
+            <img
+              src={row.getValue<string>()}
+              alt="profile"
+              className="h-full w-full object-cover"
+            />
+          </div>
         </div>
       </Link>
     ),
@@ -116,69 +125,73 @@ const columns: ColumnDef<User>[] = [
             <>
               <ApproveUserDialog selected={id} />
               <RejectUserDialog id={id} />
-              <Button
+              {/* <Button
                 variants="secondary"
-                className="border border-[#D8D7DB] bg-orange-600 font-pretendard hover:text-white"
+                className="border border-[#D8D7DB] bg-[#fff8e9] font-pretendard text-[#ffc550] hover:bg-[#ffc550] hover:text-white"
                 onClick={(e) => {
                   e.stopPropagation();
                 }}
               >
+                <CircleMinus />
                 취소
-              </Button>
+              </Button> */}
             </>
           ) : approvalStatus === 1 ? (
             <>
-              <Button
+              {/* <Button
                 variants="secondary"
-                className="border border-[#D8D7DB] bg-[#3A394D] font-pretendard hover:text-white"
+                className="border border-[#D8D7DB] bg-[#F3FCF3] font-pretendard text-[#33A14B] hover:bg-[#33A14B] hover:text-white"
                 onClick={(e) => {
                   e.stopPropagation();
                 }}
               >
+                <CircleCheck />
                 승인
-              </Button>
+              </Button> */}
               <Button
                 variants="secondary"
-                className="border border-[#D8D7DB] bg-[#3A394D] font-pretendard hover:text-white"
+                className="border border-[#D8D7DB] bg-[#fff8e9] font-pretendard text-[#ffc550] hover:bg-[#ffc550] hover:text-white"
                 onClick={(e) => {
                   e.stopPropagation();
                 }}
-                disabled
               >
+                <CircleMinus />
                 거절
               </Button>
 
               <DeleteUserDialog selected={id} />
-
             </>
           ) : (
             <>
               <Button
                 variants="secondary"
-                className="border border-[#D8D7DB] bg-[#3A394D] font-pretendard hover:text-white"
+                className="border border-[#D8D7DB] bg-[#F3FCF3] font-pretendard text-[#33A14B] hover:bg-[#33A14B] hover:text-white"
                 onClick={(e) => {
                   e.stopPropagation();
                 }}
-                disabled
+                // disabled
               >
+                <CircleCheck />
                 승인
               </Button>
-              <Button
+              {/* <Button
                 variants="secondary"
-                className="border border-[#D8D7DB] bg-[#3A394D] font-pretendard hover:text-white"
+                className="border border-[#D8D7DB] bg-[#fff8e9] font-pretendard text-[#ffc550] hover:bg-[#ffc550] hover:text-white"
                 onClick={(e) => {
                   e.stopPropagation();
                 }}
               >
+                <CircleMinus />
                 거절
-              </Button>
+              </Button> */}
               <Button
                 variants="secondary"
-                className="border border-[#D8D7DB] bg-orange-600 font-pretendard hover:text-white"
+                className="border border-[#D8D7DB] bg-[#FEF1F1] font-pretendard text-[#F23B3B] hover:bg-[#F23B3B] hover:text-white"
                 onClick={(e) => {
                   e.stopPropagation();
                 }}
               >
+                <CircleX />
                 삭제
               </Button>
             </>

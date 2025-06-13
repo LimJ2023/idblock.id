@@ -8,7 +8,7 @@ type TableProps = React.ComponentPropsWithoutRef<"table"> & {
 
 const Table = React.forwardRef<HTMLTableElement, TableProps>(
   ({ className, captionSide = "top", ...props }, ref) => (
-    <div className="font-pretendard relative w-full">
+    <div className="relative w-full font-pretendard">
       <table
         ref={ref}
         className={cn(

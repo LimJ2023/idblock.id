@@ -4,6 +4,7 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -13,6 +14,7 @@ import {
 import { cn } from "@/lib/utils";
 import { queries } from "@/queries";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { CircleX } from "lucide-react";
 
 const RemoveSiteDialog = ({ selected }: { selected: number }) => {
   const queryClient = useQueryClient();
@@ -41,38 +43,44 @@ const RemoveSiteDialog = ({ selected }: { selected: number }) => {
       <DialogTrigger asChild>
         <Button
           variants="secondary"
-          className="border border-[#D8D7DB] bg-[#F3F4F8] font-pretendard text-black hover:text-white"
+          className="border border-[#D8D7DB] bg-[#FEF1F1] font-pretendard text-[#F23B3B] hover:bg-[#F23B3B] hover:text-white"
         >
-          선택 삭제
+          <CircleX />
+          삭제
         </Button>
       </DialogTrigger>
-      <DialogContent className="gap-8 rounded-[1.25rem] font-pretendard">
-        <DialogHeader>
-          <DialogTitle className="text-center text-xl">
-            ‘삭제’ 하시겠습니까?
+      <DialogContent className="gap-8 rounded-[1rem] font-pretendard">
+        <DialogHeader className="flex-col gap-3">
+          <DialogTitle className="text-center text-2xl">
+            관광지 삭제
           </DialogTitle>
+          <DialogDescription className="text-center font-normal">
+            해당 관광지를 삭제하시겠습니까?
+          </DialogDescription>
         </DialogHeader>
 
-        <DialogFooter className="flex justify-center gap-2">
+        <section className="flex items-center justify-center text-lg">
+          {/* {message} */}
+        </section>
+
+        <DialogFooter className="flex justify-center gap-4">
           <DialogClose asChild>
             <Button
               className={cn(
-                "h-[3.75rem] w-full rounded-2xl border border-[#D8D7DB] bg-[#F3F4F8] font-pretendard text-xl text-black hover:text-white",
+                "h-[2.5rem] rounded-lg border border-[#D8D7DB] bg-[#F3F4F8] font-pretendard text-base text-black hover:bg-[#415776] hover:text-white",
               )}
               variants={"secondary"}
             >
-              아니오
+              취소
             </Button>
           </DialogClose>
           <DialogClose asChild>
             <Button
-              className={cn(
-                "h-[3.75rem] w-full rounded-2xl font-pretendard text-xl",
-              )}
+              className={cn("h-[2.5rem] rounded-lg font-pretendard text-base")}
               variants={"default"}
               onClick={handleRemove}
             >
-              예
+              삭제
             </Button>
           </DialogClose>
         </DialogFooter>
