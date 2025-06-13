@@ -52,6 +52,7 @@ const UserDetailPage = () => {
           사용자 관리
         </h1>
       </div>
+
       <main className="flex h-full w-full flex-col border-t border-[#E5E7EB] bg-[#FAFBFC] px-6 py-4">
         <div className="flex justify-end pb-4">
           <Button
@@ -62,6 +63,7 @@ const UserDetailPage = () => {
             <Link to={".."}>홈으로</Link>
           </Button>
         </div>
+
         <div className="flex gap-6">
           <section className="flex h-full w-full flex-col rounded-3xl border border-[#E5E7EB] bg-white px-10 py-10">
             <header className="flex w-full flex-col gap-5 pb-5">
@@ -72,12 +74,12 @@ const UserDetailPage = () => {
               </div>
             </header>
             <div className="mb-2 w-full"></div>
-            <div className="flex-2 flex w-full flex-col gap-5 divide-y border-t border-[#999999]">
+            <div className="flex-2 flex w-full flex-col gap-5 divide-y border-t border-[#999999] text-[#333333]">
               <div className="flex items-center gap-2 pt-5">
                 <Label className="basis-24 font-pretendard">이름</Label>
                 <div
                   className={cn(
-                    "rounded-[1.25rem] border-[#CECECE] bg-white px-6 font-pretendard text-base text-sm font-normal text-[#666]",
+                    "rounded-[1.25rem] border-[#CECECE] bg-white px-6 font-pretendard text-sm font-normal text-[#666]",
                   )}
                 >
                   {data.name}
@@ -87,7 +89,7 @@ const UserDetailPage = () => {
                 <Label className="basis-24 font-pretendard">이메일</Label>
                 <div
                   className={cn(
-                    "rounded-[1.25rem] border-[#CECECE] bg-white px-6 font-pretendard text-base text-sm font-normal text-[#666]",
+                    "rounded-[1.25rem] border-[#CECECE] bg-white px-6 font-pretendard text-sm font-normal text-[#666]",
                   )}
                 >
                   {data.email}
@@ -97,7 +99,7 @@ const UserDetailPage = () => {
                 <Label className="basis-24 font-pretendard">국가</Label>
                 <div
                   className={cn(
-                    "rounded-[1.25rem] border-[#CECECE] bg-white px-6 font-pretendard text-base text-sm font-normal text-[#666]",
+                    "rounded-[1.25rem] border-[#CECECE] bg-white px-6 font-pretendard text-sm font-normal text-[#666]",
                   )}
                 >
                   {data.countryCode}
@@ -107,7 +109,7 @@ const UserDetailPage = () => {
                 <Label className="basis-24 font-pretendard">명예시민</Label>
                 <div
                   className={cn(
-                    "rounded-[1.25rem] border-[#CECECE] bg-white px-6 font-pretendard text-base text-sm font-normal text-[#666]",
+                    "rounded-[1.25rem] border-[#CECECE] bg-white px-6 font-pretendard text-sm font-normal text-[#666]",
                   )}
                 >
                   {data.cityId}
@@ -117,7 +119,7 @@ const UserDetailPage = () => {
                 <Label className="basis-24 font-pretendard">생년월일</Label>
                 <div
                   className={cn(
-                    "rounded-[1.25rem] border-[#CECECE] bg-white px-6 font-pretendard text-base text-sm font-normal text-[#666]",
+                    "rounded-[1.25rem] border-[#CECECE] bg-white px-6 font-pretendard text-sm font-normal text-[#666]",
                   )}
                 >
                   {data.birthday}
@@ -129,7 +131,7 @@ const UserDetailPage = () => {
                 </Label>
                 <div
                   className={cn(
-                    "flex-1 text-wrap break-all rounded-[1.25rem] border-[#CECECE] bg-white px-6 font-pretendard text-base text-sm font-normal text-[#666]",
+                    "flex-1 text-wrap break-all rounded-[1.25rem] border-[#CECECE] bg-white px-6 font-pretendard text-sm font-normal text-[#666]",
                   )}
                 >
                   {data.passportNumber}
@@ -141,7 +143,7 @@ const UserDetailPage = () => {
                 </Label>
                 <div
                   className={cn(
-                    "flex-1 text-wrap break-all rounded-[1.25rem] border-[#CECECE] bg-white px-6 font-pretendard text-base text-sm font-normal text-[#666]",
+                    "flex-1 text-wrap break-all rounded-[1.25rem] border-[#CECECE] bg-white px-6 font-pretendard text-sm font-normal text-[#666]",
                   )}
                 >
                   {data.txHash}
