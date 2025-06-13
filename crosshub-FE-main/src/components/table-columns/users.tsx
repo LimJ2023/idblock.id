@@ -41,12 +41,12 @@ const columns: ColumnDef<User>[] = [
         to={`/main/users/${(row.row.original as { id: string }).id}`}
         className="flex h-full items-center justify-center"
       >
-        <div className="mx-auto max-w-24 text-center">
+        <div className="max-w-24 text-center">
           <div className="box-content h-[72px] w-[72px] overflow-hidden rounded-full border border-[#E5E7EB]">
             <img
               src={row.getValue<string>()}
               alt="passport"
-              className="object-cover"
+              className="h-full w-full object-cover"
             />
           </div>
         </div>
@@ -66,7 +66,7 @@ const columns: ColumnDef<User>[] = [
             <img
               src={row.getValue<string>()}
               alt="profile"
-              className="mx-auto"
+              className="h-full w-full object-cover"
             />
           </div>
         </div>

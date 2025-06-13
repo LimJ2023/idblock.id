@@ -23,7 +23,7 @@ const UsersListPage = () => {
     <main className="flex h-full w-full flex-col bg-white">
       <header className="flex w-full flex-col gap-2 border-b-2 border-[#E5E7EB] p-5 pb-0">
         <div className="flex justify-between px-4 py-2">
-          <h1 className="text-3xl font-semibold">사용자 관리</h1>
+          <h1 className="text-3xl font-semibold text-[#1E1E1E]">사용자 관리</h1>
         </div>
 
         <Tabs

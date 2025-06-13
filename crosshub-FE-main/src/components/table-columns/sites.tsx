@@ -20,12 +20,14 @@ const columns: ColumnDef<Site>[] = [
     accessorKey: "imageKey",
     header: () => <div className="text-center">사진</div>,
     cell: (row) => (
-      <div className="text-center">
-        <img
-          src={row.getValue<string>()}
-          alt="사진"
-          className="mx-auto max-w-24"
-        />
+      <div className="max-w-24 text-center">
+        <div className="box-content h-[72px] w-[72px] overflow-hidden rounded-full border border-[#E5E7EB]">
+          <img
+            src={row.getValue<string>()}
+            alt="사진"
+            className="h-full w-full object-cover"
+          />
+        </div>
       </div>
     ),
   },

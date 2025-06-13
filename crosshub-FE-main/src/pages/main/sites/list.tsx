@@ -19,33 +19,39 @@ const SitesPage = () => {
   const { data: result } = useSuspenseQuery({ ...queries.sites.all });
 
   return (
-    <main className="flex h-full w-full flex-col bg-neutral-100 p-8">
-      <header className="mb-10 flex w-full flex-col gap-2 py-6">
-        <div className="flex justify-between px-4">
-          <h1 className="text-4xl font-semibold">관광지 관리</h1>
-          <Button asChild className="rounded-xl">
+    <div className="flex min-h-full w-full flex-col border bg-white">
+      <header className="flex w-full flex-col p-5">
+        <div className="">
+          <h1 className="px-4 py-2 text-3xl font-semibold text-[#1E1E1E]">
+            관광지 관리
+          </h1>
+        </div>
+      </header>
+      <main className="flex h-full w-full flex-col border-t border-[#E5E7EB] bg-[#FAFBFC] px-6 py-4">
+        <div className="flex justify-end pb-4">
+          <Button asChild className="w-content flex w-fit rounded-lg px-4">
             <Link to="/main/sites/new" className={cn()}>
               <Plus />
-              <span>관광지 추가 등록</span>
+              <span>관광지 추가</span>
             </Link>
           </Button>
         </div>
-      </header>
-      <section className="flex-1">
-        <div className="flex w-full flex-col gap-4 rounded-3xl bg-white p-6">
-          <ErrorBoundary
-            renderFallback={(props) => (
-              <ErrorTable error={props.error} columns={sitesColumns} />
-            )}
-            onError={(error) => console.error(error)}
-          >
-            <Suspense fallback={<LoadingTable columns={sitesColumns} />}>
-              <SitesTable columns={sitesColumns} result={result} />
-            </Suspense>
-          </ErrorBoundary>
-        </div>
-      </section>
-    </main>
+        <section className="flex-1">
+          <div className="flex w-full flex-col gap-4 rounded-3xl border border-[#E5E7EB] bg-white p-6 text-[#333333]">
+            <ErrorBoundary
+              renderFallback={(props) => (
+                <ErrorTable error={props.error} columns={sitesColumns} />
+              )}
+              onError={(error) => console.error(error)}
+            >
+              <Suspense fallback={<LoadingTable columns={sitesColumns} />}>
+                <SitesTable columns={sitesColumns} result={result} />
+              </Suspense>
+            </ErrorBoundary>
+          </div>
+        </section>
+      </main>
+    </div>
   );
 };
 
