@@ -6,6 +6,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Param,
   Post,
   Put,
   Req,
@@ -28,6 +29,7 @@ import {
   DeleteEmailVerificationDto,
   DeleteUserDto,
   SignupSimpleDto,
+  GetQrCodeDto,
 } from './auth.dto';
 import { Request, Response } from 'express';
 import * as v from 'valibot';
@@ -40,6 +42,7 @@ import {
   ApiExtraModels,
   ApiOkResponse,
   ApiOperation,
+  ApiProduces,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -376,10 +379,21 @@ export class AuthController {
     },
   })
   @ApiBearerAuth()
+  @ApiOperation({ summary: "QR 코드 조회"})
   async getQrCode(@CurrentUser() userId: bigint) {
     return this.authService.getQrCode(userId);
   }
-
+  @Public()
+  @Get('qr-code/image/:userId')
+  @ApiOperation({ summary: 'QR 코드 이미지(미리보기용)' })
+  @ApiProduces('image/png')
+  @ApiResponse({ status: 200, description: 'QR 코드 이미지', type: 'string' })
+  async getQrCodeImage(@Param() param: GetQrCodeDto, @Res() res: Response) {
+    const userId = BigInt(param.userId);
+    const buffer = await this.authService.getQrCodeBuffer(userId);
+    res.set('Content-Type', 'image/png');
+    res.send(buffer);
+  }
   @Public()
   @Post('reset-password/request')
   @ApiOperation({ summary: '비밀번호 재설정 코드 이메일 발송' })

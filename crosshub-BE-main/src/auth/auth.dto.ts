@@ -358,3 +358,12 @@ export class RefreshTokenDto extends TypeschemaDto(VRefreshToken) {
   })
   refreshToken: string;
 }
+
+export class GetQrCodeDto {
+  @ApiProperty({
+    title: '유저 아이디',
+    description: '유저 아이디',
+    example: 122,
+  })
+  userId: bigint;
+}

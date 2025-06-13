@@ -344,6 +344,11 @@ export class AuthService {
     );
   }
 
+  async getQrCodeBuffer(userId: bigint): Promise<Buffer> {
+    const qrData = JSON.stringify({ userId, expiresAt: addMinutes(new Date(), 1) });
+    return await QRCode.toBuffer(qrData, { type: 'png' });
+  }
+  
   async resetPassword(uuid: string, password: string) {
     const target = await this.db.query.EmailVerification.findFirst({
       where: (table, { eq, and }) =>
