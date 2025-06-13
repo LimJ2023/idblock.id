@@ -15,14 +15,15 @@ const ReviewPage = () => {
   const { data: result } = useSuspenseQuery({ ...queries.visitor.reviews });
 
   return (
-    <main className="flex h-full w-full flex-col bg-neutral-100 p-8">
-      <header className="mb-10 flex w-full flex-col gap-2 py-6">
-        <div className="flex justify-between px-4">
-          <h1 className="text-4xl font-semibold">방문 후기</h1>
-        </div>
+    <main className="flex h-dvh w-full flex-col border bg-white text-[#1E1E1E]">
+      <header className="p-5">
+        <h1 className="px-4 py-2 text-3xl font-semibold text-[#1E1E1E]">
+          방문 후기
+        </h1>
       </header>
-      <section className="flex-1">
-        <div className="flex w-full flex-col gap-4 rounded-3xl bg-white p-6">
+
+      <section className="h-full w-full items-center justify-center border-t border-[#E5E7EB] bg-[#FAFBFC] p-6">
+        <div className="h-full w-full rounded-3xl border border-[#E5E7EB] bg-white px-10 py-10">
           <ErrorBoundary
             renderFallback={(props) => (
               <ErrorTable error={props.error} columns={reviewColumns} />
