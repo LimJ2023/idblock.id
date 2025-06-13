@@ -62,11 +62,14 @@ const RootPage = () => {
 
   return (
     <div className="flex h-full items-center justify-center bg-[#FFFFFF] font-pretendard">
-      <main className="flex h-fit w-[36.375rem] flex-col gap-[3.125rem] rounded-[2.5rem] px-[4.375rem] py-[4.625rem]">
-        <img src="/logo.png" alt="" className="mx-auto w-[100px]" />
-        <h1 className="text-center text-base text-[#333333]">
-          로그인을 통해 관리자 페이지를 확인할 수 있습니다
-        </h1>
+      <main className="flex h-fit w-[32.375rem] flex-col gap-[3.125rem] rounded-[2.5rem] px-[4.375rem] py-[4.625rem]">
+        <div className="flex flex-col items-center justify-center gap-4">
+          <img src="/logo.png" alt="" className="h-[82px] w-[82px]" />
+          <h1 className="text-center text-base text-[#666666]">
+            로그인을 통해 관리자 페이지를 확인할 수 있습니다
+          </h1>
+        </div>
+
         <form
           className="flex flex-col gap-7"
           onChange={() => {
@@ -76,13 +79,13 @@ const RootPage = () => {
           }}
           onSubmit={handleSubmit(onValid, onInvalid)}
         >
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="email" className="font-pretendard text-[#999999]">
+          <div className="flex flex-col gap-3">
+            <Label htmlFor="email" className="font-pretendard text-[#666666]">
               이메일
             </Label>
             <div
               className={cn(
-                "flex h-14 rounded-2xl border border-[#CECECE] bg-white px-4 py-2",
+                "flex rounded-xl border border-[#CECECE] bg-white px-3 py-2",
                 errors.email ? "border-[#FF0000]" : "",
                 serverError !== "" ? "border-[#FF0000]" : "",
               )}
@@ -91,8 +94,8 @@ const RootPage = () => {
                 {...register("email", { required: true })}
                 placeholder="이메일"
                 className={cn(
-                  "border-transparent bg-transparent px-2 font-pretendard text-base font-normal",
-                  "placeholder:text-base placeholder:text-[#AEAEAE]",
+                  "border-transparent bg-transparent px-2 font-pretendard text-sm font-normal",
+                  "placeholder:text-sm placeholder:text-[#AEAEAE]",
                   "focus-visible:rounded-b-none focus-visible:border-b focus-visible:border-b-neutral-400 focus-visible:ring-0 focus-visible:ring-offset-0",
                 )}
               />
@@ -102,16 +105,16 @@ const RootPage = () => {
               <p className="text-xs text-[#FF0000]">이메일을 입력하세요.</p>
             )}
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-3">
             <Label
               htmlFor="password"
-              className="font-pretendard text-[#999999]"
+              className="font-pretendard text-[#666666]"
             >
               비밀번호
             </Label>
             <div
               className={cn(
-                "flex h-14 rounded-2xl border border-[#CECECE] bg-white px-4 py-2",
+                "flex h-14 rounded-xl border border-[#CECECE] bg-white px-4 py-2",
                 errors.password ? "border-[#FF0000]" : "",
                 serverError !== "" ? "border-[#FF0000]" : "",
               )}
@@ -121,8 +124,8 @@ const RootPage = () => {
                 placeholder="비밀번호"
                 type={showPassword ? "text" : "password"}
                 className={cn(
-                  "border-transparent bg-transparent px-2 font-pretendard text-base font-normal",
-                  "placeholder:text-base placeholder:text-[#AEAEAE]",
+                  "border-transparent bg-transparent px-2 font-pretendard text-sm font-normal",
+                  "placeholder:text-sm placeholder:text-[#AEAEAE]",
                   "focus-visible:rounded-b-none focus-visible:border-b focus-visible:border-b-neutral-400 focus-visible:ring-0 focus-visible:ring-offset-0",
                 )}
               />
@@ -131,7 +134,7 @@ const RootPage = () => {
                 onClick={() => setShowPassword(!showPassword)}
                 className={cn(
                   "aspect-square bg-transparent",
-                  "hover:bg-neutral-200",
+                  "hover:bg-[#F7F7F7]",
                 )}
               >
                 {showPassword ? (
@@ -155,14 +158,18 @@ const RootPage = () => {
               id="save"
               name="save"
             />
-            <Label htmlFor="save" className="font-pretendard text-[#999999]">
+            <Label
+              htmlFor="save"
+              className="font-pretendard text-sm text-[#666666]"
+            >
               아이디 저장
             </Label>
           </div>
           <Button
             type="submit"
             className={cn(
-              "h-14 rounded-2xl font-pretendard text-xl font-semibold",
+              "mt-6 h-14 rounded-xl border border-[#E5E7EB] font-pretendard text-xl font-medium",
+              "hover:bg-[#415776]",
               isLoading ? "bg-primary/90" : "",
             )}
           >

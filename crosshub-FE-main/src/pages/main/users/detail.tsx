@@ -72,7 +72,7 @@ const UserDetailPage = () => {
               </div>
             </header>
             <div className="mb-2 w-full"></div>
-            <div className="flex-2 flex w-full flex-col gap-5 divide-y border-t border-black">
+            <div className="flex-2 flex w-full flex-col gap-5 divide-y border-t border-[#999999]">
               <div className="flex items-center gap-2 pt-5">
                 <Label className="basis-24 font-pretendard">이름</Label>
                 <div
@@ -159,7 +159,7 @@ const UserDetailPage = () => {
               </div>
             </header>
             <div className="mb-2"></div>
-            <div className="flex-2 flex flex-col gap-5 divide-y border-t border-black">
+            <div className="flex-2 flex flex-col gap-5 divide-y border-t border-[#999999]">
               <Label className="pt-5 font-pretendard">여권 및 얼굴 사진</Label>
               <div className="flex w-fit items-start items-center rounded-xl border-none bg-[#F7F7F7] p-4">
                 <div className="">

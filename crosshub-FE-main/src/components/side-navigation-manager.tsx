@@ -34,22 +34,22 @@ const SideNavigationManager = () => {
   };
 
   return (
-    <div className="flex max-h-screen flex-col bg-[#17171F] p-10 font-pretendard text-white">
+    <div className="flex max-h-screen w-[240px] flex-col border border-[#E5E7EB] bg-[#FFFFFF] p-5 font-pretendard text-white">
       <div className="flex-1">
-        <div className="flex h-full flex-col gap-4">
-          <img src="/logo.png" alt="" />
+        <div className="flex h-full w-full flex-col gap-4">
+          <img className="w-[42px]" src="/logo.png" alt="" />
 
           <nav className="flex flex-1 flex-col justify-start pt-11">
             <NavLink
               data-state={pathname === "/manager/qr" ? "active" : "inactive"}
               className={cn(
-                "flex gap-4 px-6 py-4 text-[#929295] transition-colors",
-                "hover:font-bold hover:text-white",
-                "data-[state=active]:font-bold data-[state=active]:text-white",
+                "mb-1 flex items-center gap-4 rounded-lg px-3.5 py-2.5 text-sm text-[#1E1E1E] transition-colors",
+                "hover:bg-[#FF5520] hover:text-white",
+                "data-[state=active]:bg-[#FF5520] data-[state=active]:text-white",
               )}
               to="/manager/qr"
             >
-              <QrCode />
+              <QrCode className="h-[20px] w-[20px]" />
               <span>QR 촬영</span>
             </NavLink>
             <NavLink
@@ -57,13 +57,13 @@ const SideNavigationManager = () => {
                 pathname === "/manager/visitors" ? "active" : "inactive"
               }
               className={cn(
-                "flex gap-4 px-6 py-4 text-[#929295] transition-colors",
-                "hover:font-bold hover:text-white",
-                "data-[state=active]:font-bold data-[state=active]:text-white",
+                "mb-1 flex items-center gap-4 rounded-lg px-3.5 py-2.5 text-sm text-[#1E1E1E] transition-colors",
+                "hover:bg-[#FF5520] hover:text-white",
+                "data-[state=active]:bg-[#FF5520] data-[state=active]:text-white",
               )}
               to="/manager/visitors"
             >
-              <UsersRound />
+              <UsersRound className="h-[20px] w-[20px]" />
               <span>방문객 리스트</span>
             </NavLink>
             <NavLink
@@ -71,28 +71,28 @@ const SideNavigationManager = () => {
                 pathname === "/manager/reviews" ? "active" : "inactive"
               }
               className={cn(
-                "flex gap-4 px-6 py-4 text-[#929295] transition-colors",
-                "hover:font-bold hover:text-white",
-                "data-[state=active]:font-bold data-[state=active]:text-white",
+                "mb-1 flex items-center gap-4 rounded-lg px-3.5 py-2.5 text-sm text-[#1E1E1E] transition-colors",
+                "hover:bg-[#FF5520] hover:text-white",
+                "data-[state=active]:bg-[#FF5520] data-[state=active]:text-white",
               )}
               to="/manager/reviews"
             >
-              <MessageCircleMore />
+              <MessageCircleMore className="h-[20px] w-[20px]" />
               <span>방문 후기</span>
             </NavLink>
           </nav>
 
-          <div className="flex p-4">
+          <div className="flex">
             <Button
               variants="secondary"
               className={cn(
-                "flex h-14 w-full gap-2 font-pretendard text-xl",
-                "hover:bg-red-600",
+                "flex w-full gap-2 rounded-lg bg-[#F7F7F7] px-3.5 py-2.5 font-pretendard text-sm text-[#666666]",
+                "hover:bg-[#415776] hover:text-white",
                 "[&_svg]:size-6",
               )}
               onClick={handleLogOut}
             >
-              <LogOut />
+              <LogOut className="max-w-[20px]" />
               <span>로그아웃</span>
             </Button>
           </div>

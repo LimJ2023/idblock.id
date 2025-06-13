@@ -34,20 +34,20 @@ const ThumbnailUploadForm = () => {
   };
 
   return (
-    <section className="flex flex-col gap-2">
-      <Label className="font-pretendard" aria-required>
-        썸네일
-      </Label>
+    <div className="flex w-full justify-end">
       <Button
         type="button"
         className={cn(
-          "w-fit border border-black bg-transparent font-pretendard text-black",
+          "h-fit w-fit border border-black bg-transparent py-3 font-pretendard text-black",
           "hover:bg-neutral-200",
         )}
         asChild
       >
         <Label
-          className={cn("font-pretendard", "hover:cursor-pointer")}
+          className={cn(
+            "border-[#E5E7EB] bg-[#415776] font-pretendard text-white",
+            "hover:cursor-pointer hover:text-[#666666]",
+          )}
           htmlFor="thumbnail"
         >
           <Upload className="h-6 w-6" /> 이미지 업로드
@@ -61,7 +61,7 @@ const ThumbnailUploadForm = () => {
         accept="image/png, image/jpeg, image/gif"
         className="hidden"
       />
-    </section>
+    </div>
   );
 };
 

@@ -13,7 +13,6 @@ import {
 import { cn } from "@/lib/utils";
 import { queries } from "@/queries";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ScanQrCode } from "lucide-react";
 import Html5QrcodePlugin from "../qr-code-readert";
 
 import { useCallback, useState } from "react";
@@ -86,9 +85,9 @@ const QrScanDialog = () => {
       <DialogTrigger asChild>
         <Button
           variants={"secondary"}
-          className="min-w-80 rounded-2xl text-lg font-bold"
+          className="w-full rounded-lg bg-[#415776] text-lg hover:bg-neutral-200 hover:text-[#333333]"
         >
-          <ScanQrCode /> <span>QR코드 촬영</span>
+          <span>QR코드 촬영</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-screen max-w-5xl gap-8 overflow-auto rounded-[1.25rem] font-pretendard">
