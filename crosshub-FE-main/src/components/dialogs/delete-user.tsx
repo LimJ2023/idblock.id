@@ -57,22 +57,26 @@ const DeleteUserDialog = ({ selected }: { selected: string }) => {
           삭제
         </Button>
       </DialogTrigger>
-      <DialogContent className="gap-8 rounded-[1.25rem] font-pretendard">
-        <DialogHeader>
-          <DialogTitle className="text-center text-xl">
-            삭제하시겠습니까?
+
+      <DialogContent className="gap-8 rounded-[1rem] font-pretendard">
+        <DialogHeader className="flex-col gap-3">
+          <DialogTitle className="text-center text-2xl">
+            사용자 삭제
           </DialogTitle>
-          <DialogDescription className=""></DialogDescription>
+          <DialogDescription className="text-center font-normal">
+            해당 사용자를 삭제하시겠습니까?
+          </DialogDescription>
         </DialogHeader>
         <section className="flex items-center justify-center text-lg">
           {/* {message} */}
         </section>
-        <DialogFooter className="flex justify-center gap-2">
+
+        <DialogFooter className="flex justify-center gap-4">
           <DialogClose asChild>
             <Button
               variants={"secondary"}
               className={cn(
-                "h-[3.75rem] w-full rounded-2xl border border-[#D8D7DB] bg-[#F3F4F8] font-pretendard text-xl text-black hover:text-white",
+                "h-[2.5rem] w-[5rem] rounded-lg border border-[#D8D7DB] bg-[#F3F4F8] font-pretendard text-base text-black hover:bg-[#415776] hover:text-white",
               )}
               disabled={isPending}
             >
@@ -82,7 +86,7 @@ const DeleteUserDialog = ({ selected }: { selected: string }) => {
           <DialogClose asChild>
             <Button
               className={cn(
-                "h-[3.75rem] w-full rounded-2xl font-pretendard text-xl",
+                "h-[2.5rem] w-[5rem] rounded-lg font-pretendard text-base",
               )}
               onClick={handleDelete}
               disabled={isPending}

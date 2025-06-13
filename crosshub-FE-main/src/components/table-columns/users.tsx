@@ -5,7 +5,7 @@ import { RejectUserDialog } from "../dialogs/reject-user";
 import { Link } from "react-router-dom";
 import { Button } from "../ui/button";
 import { DeleteUserDialog } from "../dialogs/delete-user";
-import { CircleCheck, CircleMinus, CircleX } from "lucide-react";
+import { CircleCheck, CircleMinus } from "lucide-react";
 
 const columns: ColumnDef<User>[] = [
   {
@@ -184,7 +184,7 @@ const columns: ColumnDef<User>[] = [
                 <CircleMinus />
                 거절
               </Button> */}
-              <Button
+              {/* <Button
                 variants="secondary"
                 className="border border-[#D8D7DB] bg-[#FEF1F1] font-pretendard text-[#F23B3B] hover:bg-[#F23B3B] hover:text-white"
                 onClick={(e) => {
@@ -193,7 +193,7 @@ const columns: ColumnDef<User>[] = [
               >
                 <CircleX />
                 삭제
-              </Button>
+              </Button> */}
             </>
           )}
         </div>

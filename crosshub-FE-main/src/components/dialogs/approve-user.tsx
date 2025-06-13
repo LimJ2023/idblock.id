@@ -75,7 +75,7 @@ const ApproveUserDialog = ({ selected }: { selected: string }) => {
             <Button
               variants={"secondary"}
               className={cn(
-                "h-[2.5rem] rounded-lg border border-[#D8D7DB] bg-[#F3F4F8] font-pretendard text-base text-black hover:bg-[#415776] hover:text-white",
+                "h-[2.5rem] w-[5rem] rounded-lg border border-[#D8D7DB] bg-[#F3F4F8] font-pretendard text-base text-black hover:bg-[#415776] hover:text-white",
               )}
               disabled={isPending}
             >
@@ -84,7 +84,9 @@ const ApproveUserDialog = ({ selected }: { selected: string }) => {
           </DialogClose>
           <DialogClose asChild>
             <Button
-              className={cn("h-[2.5rem] rounded-lg font-pretendard text-base")}
+              className={cn(
+                "h-[2.5rem] w-[5rem] rounded-lg font-pretendard text-base",
+              )}
               onClick={handleApprove}
               disabled={isPending}
             >
