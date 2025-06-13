@@ -29,7 +29,10 @@ const SitesPage = () => {
       </header>
       <main className="flex h-full w-full flex-col border-t border-[#E5E7EB] bg-[#FAFBFC] px-6 py-4">
         <div className="flex justify-end pb-4">
-          <Button asChild className="w-content flex w-fit rounded-lg px-4">
+          <Button
+            asChild
+            className="w-content flex w-fit rounded-lg border border-[#E5E7EB] px-4"
+          >
             <Link to="/main/sites/new" className={cn()}>
               <Plus />
               <span>관광지 추가</span>
