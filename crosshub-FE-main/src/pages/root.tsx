@@ -69,6 +69,7 @@ const RootPage = () => {
             로그인을 통해 관리자 페이지를 확인할 수 있습니다
           </h1>
         </div>
+
         <form
           className="flex flex-col gap-7"
           onChange={() => {
