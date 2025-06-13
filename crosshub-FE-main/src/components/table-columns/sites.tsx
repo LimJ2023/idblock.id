@@ -3,6 +3,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { RemoveSiteDialog } from "../dialogs/remove-site";
 import { Link } from "react-router-dom";
 import { Button } from "../ui/button";
+import { CircleAlert } from "lucide-react";
 
 const columns: ColumnDef<Site>[] = [
   {
@@ -55,9 +56,12 @@ const columns: ColumnDef<Site>[] = [
         <div className="flex items-center gap-2">
           <Button
             asChild
-            className="border border-[#D8D7DB] bg-[#F3F4F8] font-pretendard text-black hover:text-white"
+            className="border border-[#D8D7DB] bg-[#fff8e9] font-pretendard text-[#ffc550] hover:bg-[#ffc550] hover:text-white"
           >
-            <Link to={`/main/sites/edit/${id}`}>수정</Link>
+            <Link to={`/main/sites/edit/${id}`}>
+              <CircleAlert />
+              수정
+            </Link>
           </Button>
 
           <div>
