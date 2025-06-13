@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { queries } from "@/queries";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Spinner } from "../ui/spinner";
+import { CircleCheck } from "lucide-react";
 
 const ApproveUserDialog = ({ selected }: { selected: string }) => {
   const queryClient = useQueryClient();
@@ -46,30 +47,33 @@ const ApproveUserDialog = ({ selected }: { selected: string }) => {
       <DialogTrigger asChild>
         <Button
           variants="default"
-          className="border border-[#D8D7DB] bg-[#F3F4F8] font-pretendard text-black hover:text-white"
+          className="border border-[#D8D7DB] bg-[#F3FCF3] font-pretendard text-[#33A14B] hover:bg-[#33A14B] hover:text-white"
           onClick={(e) => {
             e.stopPropagation();
           }}
         >
+          <CircleCheck />
           승인
         </Button>
       </DialogTrigger>
-      <DialogContent className="gap-8 rounded-[1.25rem] font-pretendard">
-        <DialogHeader>
-          <DialogTitle className="text-center text-xl">
-            승인하시겠습니까?
+      <DialogContent className="gap-8 rounded-[1rem] font-pretendard">
+        <DialogHeader className="flex-col gap-3">
+          <DialogTitle className="text-center text-2xl">
+            사용자 승인
           </DialogTitle>
-          <DialogDescription className=""></DialogDescription>
+          <DialogDescription className="text-center font-normal">
+            해당 사용자의 회원가입을 승인하시겠습니까 ?
+          </DialogDescription>
         </DialogHeader>
         <section className="flex items-center justify-center text-lg">
           {/* {message} */}
         </section>
-        <DialogFooter className="flex justify-center gap-2">
+        <DialogFooter className="flex justify-center gap-4">
           <DialogClose asChild>
             <Button
               variants={"secondary"}
               className={cn(
-                "h-[3.75rem] w-full rounded-2xl border border-[#D8D7DB] bg-[#F3F4F8] font-pretendard text-xl text-black hover:text-white",
+                "h-[2.5rem] rounded-lg border border-[#D8D7DB] bg-[#F3F4F8] font-pretendard text-base text-black hover:bg-[#415776] hover:text-white",
               )}
               disabled={isPending}
             >
@@ -78,13 +82,11 @@ const ApproveUserDialog = ({ selected }: { selected: string }) => {
           </DialogClose>
           <DialogClose asChild>
             <Button
-              className={cn(
-                "h-[3.75rem] w-full rounded-2xl font-pretendard text-xl",
-              )}
+              className={cn("h-[2.5rem] rounded-lg font-pretendard text-base")}
               onClick={handleApprove}
               disabled={isPending}
             >
-              {isPending ? <Spinner /> : <span>확인</span>}
+              {isPending ? <Spinner /> : <span>승인</span>}
             </Button>
           </DialogClose>
         </DialogFooter>

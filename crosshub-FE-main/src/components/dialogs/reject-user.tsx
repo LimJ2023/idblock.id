@@ -22,6 +22,7 @@ import { useToast } from "@/hooks/use-toast";
 import { rejectUser, RejectUser } from "@/api/users.api";
 import { Textarea } from "../ui/textarea";
 import { queries } from "@/queries";
+import { CircleX } from "lucide-react";
 
 const RejectUserDialog = ({ id }: { id: string }) => {
   const queryClient = useQueryClient();
@@ -68,11 +69,12 @@ const RejectUserDialog = ({ id }: { id: string }) => {
       <DialogTrigger className="w-fit" asChild>
         <Button
           variants="secondary"
-          className="border border-[#D8D7DB] bg-[#F3F4F8] font-pretendard text-black hover:text-white"
+          className="border border-[#D8D7DB] bg-[#FEF1F1] font-pretendard text-[#F23B3B] hover:bg-[#F23B3B] hover:text-white"
           onClick={(e) => {
             e.stopPropagation();
           }}
         >
+          <CircleX />
           거절
         </Button>
       </DialogTrigger>
