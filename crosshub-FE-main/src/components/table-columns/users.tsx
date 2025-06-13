@@ -125,7 +125,7 @@ const columns: ColumnDef<User>[] = [
             <>
               <ApproveUserDialog selected={id} />
               <RejectUserDialog id={id} />
-              <Button
+              {/* <Button
                 variants="secondary"
                 className="border border-[#D8D7DB] bg-[#fff8e9] font-pretendard text-[#ffc550] hover:bg-[#ffc550] hover:text-white"
                 onClick={(e) => {
@@ -134,7 +134,7 @@ const columns: ColumnDef<User>[] = [
               >
                 <CircleMinus />
                 취소
-              </Button>
+              </Button> */}
             </>
           ) : approvalStatus === 1 ? (
             <>
@@ -147,7 +147,7 @@ const columns: ColumnDef<User>[] = [
               >
                 <CircleCheck />
                 승인
-              </Button>
+              </Button> */}
               <Button
                 variants="secondary"
                 className="border border-[#D8D7DB] bg-[#fff8e9] font-pretendard text-[#ffc550] hover:bg-[#ffc550] hover:text-white"
@@ -157,7 +157,7 @@ const columns: ColumnDef<User>[] = [
               >
                 <CircleMinus />
                 거절
-              </Button> */}
+              </Button>
 
               <DeleteUserDialog selected={id} />
             </>
@@ -169,12 +169,12 @@ const columns: ColumnDef<User>[] = [
                 onClick={(e) => {
                   e.stopPropagation();
                 }}
-                disabled
+                // disabled
               >
                 <CircleCheck />
                 승인
               </Button>
-              <Button
+              {/* <Button
                 variants="secondary"
                 className="border border-[#D8D7DB] bg-[#fff8e9] font-pretendard text-[#ffc550] hover:bg-[#ffc550] hover:text-white"
                 onClick={(e) => {
@@ -183,7 +183,7 @@ const columns: ColumnDef<User>[] = [
               >
                 <CircleMinus />
                 거절
-              </Button>
+              </Button> */}
               <Button
                 variants="secondary"
                 className="border border-[#D8D7DB] bg-[#FEF1F1] font-pretendard text-[#F23B3B] hover:bg-[#F23B3B] hover:text-white"
