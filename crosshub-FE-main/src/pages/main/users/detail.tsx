@@ -64,8 +64,8 @@ const UserDetailPage = () => {
               </h1>
             </div>
           </header>
-          <div className="mb-2"></div>
-          <div className="flex-2 mx-auto flex flex-col gap-5 divide-y border-t border-black">
+          <div className="mb-2 w-full"></div>
+          <div className="flex-2 flex w-full flex-col gap-5 divide-y border-t border-black">
             <div className="flex items-center gap-2 pt-5">
               <Label className="basis-24 font-pretendard">이름</Label>
               <div
