@@ -83,7 +83,25 @@ const SiteEditForm = ({ current }: { current: SiteDetail }) => {
       >
         <div className="flex h-full w-full gap-10">
           <section className="flex w-full flex-1 flex-col justify-between gap-4">
-            <ThumbnailUploadForm watch={watch} />
+            <div className="flex flex-col gap-5">
+              <Label
+                className="font-pretendard text-[15px] font-medium"
+                aria-required
+              >
+                관광지 이미지
+              </Label>
+
+              <div className="flex h-32 w-full gap-2 rounded-lg bg-[#F4F4F4] p-3">
+                {watch("thumbnail") && (
+                  <img
+                    className="object-fit w-contain h-full border-[#FAFBFC]"
+                    src={watch("thumbnail").url}
+                    alt="썸네일 이미지"
+                  />
+                )}
+              </div>
+              <ThumbnailUploadForm />
+            </div>
             <div className="flex flex-col gap-3">
               <Label
                 className="font-pretendard text-[14px] font-medium"
