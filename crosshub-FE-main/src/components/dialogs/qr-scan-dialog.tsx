@@ -90,12 +90,15 @@ const QrScanDialog = () => {
           <span>QR코드 촬영</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-screen max-w-5xl gap-8 overflow-auto rounded-[1.25rem] font-pretendard">
+      <DialogContent className="gap-8 rounded-[1rem] font-pretendard">
         <DialogHeader>
-          <DialogTitle className="text-center text-xl">
-            승인하시겠습니까?
+          <DialogTitle className="text-center text-2xl">
+            방문자 승인
           </DialogTitle>
-          <DialogDescription className=""></DialogDescription>
+          <DialogDescription className="text-center font-normal">
+            QR을 촬영하거나 이미지를 업로드하여 방문객의 방문을 승인할 수
+            있습니다
+          </DialogDescription>
         </DialogHeader>
 
         <Html5QrcodePlugin
@@ -159,12 +162,11 @@ const QrScanDialog = () => {
           </div>
         )}
 
-        <DialogFooter className="flex justify-center gap-2">
+        <DialogFooter className="flex justify-center gap-4">
           <DialogClose asChild>
             <Button
               className={cn(
-                "h-[3.75rem] w-full rounded-2xl bg-[#232323] font-pretendard text-xl",
-                "hover:bg-[#232323]/80",
+                "h-[2.5rem] w-[6rem] rounded-lg border border-[#D8D7DB] bg-[#F3F4F8] font-pretendard text-base text-black hover:bg-[#415776] hover:text-white",
               )}
             >
               취소
@@ -173,8 +175,7 @@ const QrScanDialog = () => {
           <DialogClose asChild>
             <Button
               className={cn(
-                "h-[3.75rem] w-full rounded-2xl font-pretendard text-xl",
-                "hover:bg-[#232323]/80",
+                "h-[2.5rem] w-[6rem] rounded-lg font-pretendard text-base",
               )}
               variants={"default"}
               disabled={!result || !result.success}

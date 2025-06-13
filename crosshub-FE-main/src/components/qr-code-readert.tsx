@@ -60,6 +60,17 @@ const Html5QrcodePlugin = (
       return html5QrcodeScanner;
     };
 
+    setTimeout(() => {
+      const inputEl = document.querySelector(
+        '#reader input[type="file"]',
+      ) as HTMLInputElement;
+      if (inputEl) {
+        inputEl.style.padding = "12px";
+        inputEl.style.borderRadius = "6px";
+        inputEl.style.backgroundColor = "#e9f5ff";
+      }
+    }, 500);
+
     const initScanner = async () => {
       if (isMounted.current) {
         scannerRef.current = await startScanning();
