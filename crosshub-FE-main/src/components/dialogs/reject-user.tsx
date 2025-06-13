@@ -78,18 +78,20 @@ const RejectUserDialog = ({ id }: { id: string }) => {
           거절
         </Button>
       </DialogTrigger>
-      <DialogContent className="gap-8 rounded-[1.25rem]">
-        <DialogHeader>
-          <DialogTitle className="text-xl">‘거절’ 하시겠습니까?</DialogTitle>
-          <DialogDescription className="sr-only">
-            사용자 승인을 거절하는 다이얼로그입니다.
+      <DialogContent className="gap-14 rounded-[1rem]">
+        <DialogHeader className="flex-col gap-3">
+          <DialogTitle className="text-center text-2xl">
+            사용자 거절
+          </DialogTitle>
+          <DialogDescription className="text-center font-normal">
+            해당 사용자의 회원가입을 거절하시겠습니까?
           </DialogDescription>
         </DialogHeader>
         <form
           onSubmit={handleSubmit(onValid, onInvalid)}
           className="flex flex-col gap-7"
         >
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-3">
             <Label
               aria-required
               htmlFor="email"
@@ -102,21 +104,22 @@ const RejectUserDialog = ({ id }: { id: string }) => {
               placeholder="거절 사유를 입력해주세요."
               disabled={isLoading}
               className={cn(
-                "h-14 rounded-[1.25rem] border-[#CECECE] bg-white px-6 font-pretendard text-base font-normal",
-                "placeholder:text-base placeholder:text-[#AEAEAE]",
+                "h-20 rounded-[0.5rem] border-[#CECECE] bg-white px-6 font-pretendard text-sm font-normal",
+                "placeholder:text-sm placeholder:font-normal placeholder:text-[#AEAEAE]",
               )}
             />
             {errors.reason && (
-              <p className="text-xs text-[#FF0000]">거절 사유를 입력하세요.</p>
+              <p className="text-base text-xs text-[#FF0000]">
+                거절 사유를 입력하세요.
+              </p>
             )}
           </div>
-          <DialogFooter className="flex gap-2">
+          <DialogFooter className="flex justify-center gap-4">
             <DialogClose asChild>
               <Button
                 variants="secondary"
                 className={cn(
-                  "h-[3.75rem] flex-1 rounded-2xl bg-white font-pretendard text-xl text-black",
-                  "hover:bg-neutral-200",
+                  "h-[2.5rem] w-[5rem] rounded-lg border border-[#D8D7DB] bg-[#F3F4F8] font-pretendard text-base text-black hover:bg-[#415776] hover:text-white",
                 )}
               >
                 아니오
@@ -127,8 +130,7 @@ const RejectUserDialog = ({ id }: { id: string }) => {
                 disabled={!isValid || isLoading}
                 type="submit"
                 className={cn(
-                  "h-[3.75rem] flex-1 rounded-2xl bg-primary font-pretendard text-xl",
-                  "hover:bg-[#232323]/80",
+                  "h-[2.5rem] w-[5rem] rounded-lg font-pretendard text-base",
                 )}
               >
                 예

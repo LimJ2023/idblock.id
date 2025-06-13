@@ -62,7 +62,7 @@ const ApproveUserDialog = ({ selected }: { selected: string }) => {
             사용자 승인
           </DialogTitle>
           <DialogDescription className="text-center font-normal">
-            해당 사용자의 회원가입을 승인하시겠습니까 ?
+            해당 사용자의 회원가입을 승인하시겠습니까?
           </DialogDescription>
         </DialogHeader>
         <section className="flex items-center justify-center text-lg">
