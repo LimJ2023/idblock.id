@@ -68,7 +68,7 @@ export const SignupPassport = memo(function ({ route }: Params) {
   const handleNext = useCallback(() => {
     // 동적으로 다음 화면 결정
     const nextScreen = getNextScreenInFlow(SIGNUP_FLOW, MENU.STACK.SCREEN.SIGNUP_PASSPORT);
-    
+
     if (nextScreen) {
       navigation.push(nextScreen, {
         uuid,
