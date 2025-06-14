@@ -1,6 +1,6 @@
 import { Suspense, useState } from "react";
 
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
 
 import { ErrorBoundary } from "@toss/error-boundary";
 
@@ -18,6 +18,12 @@ const UsersListPage = () => {
   const { data: result } = useSuspenseQuery({
     ...queries.users.all(filterState),
   });
+  const queryClient = useQueryClient();
+
+  const handleFilterChange = (value: string) => {
+    setFilterState(value as StatusFilter);
+    queryClient.invalidateQueries(queries.users.all(value as StatusFilter));
+  };
 
   return (
     <main className="flex h-full w-full flex-col bg-white">
@@ -29,7 +35,7 @@ const UsersListPage = () => {
         <Tabs
           defaultValue="OPENED"
           className="pb-2"
-          onValueChange={(value) => setFilterState(value as StatusFilter)}
+          onValueChange={handleFilterChange}
         >
           <TabsList className="pl-[0px]">
             <TabsTrigger
