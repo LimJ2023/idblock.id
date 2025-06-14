@@ -213,9 +213,9 @@ export class SignUpDto extends TypeschemaDto(VSignUpDto) {
   @ApiProperty({
     title: "승인유형",
     description: "승인유형",
-    example: "1",
+    example: null,
   })
-  approvalId: string;
+  approvalId: string | null;
 }
 
 const VDeleteUserDto = v.object({
