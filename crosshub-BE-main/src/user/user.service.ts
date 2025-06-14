@@ -321,39 +321,12 @@ export class UserService {
   }
 
   async listUsers(status: TUserStatus) {
-    if (status === 'APPROVED') {
-      return Promise.all(
-        (
-          await this.db
-            .select()
-            .from(User)
-            .leftJoin(UserApproval, eq(User.id, UserApproval.userId))
-            .leftJoin(
-              UserVerificationDocument,
-              eq(UserApproval.documentId, UserVerificationDocument.id),
-            )
-            .leftJoin(Country, eq(User.countryCode, Country.code))
-            .leftJoin(City, eq(User.cityId, City.id))
-            .where(isNotNull(User.approvalId))
-            .orderBy(desc(UserApproval.approvedAt))
-        ).map(async (u) => ({
-          ...u.user,
-          ...u.user_approval,
-          ...u.user_verification_document,
-          countryCode: u.country?.name,
-          cityId: u.city?.name,
-          password: undefined,
-          id: u.user_verification_document?.id,
-          approvalId: u.user_approval?.id,
-          passportImageKey: await this.s3Service.createPresignedUrlWithClient(
-            u.user_verification_document?.passportImageKey ?? '',
-          ),
-          profileImageKey: await this.s3Service.createPresignedUrlWithClient(
-            u.user_verification_document?.profileImageKey ?? '',
-          ),
-        })),
-      );
-    } else if (status === 'OPENED') {
+    let approvalStatus: number | undefined;
+    if (status === 'APPROVED') approvalStatus = 1;
+    else if (status === 'OPENED') approvalStatus = 0;
+    else if (status === 'REJECTED') approvalStatus = 2;
+
+    if (approvalStatus !== undefined) {
       return Promise.all(
         (
           await this.db
@@ -362,12 +335,7 @@ export class UserService {
             .leftJoin(User, eq(UserVerificationDocument.userId, User.id))
             .leftJoin(Country, eq(User.countryCode, Country.code))
             .leftJoin(City, eq(User.cityId, City.id))
-            .where(
-              and(
-                isNull(User.approvalId),
-                eq(UserVerificationDocument.approvalStatus, 0),
-              ),
-            )
+            .where(eq(UserVerificationDocument.approvalStatus, approvalStatus))
             .orderBy(desc(UserVerificationDocument.id))
         ).map(async (u) => ({
           ...u.user,
@@ -376,37 +344,6 @@ export class UserService {
           cityId: u.city?.name,
           password: undefined,
           id: u.user_verification_document.id,
-          passportImageKey: await this.s3Service.createPresignedUrlWithClient(
-            u.user_verification_document.passportImageKey,
-          ),
-          profileImageKey: await this.s3Service.createPresignedUrlWithClient(
-            u.user_verification_document.profileImageKey,
-          ),
-        })),
-      );
-    } else if (status === 'REJECTED') {
-      return Promise.all(
-        (
-          await this.db
-            .select()
-            .from(UserVerificationDocument)
-            .leftJoin(User, eq(UserVerificationDocument.userId, User.id))
-            .leftJoin(Country, eq(User.countryCode, Country.code))
-            .leftJoin(City, eq(User.cityId, City.id))
-            .where(
-              and(
-                isNull(User.approvalId),
-                eq(UserVerificationDocument.approvalStatus, 2),
-              ),
-            )
-            .orderBy(desc(UserVerificationDocument.id))
-        ).map(async (u) => ({
-          ...u.user,
-          ...u.user_verification_document,
-          password: undefined,
-          id: u.user_verification_document.id,
-          countryCode: u.country?.name,
-          cityId: u.city?.name,
           passportImageKey: await this.s3Service.createPresignedUrlWithClient(
             u.user_verification_document.passportImageKey,
           ),
