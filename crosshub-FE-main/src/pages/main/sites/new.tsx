@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { queries } from "@/queries";
 import { ThumbnailUploadForm } from "./thumbnail-upload-form";
 import { AddSite, createSite } from "@/api/sites.api";
+import LocationSearchInput from "./location-search-input";
 
 const SiteNewForm = () => {
   const { toast } = useToast();
@@ -138,6 +139,8 @@ const SiteNewForm = () => {
                 )}
               />
             </div>
+
+            <LocationSearchInput />
           </section>
 
           <section className="flex w-full flex-1 flex-col justify-between gap-4">

@@ -10,6 +10,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "include": ["src", "declarations.d.ts"]
   }
 }
