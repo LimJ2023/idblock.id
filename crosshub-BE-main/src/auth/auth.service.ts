@@ -259,7 +259,33 @@ export class AuthService {
   }
 
   async deleteUser(email: string) {
-    return this.db.delete(User).where(eq(User.email, email));
+    return this.db.transaction(async (trx) => {
+      // 먼저 이메일로 사용자 ID를 조회
+      const user = await trx.query.User.findFirst({
+        where: (table, { eq }) => eq(table.email, email),
+      });
+
+      if (!user) {
+        throw new BadRequestException(ERROR_CODE.USER_NOT_FOUND);
+      }
+
+      const userId = user.id;
+
+      // UserApproval 레코드 삭제 (UserVerificationDocument를 참조하는 경우)
+      const userApprovals = await trx.query.UserApproval.findMany({
+        where: (table, { eq }) => eq(table.userId, userId),
+      });
+
+      if (userApprovals.length > 0) {
+        await trx.delete(UserApproval).where(eq(UserApproval.userId, userId));
+      }
+
+      // UserVerificationDocument 레코드들 삭제
+      await trx.delete(UserVerificationDocument).where(eq(UserVerificationDocument.userId, userId));
+
+      // 마지막으로 User 레코드 삭제
+      return trx.delete(User).where(eq(User.email, email));
+    });
   }
 
   async createUserVerificationDocument(
@@ -280,9 +306,9 @@ export class AuthService {
     });
     return user?.id;
   }
-  async getProfile(email: string) {
+  async getProfile(userId: bigint) {
     const user = await this.db.query.User.findFirst({
-      where: (table, { eq }) => eq(table.email, email),
+      where: (table, { eq }) => eq(table.id, userId),
       with: {
         city: true,
         approval: {
