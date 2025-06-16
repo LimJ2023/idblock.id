@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import {
   FormProvider,
   SubmitErrorHandler,
@@ -19,9 +21,13 @@ import { Site, SiteDetail, updateSite } from "@/api/sites.api";
 import { ThumbnailUploadForm } from "./thumbnail-upload-form";
 import { queries } from "@/queries";
 
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import LocationSearchInput from "./location-search-input";
+
 const SiteEditForm = ({ current }: { current: SiteDetail }) => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const { mutateAsync: update } = useMutation({
     mutationFn: updateSite,
@@ -32,6 +38,7 @@ const SiteEditForm = ({ current }: { current: SiteDetail }) => {
   const methods = useForm<SiteDetail>({
     defaultValues: {
       ...current,
+      address: current.address ?? "",
       thumbnail: {
         url: thumbnail.toString(),
         key: `public/${thumbnail.pathname.slice(1)}`,
@@ -43,8 +50,10 @@ const SiteEditForm = ({ current }: { current: SiteDetail }) => {
     handleSubmit,
     watch,
     register,
+    setValue,
     formState: { isLoading, isValid },
   } = methods;
+  const address = watch("address");
 
   const onValid: SubmitHandler<SiteDetail> = async (data) => {
     const { thumbnail, address, description, name, imageKey, siteManager, id } =
@@ -123,12 +132,25 @@ const SiteEditForm = ({ current }: { current: SiteDetail }) => {
               >
                 위치
               </Label>
-              <Input
-                {...register("address", { required: true })}
-                className={cn(
-                  "h-14 rounded-xl border-[#CECECE] bg-white px-6 font-pretendard text-sm font-normal",
-                )}
-              />
+              <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                <DialogTrigger asChild>
+                  <Input
+                    {...register("address", { required: true })}
+                    className={cn(
+                      "h-14 rounded-xl border-[#CECECE] bg-white px-6 text-left font-pretendard text-sm font-normal",
+                    )}
+                  />
+                </DialogTrigger>
+
+                <LocationSearchInput
+                  selected={address}
+                  onChange={(value) => {
+                    setValue("address", value, { shouldValidate: true });
+                    setDialogOpen(false);
+                  }}
+                  setDialogOpen={setDialogOpen}
+                />
+              </Dialog>
             </div>
           </section>
 

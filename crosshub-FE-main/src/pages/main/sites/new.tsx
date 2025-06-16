@@ -19,11 +19,15 @@ import { ThumbnailUploadForm } from "./thumbnail-upload-form";
 import { AddSite, createSite } from "@/api/sites.api";
 import LocationSearchInput from "./location-search-input";
 
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+
 const SiteNewForm = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+
   const [address, setAddress] = useState("");
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const methods = useForm<AddSite>();
   const {
@@ -134,7 +138,25 @@ const SiteNewForm = () => {
               >
                 위치
               </Label>
-              <LocationSearchInput selected={address} onChange={setAddress} />
+              <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                <DialogTrigger asChild>
+                  <Input
+                    readOnly
+                    value={address}
+                    placeholder="주소를 입력하세요"
+                    {...register("address", { required: true })}
+                    className={cn(
+                      "h-14 cursor-pointer rounded-xl border-[#CECECE] bg-white px-6 text-left font-pretendard text-sm font-normal",
+                    )}
+                  />
+                </DialogTrigger>
+
+                <LocationSearchInput
+                  selected={address}
+                  onChange={setAddress}
+                  setDialogOpen={setDialogOpen}
+                />
+              </Dialog>
             </div>
           </section>
 
