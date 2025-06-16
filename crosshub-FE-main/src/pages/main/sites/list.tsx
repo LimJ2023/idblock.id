@@ -19,7 +19,7 @@ const SitesPage = () => {
   const { data: result } = useSuspenseQuery({ ...queries.sites.all });
 
   return (
-    <div className="flex min-h-full w-full flex-col border bg-white">
+    <div className="flex h-full w-full flex-col border bg-white">
       <header className="flex w-full flex-col p-5">
         <div className="">
           <h1 className="px-4 py-2 text-3xl font-semibold text-[#1E1E1E]">
