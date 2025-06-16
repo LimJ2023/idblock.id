@@ -13,3 +13,68 @@ body {
 #root {
   height: 100%;
 }
+
+#html5qr-code-full-region {
+  border-radius: 10px;
+  padding: 5rem;
+  box-sizing: border-box;
+}
+
+#html5qr-code-full-region__scan_region {
+  padding: 1.25rem;
+  box-sizing: border-box;
+}
+
+#html5qr-code-full-region__dashboard {
+  padding: 1rem;
+}
+
+#html5qr-code-full-region button {
+  background-color: #ff5520;
+  color: white;
+  padding: 10px 16px;
+  margin-bottom: 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+#html5qr-code-full-region button:hover {
+  opacity: 0.9;
+}
+
+#html5qr-code-full-region__image {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#imageBox {
+  width: 52px;
+  height: 52px;
+  padding: 10px;
+  background-color: #ffd7ca;
+  border-radius: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#qr-canvas-visible {
+  width: 100% !important;
+  height: auto !important;
+}
+
+#html5qr-code-full-region__dashboard_section > div > div:last-child {
+  border: 1px dashed #e5e7eb !important;
+  background-color: #f4f4f4;
+  border-radius: 10px;
+  padding: 1rem !important;
+}
+
+#html5qr-code-full-region__dashboard_section > div > div:last-child > div {
+  font-size: 14px;
+  color: #666666;
+}
