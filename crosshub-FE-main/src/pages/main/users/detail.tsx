@@ -46,7 +46,7 @@ const UserDetailPage = () => {
   };
 
   return (
-    <div className="flex min-h-full w-full flex-col border bg-white text-[#1E1E1E]">
+    <div className="flex min-h-full w-full flex-col bg-white text-[#1E1E1E]">
       <div className="p-5">
         <h1 className="px-4 py-2 text-3xl font-semibold text-[#1E1E1E]">
           사용자 관리
