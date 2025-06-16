@@ -99,7 +99,7 @@ export class AuthController {
     const isDevelopment = req.hostname === 'localhost' || 
                          req.hostname === '127.0.0.1' || 
                          req.hostname === '10.0.2.2' ||
-                         req.hostname === '10.177.197.227' ||
+                         req.hostname === '10.177.196.83' ||
                          !cookieDomain || 
                          cookieDomain.trim() === '';
     
@@ -242,14 +242,14 @@ export class AuthController {
   async signup(@Body() body: SignUpDto) {
     console.log("body : ", body);
 
-    const created = await this.authService.createUser(
-      v.parse(insertUserSchema, body.data, {}),
-    );
-    if (!created) {
-      throw new BadRequestException(ERROR_CODE.ALREADY_USED_EMAIL);
-    }
-    const [user] = created;
-    console.log("user 생성됨 : ", user);
+    // const created = await this.authService.createUser(
+    //   v.parse(insertUserSchema, body.data, {}),
+    // );
+    // if (!created) {
+    //   throw new BadRequestException(ERROR_CODE.ALREADY_USED_EMAIL);
+    // }
+    const userId = await this.authService.getUserId(body.data.email);
+    console.log("userid : ", userId);
     // const userId = await this.authService.getUserId(body.data.email);
     // if (!userId) {
     //   throw new BadRequestException(ERROR_CODE.ALREADY_USED_EMAIL);
@@ -257,7 +257,7 @@ export class AuthController {
 
     // 항상 먼저 UserVerificationDocument 생성
     const [document] = await this.authService.createUserVerificationDocument(
-      user.id,
+      userId!,
       body.data.passportImageKey, 
       body.data.profileImageKey
     );
@@ -272,7 +272,7 @@ export class AuthController {
       await this.authService.autoApproveUser(document.id);
     }
 
-    return user.id;
+    return userId;
   }
 
   @Public()
@@ -337,8 +337,10 @@ export class AuthController {
       },
     },
   })
-  async getProfile(@CurrentUser() email: string) {
-    return this.authService.getProfile(email);
+  async getProfile(@CurrentUser() userId: bigint) {
+
+    console.log("current user : ", userId)
+    return this.authService.getProfile(userId);
   }
 
   @Put('information')
