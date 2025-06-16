@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   FormProvider,
@@ -22,6 +23,7 @@ const SiteNewForm = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const [address, setAddress] = useState("");
 
   const methods = useForm<AddSite>();
   const {
@@ -132,15 +134,8 @@ const SiteNewForm = () => {
               >
                 위치
               </Label>
-              <Input
-                {...register("address", { required: true })}
-                className={cn(
-                  "h-14 rounded-xl border-[#CECECE] bg-white px-6 font-pretendard text-sm font-normal",
-                )}
-              />
+              <LocationSearchInput selected={address} onChange={setAddress} />
             </div>
-
-            <LocationSearchInput />
           </section>
 
           <section className="flex w-full flex-1 flex-col justify-between gap-4">
