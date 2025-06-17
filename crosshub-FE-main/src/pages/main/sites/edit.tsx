@@ -23,6 +23,7 @@ import { queries } from "@/queries";
 
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import LocationSearchInput from "./location-search-input";
+import { toast } from "@/hooks/use-toast";
 
 const SiteEditForm = ({ current }: { current: SiteDetail }) => {
   const queryClient = useQueryClient();
@@ -74,7 +75,21 @@ const SiteEditForm = ({ current }: { current: SiteDetail }) => {
         queryKey: ["sites", "detail"],
         type: "all",
       });
+      toast({
+        variant: "default",
+        title: "광관지 수정 완료",
+        description: "관광지가 수정되었습니다.",
+      });
       navigate("..", { relative: "route" });
+    } else {
+      const errorMessage = Array.isArray(result.error.message)
+        ? result.error.message[0]?.message || "알 수 없는 오류가 발생했습니다."
+        : result.error.message || "알 수 없는 오류가 발생했습니다.";
+      toast({
+        variant: "destructive",
+        title: "관광지 수정 실패",
+        description: errorMessage,
+      });
     }
   };
 
