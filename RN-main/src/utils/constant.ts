@@ -9,7 +9,7 @@ const DEV_API_OPTIONS = {
   // Android 에뮬레이터용 (호스트 머신 접근)
   EMULATOR: 'http://10.0.2.2:8989/api',
   // 실제 기기용 (Wi-Fi IP 사용)
-  DEVICE: 'http://10.177.197.227:8989/api',
+  DEVICE: 'http://10.177.196.83:8989/api',
   // ADB 포트 포워딩 사용시
   LOCALHOST: 'http://localhost:8989/api',
   
@@ -18,11 +18,10 @@ const DEV_API_OPTIONS = {
 // 운영 환경 API 주소들
 // export const API_PREFIX = 'https://api.crosshub.buttersoft.dev/api';
 // export const API_PREFIX = 'https://api.idblock.id/api';
-export const API_PREFIX = 'https://idblock-test.site/api';
+// export const API_PREFIX = 'https://idblock-test.site/api';
 
 // 개발 환경: 임시로 localhost 사용해보기 (회원가입 API 네트워크 에러 해결 시도)
-// export const API_PREFIX = DEV_API_OPTIONS.DEVICE;
-// export const API_PREFIX = DEV_API_OPTIONS.DEVICE;
+export const API_PREFIX = DEV_API_OPTIONS.DEVICE;
 
 export const DEFAULT_POSITION = {
   LAT: 0,

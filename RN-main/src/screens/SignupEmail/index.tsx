@@ -160,44 +160,55 @@ export const SignupEmail = memo(function () {
     setPasswordConfirm(value);
   }, [password])
 
-  const handleNext = useCallback(async () => {
-    try {
-      setIsVisibleLoading(true);
+  // const handleNext = useCallback(async () => {
+  //   try {
+  //     setIsVisibleLoading(true);
 
-      const isConfirm = await apiPostMailConfirm({
-        email: mailRef.current,
-        code: codeRef.current,
-        uuid: uuidRef.current,
-      });
+  //     const isConfirm = await apiPostMailConfirm({
+  //       email: mailRef.current,
+  //       code: codeRef.current,
+  //       uuid: uuidRef.current,
+  //     });
 
-      if (isConfirm && password === passwordConfirm) {
-        setIsVisibleLoading(false);
-        setAlertMessage('');
+  //     if (isConfirm && password === passwordConfirm) {
+  //       setIsVisibleLoading(false);
+  //       setAlertMessage('');
 
-        const nextScreen = getNextScreenInFlow(SIGNUP_FLOW, MENU.STACK.SCREEN.SIGNUP_EMAIL);
+  //       const nextScreen = getNextScreenInFlow(SIGNUP_FLOW, MENU.STACK.SCREEN.SIGNUP_EMAIL);
         
-        if (nextScreen) {
-          navigation.push(nextScreen, {
-            uuid: uuidRef.current,
-            mail: mailRef.current,
-          });
-        } else {
-          console.warn('No next screen found in signup flow');
-        }
-      }
-    } catch (error) {
-      console.log(error);
+  //       if (nextScreen) {
+  //         navigation.push(nextScreen, {
+  //           uuid: uuidRef.current,
+  //           mail: mailRef.current,
+  //         });
+  //       } else {
+  //         console.warn('No next screen found in signup flow');
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
 
-      setCodeMessage({
-        text: 'The Verification Code is incorrect.',
-        color: COLOR.ERROR,
-      });
-    } finally {
-      setIsVisibleLoading(false);
-    }
-  }, []);
+  //     setCodeMessage({
+  //       text: 'The Verification Code is incorrect.',
+  //       color: COLOR.ERROR,
+  //     });
+  //   } finally {
+  //     setIsVisibleLoading(false);
+  //   }
+  // }, []);
 
   const handleSignUp = useCallback(async () => {
+
+    //비밀번호 유효성 검사
+    if(!Util.regexPassword(passwordRef.current)){
+      setPasswordMessage({
+        text: 'Password must contain 8-15 characters with the combination of letters, numbers, and special characters (!@#$%^&*()).',
+        color: COLOR.ERROR,
+      });
+      return;
+    }
+
+
     try {
       setIsVisibleLoading(true);
 

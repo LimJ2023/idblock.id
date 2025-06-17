@@ -13,6 +13,7 @@ import Modal from 'react-native-modal';
 
 import { MainLogo } from '~/components/MainLogo';
 import { Button } from '~/components/Button';
+import { ModalConfirm } from '~/components/ModalConfirm';
 import { Alert } from '~/components/Alert';
 import { Text } from '~/components/Text';
 
@@ -39,6 +40,7 @@ export const Main = memo(function () {
   const navigation = useNavigation<StackNavigationProp<any>>();
 
   const [isVisibleMenu, setIsVisibleMenu] = useState<boolean>(false);
+  const [isVisiblePassportConfirm, setIsVisiblePassportConfirm] = useState<boolean>(false);
   const [alertMessage, setAlertMessage] = useState<string>('');
 
   const { setIsBiometricsSigned } = useAppRootAction();
@@ -126,7 +128,7 @@ export const Main = memo(function () {
     if (isLoggedin) {
       const profile = await apiGetAuthProfile();
 
-      console.log('profile status', profile.status);
+      console.log('profile : ', profile);
       let navigationMenu = '';
 
       switch (profile.status) {
@@ -173,6 +175,30 @@ export const Main = memo(function () {
       navigation.push(MENU.STACK.SCREEN.HISTORY);
     }
   }, []);
+
+        const handlePassportStart = useCallback(() => {
+    // 여권 인증 확인 모달 열기
+    setIsVisiblePassportConfirm(true);
+  }, []);
+
+  const handlePassportConfirmCancel = useCallback(() => {
+    setIsVisiblePassportConfirm(false);
+  }, []);
+
+  const handlePassportConfirmOk = useCallback(() => {
+    setIsVisiblePassportConfirm(false);
+    // 여권 인증 시작 - SignupPassport 화면으로 이동
+    navigation.push(MENU.STACK.SCREEN.SIGNUP_PASSPORT, {
+      uuid: '',
+      email: profile?.email || '',
+      pw: '',
+      name: profile?.name || '',
+      country: '',
+      honorary: '',
+      birth: profile?.birthday || '',
+      passport: '',
+    });
+  }, [profile]);
 
   const handleNotificationCallback = useCallback((notification: FirebaseMessagingTypes.RemoteMessage, callback: Function) => {
     /*
@@ -324,6 +350,15 @@ export const Main = memo(function () {
   return (
     <View style={style.container}>
       <Alert isVisible={!!alertMessage} message={alertMessage} onOk={() => setAlertMessage('')} />
+      <ModalConfirm
+        isVisible={isVisiblePassportConfirm}
+        title="여권 인증"
+        message="여권 인증을 시작하시겠습니까?{'\n'}본인의 여권 정보를 이용하여 신원 확인을 진행합니다."
+        cancelText="취소"
+        confirmText="확인"
+        onCancel={handlePassportConfirmCancel}
+        onConfirm={handlePassportConfirmOk}
+      />
       <Modal
         isVisible={isVisibleMenu}
         style={globalStyle.modal}
@@ -386,6 +421,12 @@ export const Main = memo(function () {
               handleHistory,
               profile.status !== PROFILE_STATUS.APPROVED ? { backgroundColor: COLOR.UI_COLOR_100 } : {},
               profile.status !== PROFILE_STATUS.APPROVED ? { color: '#777777' } : {},
+            )}
+            {}
+            {MemoizedMainButton(
+              STATIC_IMAGE.PASSPORT_SAMPLE,
+              '여권인증시작하기',
+              handlePassportStart,
             )}
           </View>
           {/* <View style={style.footer}>
