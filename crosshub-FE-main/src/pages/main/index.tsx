@@ -11,6 +11,8 @@ import { UsersPage } from "@/pages/main/users";
 import { FAQPage } from "@/pages/main/faq";
 import { SitesPage } from "./sites/list";
 
+import { Helmet } from "react-helmet";
+
 const MainPage = () => {
   const auth = useLoaderData() as Result<null, ErrorResponse>;
 
@@ -19,13 +21,18 @@ const MainPage = () => {
   }
 
   return (
-    <div className="flex min-h-screen">
-      <SideNavigation />
-      <div className="max-h-screen flex-1 overflow-y-auto">
-        <Outlet />
+    <>
+      <Helmet>
+        <title>IDBlock | Admin</title>
+      </Helmet>
+      <div className="flex min-h-screen">
+        <SideNavigation />
+        <div className="max-h-screen flex-1 overflow-y-auto">
+          <Outlet />
+        </div>
+        <Toaster />
       </div>
-      <Toaster />
-    </div>
+    </>
   );
 };
 
