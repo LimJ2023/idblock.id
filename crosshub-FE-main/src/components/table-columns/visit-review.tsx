@@ -1,5 +1,6 @@
 import { SiteVisitReview } from "@/api/site.review.api";
 import type { ColumnDef } from "@tanstack/react-table";
+import dayjs from "dayjs";
 
 const columns: ColumnDef<SiteVisitReview>[] = [
   {
@@ -36,9 +37,12 @@ const columns: ColumnDef<SiteVisitReview>[] = [
   {
     accessorKey: "visit.createdAt",
     header: () => <div className="text-center">방문일시</div>,
-    cell: (row) => (
-      <div className="text-center text-[#333333]">{row.getValue<string>()}</div>
-    ),
+    cell: (row) => {
+      const rawDate = row.getValue<string>();
+      const formattedDate = dayjs(rawDate).format("YYYY-MM-DD HH:mm:ss");
+
+      return <div className="text-center text-[#333333]">{formattedDate}</div>;
+    },
   },
   {
     accessorKey: "content",

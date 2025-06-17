@@ -36,6 +36,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "dayjs": "^1.11.13",
     "html5-qrcode": "^2.3.8",
     "ky": "^1.7.2",
     "lexical": "^0.19.0",
