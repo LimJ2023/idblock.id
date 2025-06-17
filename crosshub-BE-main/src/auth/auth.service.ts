@@ -71,7 +71,7 @@ export class AuthService {
       date.getDate() === day
     );
   }
-  async signupSimple(data: { email: string; password: string }) {
+  async signupSimple(data: { email: string, password: string }) {
     const isAlreadyUserEmail = await this.checkIsUser(data.email);
 
     if (isAlreadyUserEmail) {
@@ -96,7 +96,7 @@ export class AuthService {
 
     return user;
   }
-  async signupVerifyStep1(data: { birthday: string; passportNumber: string }) {
+  async signupVerifyStep1(data: { birthday: string, passportNumber: string }) {
     console.log('signupVerifyStep1 >>>>>>.', data);
     const isValidBirthday = this.validateBirthday(data.birthday);
     if (!isValidBirthday) {

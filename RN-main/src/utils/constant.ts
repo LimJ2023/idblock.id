@@ -18,10 +18,10 @@ const DEV_API_OPTIONS = {
 // 운영 환경 API 주소들
 // export const API_PREFIX = 'https://api.crosshub.buttersoft.dev/api';
 // export const API_PREFIX = 'https://api.idblock.id/api';
-// export const API_PREFIX = 'https://idblock-test.site/api';
+export const API_PREFIX = 'https://idblock-test.site/api';
 
 // 개발 환경: 임시로 localhost 사용해보기 (회원가입 API 네트워크 에러 해결 시도)
-export const API_PREFIX = DEV_API_OPTIONS.DEVICE;
+// export const API_PREFIX = DEV_API_OPTIONS.DEVICE;
 
 export const DEFAULT_POSITION = {
   LAT: 0,
