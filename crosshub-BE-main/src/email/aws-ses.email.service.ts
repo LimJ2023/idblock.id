@@ -13,17 +13,26 @@ export class AwsSesEmailService implements EmailService {
       },
       Message: {
         Body: {
-          Text: {
+          Html: {
             Charset: 'UTF-8',
-            Data: `Your verification code is ${code}`,
+            Data: `
+              <div style="font-family: Arial, sans-serif; padding: 24px; background-color: #f9f9f9;">
+                <div style="max-width: 600px; margin: 0 auto; background: #fff; padding: 32px; border-radius: 8px; text-align: center;">
+                  <h2 style="color: #333;">Welcome to IDBlock!</h2>
+                  <p style="color: #555;">Your verification code is:</p>
+                  <p style="font-size: 32px; color: #007BFF; font-weight: bold; letter-spacing: 4px;">${code}</p>
+                  <p style="color: #888;">Please enter this code in the app to continue your signup process.</p>
+                </div>
+              </div>
+            `,
           },
         },
         Subject: {
           Charset: 'UTF-8',
-          Data: 'Welcome to IDBlock',
+          Data: '[IDBlock] Verify Your Email',
         },
       },
-      Source: 'hello@idblock.id',
+      Source: 'idblock@idblock.id',
       // Source: 'hkchae@buttersoft.io',
     });
     const result = await this.sesClient.send(sendEmailCommand);
