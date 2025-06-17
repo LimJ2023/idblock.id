@@ -93,18 +93,19 @@ export class AuthController {
       body.data,
     );
     await this.authService.createSession(userId, refreshToken);
-    
+
     const cookieDomain = this.envService.get('COOKIE_DOMAIN');
     // 개발 환경 감지: localhost, 127.0.0.1, 10.0.2.2 (안드로이드 에뮬레이터)
-    const isDevelopment = req.hostname === 'localhost' || 
-                         req.hostname === '127.0.0.1' || 
-                         req.hostname === '10.0.2.2' ||
-                         req.hostname === '10.177.197.227' ||
-                         !cookieDomain || 
-                         cookieDomain.trim() === '';
-    
+    const isDevelopment =
+      req.hostname === 'localhost' ||
+      req.hostname === '127.0.0.1' ||
+      req.hostname === '10.0.2.2' ||
+      req.hostname === '10.177.197.227' ||
+      !cookieDomain ||
+      cookieDomain.trim() === '';
+
     const domain = isDevelopment ? undefined : cookieDomain;
-    
+
     res.cookie('access_token', accessToken, {
       httpOnly: true,
       expires: addDays(new Date(), 1),
@@ -134,18 +135,19 @@ export class AuthController {
     @CurrentUser() userId: string,
   ) {
     await this.authService.deleteSession(userId);
-    
+
     const cookieDomain = this.envService.get('COOKIE_DOMAIN');
     // 개발 환경 감지: localhost, 127.0.0.1, 10.0.2.2 (안드로이드 에뮬레이터)
-    const isDevelopment = req.hostname === 'localhost' || 
-                         req.hostname === '127.0.0.1' || 
-                         req.hostname === '10.0.2.2' ||
-                         req.hostname === '10.177.197.227' ||
-                         !cookieDomain || 
-                         cookieDomain.trim() === '';
-    
+    const isDevelopment =
+      req.hostname === 'localhost' ||
+      req.hostname === '127.0.0.1' ||
+      req.hostname === '10.0.2.2' ||
+      req.hostname === '10.177.197.227' ||
+      !cookieDomain ||
+      cookieDomain.trim() === '';
+
     const domain = isDevelopment ? undefined : cookieDomain;
-    
+
     res.clearCookie('access_token', {
       httpOnly: true,
       sameSite: isDevelopment ? 'lax' : 'none',
@@ -221,16 +223,16 @@ export class AuthController {
 
   @Public()
   @Post('sign-up/simple')
-  @ApiOperation({ summary: '이메일로 가입'})
+  @ApiOperation({ summary: '이메일로 가입' })
   @ApiBadRequestResponse({
     example: {
       message: ERROR_CODE.ALREADY_USED_EMAIL,
-    }
+    },
   })
   async signupSimple(@Body() body: SignupSimpleDto) {
     return this.authService.signupSimple(body.data);
   }
-  
+
   @Public()
   @Post('sign-up')
   @ApiOperation({ summary: '회원가입' })
@@ -240,7 +242,7 @@ export class AuthController {
     },
   })
   async signup(@Body() body: SignUpDto) {
-    console.log("body : ", body);
+    console.log('body : ', body);
 
     const created = await this.authService.createUser(
       v.parse(insertUserSchema, body.data, {}),
@@ -249,7 +251,7 @@ export class AuthController {
       throw new BadRequestException(ERROR_CODE.ALREADY_USED_EMAIL);
     }
     const [user] = created;
-    console.log("user 생성됨 : ", user);
+    console.log('user 생성됨 : ', user);
     // const userId = await this.authService.getUserId(body.data.email);
     // if (!userId) {
     //   throw new BadRequestException(ERROR_CODE.ALREADY_USED_EMAIL);
@@ -258,17 +260,17 @@ export class AuthController {
     // 항상 먼저 UserVerificationDocument 생성
     const [document] = await this.authService.createUserVerificationDocument(
       user.id,
-      body.data.passportImageKey, 
-      body.data.profileImageKey
+      body.data.passportImageKey,
+      body.data.profileImageKey,
     );
-    console.log("document 생성됨 : ", document);
+    console.log('document 생성됨 : ', document);
     // 자동 인증 처리
     const isAutoApproved = await this.authService.argosFaceCompare(
-      body.data.passportImageKey, 
-      body.data.profileImageKey
+      body.data.passportImageKey,
+      body.data.profileImageKey,
     );
-    console.log("isAutoApproved 결과 : ", isAutoApproved);
-    if(isAutoApproved) {
+    console.log('isAutoApproved 결과 : ', isAutoApproved);
+    if (isAutoApproved) {
       await this.authService.autoApproveUser(document.id);
     }
 
@@ -287,7 +289,7 @@ export class AuthController {
   async uploadPassportRecognition(@UploadedFile() file: Express.Multer.File) {
     return this.authService.argosRecognition(file);
   }
-  
+
   @Public()
   @Post('upload/passport-image')
   @ApiOperation({ summary: '여권 업로드' })
@@ -379,7 +381,7 @@ export class AuthController {
     },
   })
   @ApiBearerAuth()
-  @ApiOperation({ summary: "QR 코드 조회"})
+  @ApiOperation({ summary: 'QR 코드 조회' })
   async getQrCode(@CurrentUser() userId: bigint) {
     return this.authService.getQrCode(userId);
   }
@@ -436,18 +438,19 @@ export class AuthController {
     } = await this.authService.refeshAccessToken(refreshToken);
 
     // await this.authService.createSession(userId, newRefreshToken);
-    
+
     const cookieDomain = this.envService.get('COOKIE_DOMAIN');
     // 개발 환경 감지: localhost, 127.0.0.1, 10.0.2.2 (안드로이드 에뮬레이터)
-    const isDevelopment = req.hostname === 'localhost' || 
-                         req.hostname === '127.0.0.1' || 
-                         req.hostname === '10.0.2.2' ||
-                         req.hostname === '10.177.197.227' ||
-                         !cookieDomain || 
-                         cookieDomain.trim() === '';
-    
+    const isDevelopment =
+      req.hostname === 'localhost' ||
+      req.hostname === '127.0.0.1' ||
+      req.hostname === '10.0.2.2' ||
+      req.hostname === '10.177.197.227' ||
+      !cookieDomain ||
+      cookieDomain.trim() === '';
+
     const domain = isDevelopment ? undefined : cookieDomain;
-    
+
     res.cookie('access_token', accessToken, {
       httpOnly: true,
       expires: addDays(new Date(), 1),

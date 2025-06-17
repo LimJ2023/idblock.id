@@ -71,30 +71,32 @@ export class AuthService {
       date.getDate() === day
     );
   }
-  async signupSimple(data: { email: string, password: string }) {
+  async signupSimple(data: { email: string; password: string }) {
     const isAlreadyUserEmail = await this.checkIsUser(data.email);
 
     if (isAlreadyUserEmail) {
       throw new BadRequestException(ERROR_CODE.ALREADY_USED_EMAIL);
     }
-    const [user] = await this.db.insert(User).values({
-      email: data.email,
-      password: await this.hashPassword(data.password),
-      name: 'guest',
-      countryCode: 'TEMP_COUNTRY',
-      birthday: null,
-      passportNumber: 'TEMP_PASSPORT_NUMBER',
-      approvalId: null,
-      cityId: 'TEMP_CITY_ID',
-    }).returning({
-      id: User.id,
-      email: User.email,
-    })
+    const [user] = await this.db
+      .insert(User)
+      .values({
+        email: data.email,
+        password: await this.hashPassword(data.password),
+        name: 'guest',
+        countryCode: 'TEMP_COUNTRY',
+        birthday: null,
+        passportNumber: 'TEMP_PASSPORT_NUMBER',
+        approvalId: null,
+        cityId: 'TEMP_CITY_ID',
+      })
+      .returning({
+        id: User.id,
+        email: User.email,
+      });
 
     return user;
   }
   async signupVerifyStep1(data: { birthday: string; passportNumber: string }) {
-
     console.log('signupVerifyStep1 >>>>>>.', data);
     const isValidBirthday = this.validateBirthday(data.birthday);
     if (!isValidBirthday) {
@@ -105,7 +107,7 @@ export class AuthService {
     });
 
     console.log('isAlreadyUsedPassport >>>>>>.', isAlreadyUsedPassport);
-    
+
     if (isAlreadyUsedPassport) {
       throw new BadRequestException(ERROR_CODE.ALREADY_USED_PASSPORT_NUMBER);
     }
@@ -168,9 +170,9 @@ export class AuthService {
   }
 
   async deleteEmailVerification(email: string) {
-    await this.db.delete(EmailVerification).where(
-      eq(EmailVerification.email, email),
-    );
+    await this.db
+      .delete(EmailVerification)
+      .where(eq(EmailVerification.email, email));
   }
 
   async login(body: TLoginDto) {
@@ -267,11 +269,14 @@ export class AuthService {
     passportImageKey: string,
     profileImageKey: string,
   ) {
-    return this.db.insert(UserVerificationDocument).values({
-      userId,
-      passportImageKey,
-      profileImageKey,
-    }).returning({ id: UserVerificationDocument.id });
+    return this.db
+      .insert(UserVerificationDocument)
+      .values({
+        userId,
+        passportImageKey,
+        profileImageKey,
+      })
+      .returning({ id: UserVerificationDocument.id });
   }
 
   async getUserId(email: string) {
@@ -287,22 +292,23 @@ export class AuthService {
         city: true,
         approval: {
           with: {
-            document: true
-          }
-        }
-      }
+            document: true,
+          },
+        },
+      },
     });
 
     if (!user) {
       throw new BadRequestException(ERROR_CODE.USER_NOT_FOUND);
     }
 
-    const latestDocument = await this.db.query.UserVerificationDocument.findFirst({
-      where: (table, { eq }) => eq(table.userId, user.id),
-      orderBy: (table, { desc }) => desc(table.id),
-    });
+    const latestDocument =
+      await this.db.query.UserVerificationDocument.findFirst({
+        where: (table, { eq }) => eq(table.userId, user.id),
+        orderBy: (table, { desc }) => desc(table.id),
+      });
 
-    console.log('latestDocument >>>>>>.', latestDocument)
+    console.log('latestDocument >>>>>>.', latestDocument);
 
     return {
       id: user.id,
@@ -345,10 +351,13 @@ export class AuthService {
   }
 
   async getQrCodeBuffer(userId: bigint): Promise<Buffer> {
-    const qrData = JSON.stringify({ userId, expiresAt: addMinutes(new Date(), 1) });
+    const qrData = JSON.stringify({
+      userId,
+      expiresAt: addMinutes(new Date(), 1),
+    });
     return await QRCode.toBuffer(qrData, { type: 'png' });
   }
-  
+
   async resetPassword(uuid: string, password: string) {
     const target = await this.db.query.EmailVerification.findFirst({
       where: (table, { eq, and }) =>
@@ -445,9 +454,9 @@ export class AuthService {
 
   private async fetchImageAsBase64(url: string): Promise<string> {
     try {
-      const response = await axios.get(url, { 
+      const response = await axios.get(url, {
         responseType: 'arraybuffer',
-        timeout: 10000 // 10초 타임아웃 설정
+        timeout: 10000, // 10초 타임아웃 설정
       });
       const inputBuffer = Buffer.from(response.data, 'binary');
       const maxSizeKB = 5000;
@@ -456,9 +465,7 @@ export class AuthService {
 
       // Reduce quality until under max size or quality is too low
       for (let quality = 90; quality > 10; quality -= 10) {
-        outputBuffer = await sharp(inputBuffer)
-          .jpeg({ quality })
-          .toBuffer();
+        outputBuffer = await sharp(inputBuffer).jpeg({ quality }).toBuffer();
 
         if (outputBuffer.length / 1024 <= maxSizeKB) {
           break;
@@ -490,7 +497,10 @@ export class AuthService {
       );
 
       // console.log('recognition raw data >>>>>>.', JSON.stringify(response.data.result.data.raw, null, 2));
-      console.log('recognition ocr data >>>>>>.', JSON.stringify(response.data.result.data, null, 2));
+      console.log(
+        'recognition ocr data >>>>>>.',
+        JSON.stringify(response.data.result.data, null, 2),
+      );
       const ocrData = response.data.result.data.ocr;
       return ocrData;
     } catch (error) {
@@ -499,15 +509,14 @@ export class AuthService {
     }
   }
 
-  async argosFaceCompare(
-    originFaceKey: string,
-    targetFaceKey: string,
-  ) {
+  async argosFaceCompare(originFaceKey: string, targetFaceKey: string) {
     try {
       // S3 키에서 presigned URL 생성
-      const originFaceUrl = await this.s3Service.createPresignedUrlWithClient(originFaceKey);
-      const targetFaceUrl = await this.s3Service.createPresignedUrlWithClient(targetFaceKey);
-      
+      const originFaceUrl =
+        await this.s3Service.createPresignedUrlWithClient(originFaceKey);
+      const targetFaceUrl =
+        await this.s3Service.createPresignedUrlWithClient(targetFaceKey);
+
       // URL에서 이미지를 가져와서 base64로 변환
       const originFaceBase64 = await this.fetchImageAsBase64(originFaceUrl);
       const targetFaceBase64 = await this.fetchImageAsBase64(targetFaceUrl);
@@ -529,7 +538,7 @@ export class AuthService {
       const confidence = response.data.result.faceMatch.confidence;
 
       console.log(`user similarity: ${similarity}, confidence: ${confidence}`);
-      if(similarity >= 95 && confidence >= 95) {
+      if (similarity >= 95 && confidence >= 95) {
         return true;
       }
       return false;
@@ -541,9 +550,8 @@ export class AuthService {
   }
 
   async autoApproveUser(documentId: bigint) {
-
     console.log(`autoApproveUser documentId: ${documentId}`);
-    
+
     return this.db.transaction(async (trx) => {
       // 먼저 UserVerificationDocument에서 userId를 조회
       const document = await trx.query.UserVerificationDocument.findFirst({
@@ -582,10 +590,7 @@ export class AuthService {
         },
       ]);
 
-      await trx
-        .update(User)
-        .set({ approvalId })
-        .where(eq(User.id, userId));
+      await trx.update(User).set({ approvalId }).where(eq(User.id, userId));
 
       await this.notificationService.sendNotification({
         userId,
@@ -600,8 +605,6 @@ export class AuthService {
         .where(eq(UserApproval.id, approvalId));
     });
   }
-
-
 }
 export interface IdLivenessResponse {
   apiType: string;
@@ -625,7 +628,7 @@ export interface FaceCompareResponse {
 export interface RecognitionResponse {
   apiType: string;
   transactionId: string;
-  result: any
+  result: any;
 }
 
 export interface FaceLivenessResponse {
