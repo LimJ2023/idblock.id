@@ -16,7 +16,7 @@ const VisitorPage = () => {
   const { data: result } = useSuspenseQuery({ ...queries.visitor.all });
 
   return (
-    <main className="flex h-dvh w-full flex-col border bg-white text-[#1E1E1E]">
+    <main className="flex h-dvh w-full flex-col bg-white text-[#1E1E1E]">
       <header className="p-5">
         <h1 className="px-4 py-2 text-3xl font-semibold text-[#1E1E1E]">
           방문객 리스트
