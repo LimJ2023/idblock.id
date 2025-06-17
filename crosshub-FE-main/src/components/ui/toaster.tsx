@@ -26,7 +26,7 @@ export function Toaster() {
               {description && (
                 <span className="inline-flex items-center gap-2">
                   {variant === "default" ? (
-                    <CircleCheck className="fill-toast-text stroke-toast-background h-6 w-6" />
+                    <CircleCheck className="h-6 w-6 fill-toast-text stroke-toast-background" />
                   ) : (
                     <CircleAlert className="h-6 w-6 fill-red-200 stroke-red-600" />
                   )}

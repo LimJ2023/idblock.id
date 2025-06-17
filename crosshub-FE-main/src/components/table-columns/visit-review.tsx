@@ -7,7 +7,9 @@ const columns: ColumnDef<SiteVisitReview>[] = [
     accessorKey: "id",
     header: () => <div className="text-center">No</div>,
     cell: (row) => (
-      <div className="text-center text-[#333333]">{row.getValue<string>()}</div>
+      <div className="rounded-md bg-[#415776] p-1 px-2 text-center text-white">
+        {row.getValue<string>()}
+      </div>
     ),
   },
   {
@@ -42,7 +44,7 @@ const columns: ColumnDef<SiteVisitReview>[] = [
     accessorKey: "content",
     header: () => <div className="text-center">후기</div>,
     cell: (row) => (
-      <div className="max-w-xs truncate text-center text-[#333333]">
+      <div className="w-full text-left text-[#333333]">
         {row.getValue<string>()}
       </div>
     ),

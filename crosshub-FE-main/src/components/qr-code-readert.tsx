@@ -2,7 +2,9 @@
 // file = Html5QrcodePlugin.jsx
 import { Html5QrcodeScanner } from "html5-qrcode";
 import { Html5QrcodeScannerConfig } from "html5-qrcode/esm/html5-qrcode-scanner";
+import { QrCode } from "lucide-react";
 import { useEffect, useRef } from "react";
+import ReactDOM from "react-dom/client";
 
 const qrcodeRegionId = "html5qr-code-full-region";
 
@@ -66,7 +68,7 @@ const Html5QrcodePlugin = (
       ) as HTMLInputElement;
       if (inputEl) {
         inputEl.style.padding = "12px";
-        inputEl.style.borderRadius = "6px";
+        inputEl.style.borderRadius = "100%";
         inputEl.style.backgroundColor = "#e9f5ff";
       }
     }, 500);
@@ -93,6 +95,118 @@ const Html5QrcodePlugin = (
     };
   }, []);
 
-  return <div id={qrcodeRegionId} />;
+  useEffect(() => {
+    const changeTexts = () => {
+      const fileScanBtn = document.getElementById(
+        "html5-qrcode-anchor-scan-type-change",
+      );
+      const dashboardCsr = document.getElementById(
+        "html5qr-code-full-region__dashboard_section_csr",
+      );
+
+      if (fileScanBtn && dashboardCsr) {
+        const isHidden =
+          window.getComputedStyle(dashboardCsr).display === "none";
+
+        if (isHidden) {
+          fileScanBtn.innerText = "카메라로 스캔하기";
+        } else {
+          fileScanBtn.innerText = "이미지로 스캔하기";
+        }
+      }
+
+      const permissionCameraBtn = document.getElementById(
+        "html5-qrcode-button-camera-permission",
+      );
+      if (permissionCameraBtn)
+        permissionCameraBtn.innerText = "카메라 권한 요청";
+
+      const permissionFileBtn = document.getElementById(
+        "html5-qrcode-button-file-selection",
+      );
+      if (permissionFileBtn) permissionFileBtn.innerText = "이미지 업로드";
+
+      const dragFileScanText = document.querySelector(
+        "#html5qr-code-full-region__dashboard_section > div > div:last-child > div",
+      );
+      if (dragFileScanText)
+        dragFileScanText.innerHTML = "또는 여기로 파일을 끌어오세요";
+
+      const targetContainer = document.getElementById(
+        "html5qr-code-full-region__scan_region",
+      );
+      if (!targetContainer) return;
+
+      const statusText = document.querySelector(".qr-code-full-region > span");
+      if (statusText && statusText.textContent?.includes("Scanning")) {
+        statusText.textContent = "스캔 중입니다...";
+      }
+
+      const fileInputLabel = document.querySelector(
+        "#html5-qrcode-button-file-selection + span",
+      );
+      if (fileInputLabel) fileInputLabel.textContent = "이미지 선택";
+
+      const imageInfoText = document.querySelector(".html5-qrcode-text-tips");
+      if (imageInfoText && imageInfoText.textContent?.includes("Upload")) {
+        imageInfoText.textContent = "QR 코드가 포함된 이미지를 업로드하세요.";
+      }
+    };
+
+    const changeImage = new MutationObserver(() => {
+      const img = document.querySelector(
+        "#html5qr-code-full-region__scan_region img",
+      );
+      const container = document.getElementById(
+        "html5qr-code-full-region__scan_region",
+      );
+
+      if (img && container) {
+        img.remove();
+
+        const mountNode = document.createElement("div");
+        mountNode.id = "html5qr-code-full-region__image";
+        container.appendChild(mountNode);
+
+        const root = ReactDOM.createRoot(mountNode);
+        root.render(
+          <div id="imageBox">
+            <QrCode size={28} color="#FF5520" />
+          </div>,
+        );
+      }
+    });
+
+    const target = document.getElementById("html5qr-code-full-region");
+    const observer = new MutationObserver(() => {
+      setTimeout(() => changeTexts(), 50);
+    });
+
+    if (target) {
+      observer.observe(target, {
+        childList: true,
+        subtree: true,
+      });
+    }
+
+    const targetImage = document.getElementById(
+      "html5qr-code-full-region__scan_region",
+    );
+    if (targetImage) {
+      changeImage.observe(targetImage, {
+        childList: true,
+        subtree: true,
+      });
+    }
+
+    // 초기에도 한 번 적용
+    setTimeout(() => changeTexts(), 500);
+
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div id={qrcodeRegionId} className="box-border w-full text-[#333333]" />
+  );
 };
 export default Html5QrcodePlugin;

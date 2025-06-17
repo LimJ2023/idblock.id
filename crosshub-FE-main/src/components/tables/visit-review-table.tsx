@@ -15,13 +15,13 @@ import {
   TableCaption,
   TableCell,
   TableFooter,
-  TableHead,
-  TableHeader,
+  // TableHead,
+  // TableHeader,
   TableRow,
 } from "@/components/ui/table";
 
+import { cn } from "@/lib/utils";
 import { BackofficePagination } from "@/components/pagination";
-
 import type { DataTableProps } from "@/components/tables/common";
 
 const VisitReviewTable = <TData, TValue>({
@@ -62,7 +62,7 @@ const VisitReviewTable = <TData, TValue>({
     <div className="flex flex-col gap-4">
       <Table captionSide={captionSide}>
         <TableCaption>{caption}</TableCaption>
-        <TableHeader>
+        {/* <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
@@ -77,21 +77,36 @@ const VisitReviewTable = <TData, TValue>({
               ))}
             </TableRow>
           ))}
-        </TableHeader>
-        <TableBody>
+        </TableHeader> */}
+        <TableBody className="border-none">
           {table.getRowModel().rows.length ? (
             table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && "selected"}
-                className="hover:bg-transparent"
+                className="flex w-full flex-wrap items-center rounded-lg border-none bg-[#FAFAFA] px-5 py-3 hover:bg-[#FAFAFA]"
                 onClick={() => {}}
               >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
+                {row.getVisibleCells().map((cell, index) => {
+                  const isLastCell = index === row.getVisibleCells().length - 1;
+
+                  return (
+                    <TableCell
+                      key={cell.id}
+                      className={cn(
+                        isLastCell
+                          ? "w-full border-t border-[#e5e7eb]"
+                          : "relative w-auto pl-4 pr-4 after:absolute after:left-0 after:top-[50%] after:h-[4px] after:w-[4px] after:translate-y-[-50%] after:rounded-[100%] after:bg-[#e5e7eb] after:content-[''] first:px-0 first:after:content-none [&:nth-child(2)]:after:content-none",
+                        "hover:bg-transparent",
+                      )}
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
+                    </TableCell>
+                  );
+                })}
               </TableRow>
             ))
           ) : (
