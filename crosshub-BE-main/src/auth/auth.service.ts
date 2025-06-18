@@ -575,61 +575,79 @@ export class AuthService {
     }
   }
 
-  async autoApproveUser(documentId: bigint) {
+  async autoApproveUser(documentId: bigint, passportImageKey: string, profileImageKey: string): Promise<boolean> {
     console.log(`autoApproveUser documentId: ${documentId}`);
 
-    return this.db.transaction(async (trx) => {
-      // 먼저 UserVerificationDocument에서 userId를 조회
-      const document = await trx.query.UserVerificationDocument.findFirst({
-        where: (table, { eq }) => eq(table.id, documentId),
-      });
-
-      if (!document) {
-        throw new BadRequestException('Document not found');
+    try {
+      // 얼굴 비교 수행
+      const isFaceMatchSuccess = await this.argosFaceCompare(passportImageKey, profileImageKey);
+      
+      if (!isFaceMatchSuccess) {
+        console.log('얼굴 비교 실패 - 자동 승인하지 않음');
+        return false;
       }
 
-      const userId = document.userId;
+      console.log('얼굴 비교 성공 - 자동 승인 처리 시작');
 
-      // approvalStatus 업데이트
-      await trx
-        .update(UserVerificationDocument)
-        .set({ approvalStatus: 1 })
-        .where(eq(UserVerificationDocument.id, documentId));
+      await this.db.transaction(async (trx) => {
+        // 먼저 UserVerificationDocument에서 userId를 조회
+        const document = await trx.query.UserVerificationDocument.findFirst({
+          where: (table, { eq }) => eq(table.id, documentId),
+        });
 
-      const [{ id: approvalId }] = await trx
-        .insert(UserApproval)
-        .values({
-          documentId,
+        if (!document) {
+          throw new BadRequestException('Document not found');
+        }
+
+        const userId = document.userId;
+
+        // approvalStatus 업데이트
+        await trx
+          .update(UserVerificationDocument)
+          .set({ approvalStatus: 1 })
+          .where(eq(UserVerificationDocument.id, documentId));
+
+        const [{ id: approvalId }] = await trx
+          .insert(UserApproval)
+          .values({
+            documentId,
+            userId,
+            approvedBy: 1,
+          })
+          .returning();
+
+        const txHash = await this.thirdwebService.generateNFT([
+          {
+            trait_trpe: 'userId',
+            value: userId.toString(),
+          },
+          {
+            trait_trpe: 'approvalId',
+            value: approvalId,
+          },
+        ]);
+
+        await trx.update(User).set({ approvalId }).where(eq(User.id, userId));
+
+        await this.notificationService.sendNotification({
           userId,
-          approvedBy: 1,
-        })
-        .returning();
-
-      const txHash = await this.thirdwebService.generateNFT([
-        {
-          trait_trpe: 'userId',
-          value: userId.toString(),
-        },
-        {
-          trait_trpe: 'approvalId',
-          value: approvalId,
-        },
-      ]);
-
-      await trx.update(User).set({ approvalId }).where(eq(User.id, userId));
-
-      await this.notificationService.sendNotification({
-        userId,
-        title: 'The Mobile ID registration was successful',
-        content: 'Confirm your Mobile ID now',
+          title: 'The Mobile ID registration was successful',
+          content: 'Confirm your Mobile ID now',
+        });
+        await trx
+          .update(UserApproval)
+          .set({
+            txHash,
+          })
+          .where(eq(UserApproval.id, approvalId));
       });
-      await trx
-        .update(UserApproval)
-        .set({
-          txHash,
-        })
-        .where(eq(UserApproval.id, approvalId));
-    });
+
+      console.log('자동 승인 처리 완료');
+      return true;
+    } catch (error) {
+      console.error('자동 승인 처리 중 오류 발생:', error);
+      return false;
+    }
   }
 }
 export interface IdLivenessResponse {
