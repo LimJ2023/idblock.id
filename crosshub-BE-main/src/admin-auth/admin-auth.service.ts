@@ -37,6 +37,7 @@ export class AdminAuthService {
     return {
       ...this.createAccessToken(target.email, target.id),
       userId: target.id,
+      permission: target.permission,
     };
   }
 
@@ -75,7 +76,7 @@ export class AdminAuthService {
       },
     });
 
-    return admins.map(admin => ({
+    return admins.map((admin) => ({
       ...admin,
       permissionName: this.getPermissionName(admin.permission),
     }));
@@ -173,7 +174,9 @@ export class AdminAuthService {
       });
 
       if (rootAdmins.length <= 1) {
-        throw new BadRequestException('마지막 루트 관리자는 삭제할 수 없습니다.');
+        throw new BadRequestException(
+          '마지막 루트 관리자는 삭제할 수 없습니다.',
+        );
       }
     }
 

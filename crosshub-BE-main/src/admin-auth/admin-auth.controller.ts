@@ -1,4 +1,14 @@
-import { Body, Controller, Delete, Get, Post, Req, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Post,
+  Req,
+  Res,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { Public } from 'src/auth/auth.guard';
 import * as v from 'valibot';
@@ -26,16 +36,20 @@ export class AdminAuthController {
     @Body() body: AdminLoginDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const { accessToken, refreshToken, userId } = await this.authService.login(
-      body.data,
-    );
+    const { accessToken, refreshToken, userId, permission } =
+      await this.authService.login(body.data);
     await this.authService.createSession(userId, refreshToken);
-    
+
     const cookieDomain = this.envService.get('COOKIE_DOMAIN');
-    const domain = req.hostname === 'localhost' || !cookieDomain || cookieDomain.trim() === '' 
-      ? undefined 
+    const domain =
+      (
+        req.hostname === 'localhost' ||
+        !cookieDomain ||
+        cookieDomain.trim() === ''
+      ) ?
+        undefined
       : cookieDomain;
-    
+
     res.cookie('access_token', accessToken, {
       httpOnly: true,
       sameSite: 'none',
@@ -52,7 +66,7 @@ export class AdminAuthController {
       expires: addDays(new Date(), 1),
       path: '/',
     });
-    return { accessToken, refreshToken };
+    return { accessToken, refreshToken, permission };
   }
 
   @Delete('logout')
@@ -62,12 +76,17 @@ export class AdminAuthController {
     @CurrentUser() userId: string,
   ) {
     await this.authService.deleteSession(userId);
-    
+
     const cookieDomain = this.envService.get('COOKIE_DOMAIN');
-    const domain = req.hostname === 'localhost' || !cookieDomain || cookieDomain.trim() === '' 
-      ? undefined
+    const domain =
+      (
+        req.hostname === 'localhost' ||
+        !cookieDomain ||
+        cookieDomain.trim() === ''
+      ) ?
+        undefined
       : cookieDomain;
-    
+
     res.clearCookie('access_token', {
       httpOnly: true,
       sameSite: 'none',
@@ -93,8 +112,6 @@ export class AdminAuthController {
       v.parse(insertAdminUserSchema, body.data, {}),
     );
   }
-
-
 
   @Get('protected')
   async protected() {

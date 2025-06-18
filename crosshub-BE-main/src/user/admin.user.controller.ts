@@ -145,7 +145,7 @@ export class AdminUserController {
   @Delete(':documentId')
   @ApiOperation({
     summary: '회원 삭제',
-    description: '회원을 삭제합니다. (루트 관리자만 접근 가능)',
+    description: '회원을 삭제합니다. (중간 관리자 이상 접근 가능)',
   })
   @RequireAdminPermission(AdminPermission.MIDDLE)
   async deleteUser(@Param() param: UserVerificationDocumetDetailDto) {
