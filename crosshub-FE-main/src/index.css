@@ -64,6 +64,7 @@ body {
 
 #qr-canvas-visible {
   width: 100% !important;
+  max-width: 200px;
   height: auto !important;
 }
 
