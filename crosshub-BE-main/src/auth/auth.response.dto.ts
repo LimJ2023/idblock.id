@@ -69,12 +69,14 @@ const VArgosRecognitionResponse = v.object({
   result: v.object({
     data: v.object({
       raw: v.any(),
-      ocr: v.any(), 
+      ocr: v.any(),
     }),
   }),
 });
 
-export class ArgosRecognitionResponse extends TypeschemaDto(VArgosRecognitionResponse) {
+export class ArgosRecognitionResponse extends TypeschemaDto(
+  VArgosRecognitionResponse,
+) {
   result: {
     data: {
       raw: any;

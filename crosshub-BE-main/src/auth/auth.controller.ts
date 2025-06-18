@@ -96,13 +96,14 @@ export class AuthController {
 
     const cookieDomain = this.envService.get('COOKIE_DOMAIN');
     // 개발 환경 감지: localhost, 127.0.0.1, 10.0.2.2 (안드로이드 에뮬레이터)
-    const isDevelopment = req.hostname === 'localhost' || 
-                         req.hostname === '127.0.0.1' || 
-                         req.hostname === '10.0.2.2' ||
-                         req.hostname === '10.177.196.83' ||
-                         !cookieDomain || 
-                         cookieDomain.trim() === '';
-    
+    const isDevelopment =
+      req.hostname === 'localhost' ||
+      req.hostname === '127.0.0.1' ||
+      req.hostname === '10.0.2.2' ||
+      req.hostname === '10.177.196.83' ||
+      !cookieDomain ||
+      cookieDomain.trim() === '';
+
     const domain = isDevelopment ? undefined : cookieDomain;
 
     res.cookie('access_token', accessToken, {
@@ -250,7 +251,7 @@ export class AuthController {
     //   throw new BadRequestException(ERROR_CODE.ALREADY_USED_EMAIL);
     // }
     const userId = await this.authService.getUserId(body.data.email);
-    console.log("userid : ", userId);
+    console.log('userid : ', userId);
     // const userId = await this.authService.getUserId(body.data.email);
     // if (!userId) {
     //   throw new BadRequestException(ERROR_CODE.ALREADY_USED_EMAIL);
@@ -259,8 +260,8 @@ export class AuthController {
     // 항상 먼저 UserVerificationDocument 생성
     const [document] = await this.authService.createUserVerificationDocument(
       userId!,
-      body.data.passportImageKey, 
-      body.data.profileImageKey
+      body.data.passportImageKey,
+      body.data.profileImageKey,
     );
     console.log('document 생성됨 : ', document);
     // 자동 인증 처리
@@ -339,8 +340,7 @@ export class AuthController {
     },
   })
   async getProfile(@CurrentUser() userId: bigint) {
-
-    console.log("current user : ", userId)
+    console.log('current user : ', userId);
     return this.authService.getProfile(userId);
   }
 
