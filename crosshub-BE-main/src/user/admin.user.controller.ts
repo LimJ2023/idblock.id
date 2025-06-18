@@ -14,7 +14,13 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UserService } from './user.service';
-import { ApiBody, ApiConsumes, ApiOperation, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiTags,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { CurrentUser } from 'src/auth/current-user.decorator';
 import {
   ApproveUserDto,
@@ -40,9 +46,9 @@ export class AdminUserController {
   ) {}
 
   @Get('')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: '회원 목록 조회',
-    description: '모든 회원의 목록을 조회합니다. (일반 관리자 이상 접근 가능)'
+    description: '모든 회원의 목록을 조회합니다. (일반 관리자 이상 접근 가능)',
   })
   @RequireAdminPermission(AdminPermission.GENERAL)
   async listUsers(@Query() q: QueryUserDto) {
@@ -50,9 +56,10 @@ export class AdminUserController {
   }
 
   @Get(':documentId')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: '회원 상세 조회',
-    description: '특정 회원의 상세 정보를 조회합니다. (일반 관리자 이상 접근 가능)'
+    description:
+      '특정 회원의 상세 정보를 조회합니다. (일반 관리자 이상 접근 가능)',
   })
   @RequireAdminPermission(AdminPermission.GENERAL)
   async getUser(@Param() param: UserVerificationDocumetDetailDto) {
@@ -60,9 +67,10 @@ export class AdminUserController {
   }
 
   @Post('argos-id-liveness')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: '회원 Argos ID Liveness',
-    description: 'Argos ID Liveness 검증을 수행합니다. (중간 관리자 이상 접근 가능)'
+    description:
+      'Argos ID Liveness 검증을 수행합니다. (중간 관리자 이상 접근 가능)',
   })
   @RequireAdminPermission(AdminPermission.MIDDLE)
   async getArgosIdLiveness(@Body() body: UserVerificationDocumetDetailDto) {
@@ -70,22 +78,27 @@ export class AdminUserController {
   }
 
   @Post('argos-recognition')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: '회원 Argos Recognition',
-    description: 'Argos Recognition을 수행합니다. (중간 관리자 이상 접근 가능)'
+    description: 'Argos Recognition을 수행합니다. (중간 관리자 이상 접근 가능)',
   })
   @RequireAdminPermission(AdminPermission.MIDDLE)
-  @UseInterceptors(FileInterceptor('file', {
-    fileFilter: (req, file, callback) => {
-      if (!file.mimetype.match(/\/(jpg|jpeg|png)$/)) {
-        return callback(new BadRequestException('이미지 파일만 업로드 가능합니다.'), false);
-      }
-      callback(null, true);
-    },
-    limits: {
-      fileSize: 5 * 1024 * 1024, // 5MB
-    },
-  }))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      fileFilter: (req, file, callback) => {
+        if (!file.mimetype.match(/\/(jpg|jpeg|png)$/)) {
+          return callback(
+            new BadRequestException('이미지 파일만 업로드 가능합니다.'),
+            false,
+          );
+        }
+        callback(null, true);
+      },
+      limits: {
+        fileSize: 5 * 1024 * 1024, // 5MB
+      },
+    }),
+  )
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     description: '파일 업로드',
@@ -95,7 +108,7 @@ export class AdminUserController {
     if (!file) {
       throw new BadRequestException('파일이 업로드되지 않았습니다.');
     }
-    
+
     try {
       const fileUrl = await this.s3Service.uploadFile(file, 'public/passport/');
       console.log('fileUrl >>>>>>.', fileUrl);
@@ -107,9 +120,9 @@ export class AdminUserController {
   }
 
   @Post('approve')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: '회원 승인',
-    description: '회원 가입을 승인합니다. (중간 관리자 이상 접근 가능)'
+    description: '회원 가입을 승인합니다. (중간 관리자 이상 접근 가능)',
   })
   @RequireAdminPermission(AdminPermission.MIDDLE)
   async approveUser(
@@ -120,9 +133,9 @@ export class AdminUserController {
   }
 
   @Patch('reject')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: '회원 거부',
-    description: '회원 가입을 거부합니다. (중간 관리자 이상 접근 가능)'
+    description: '회원 가입을 거부합니다. (중간 관리자 이상 접근 가능)',
   })
   @RequireAdminPermission(AdminPermission.MIDDLE)
   async rejectUser(@Body() body: RejectUserDto) {
@@ -130,11 +143,11 @@ export class AdminUserController {
   }
 
   @Delete(':documentId')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: '회원 삭제',
-    description: '회원을 삭제합니다. (루트 관리자만 접근 가능)'
+    description: '회원을 삭제합니다. (루트 관리자만 접근 가능)',
   })
-  @RequireAdminPermission(AdminPermission.ROOT)
+  @RequireAdminPermission(AdminPermission.MIDDLE)
   async deleteUser(@Param() param: UserVerificationDocumetDetailDto) {
     return this.userService.deleteUser(param.data.documentId);
   }

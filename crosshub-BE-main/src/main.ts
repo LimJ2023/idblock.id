@@ -26,7 +26,8 @@ async function bootstrap() {
     .build();
 
   app.enableCors({
-    origin: process.env.NODE_ENV === 'development' ? 'http://localhost:8989' : true,
+    origin:
+      process.env.NODE_ENV === 'development' ? 'http://localhost:8989' : true,
     credentials: true,
   });
 
