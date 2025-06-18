@@ -40,11 +40,7 @@ const columns: ColumnDef<Site>[] = [
   {
     accessorKey: "description",
     header: () => <div className="text-center">설명</div>,
-    cell: (row) => (
-      <div className="max-w-xs truncate text-center">
-        {row.getValue<string>()}
-      </div>
-    ),
+    cell: (row) => <div className="text-center">{row.getValue<string>()}</div>,
   },
   {
     id: "interact",
@@ -57,10 +53,10 @@ const columns: ColumnDef<Site>[] = [
       }>();
 
       return (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-center gap-2">
           <Button
             asChild
-            className="border border-[#D8D7DB] bg-[#fff8e9] font-pretendard text-[#ffc550] hover:bg-[#ffc550] hover:text-white"
+            className="border border-[#FFF6CC] bg-[#FFFBE5] font-pretendard text-[#FFD400] hover:bg-[#FFD400] hover:text-white disabled:text-[#EEEEEE]"
           >
             <Link to={`/main/sites/edit/${id}`}>
               <CircleAlert />

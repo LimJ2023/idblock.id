@@ -127,7 +127,7 @@ const columns: ColumnDef<User>[] = [
               <RejectUserDialog id={id} />
               {/* <Button
                 variants="secondary"
-                className="border border-[#D8D7DB] bg-[#fff8e9] font-pretendard text-[#ffc550] hover:bg-[#ffc550] hover:text-white"
+                className="border border-[#FFF6CC] bg-[#FFFBE5] font-pretendard text-[#FFD400] hover:bg-[#FFD400] hover:text-white"
                 onClick={(e) => {
                   e.stopPropagation();
                 }}
@@ -140,7 +140,7 @@ const columns: ColumnDef<User>[] = [
             <>
               <Button
                 variants="secondary"
-                className="border border-[#D8D7DB] bg-[#F3FCF3] font-pretendard text-[#33A14B] hover:bg-[#33A14B] hover:text-white disabled:text-[#EEEEEE]"
+                className="border border-[#CEE9D4] bg-[#EEF7F0] font-pretendard text-[#008A1E] hover:bg-[#008A1E] hover:text-white disabled:border-0 disabled:text-[#EEEEEE]"
                 onClick={(e) => {
                   e.stopPropagation();
                 }}
@@ -151,11 +151,10 @@ const columns: ColumnDef<User>[] = [
               </Button>
               {/* <Button
                 variants="secondary"
-                className="border border-[#D8D7DB] bg-[#fff8e9] font-pretendard text-[#ffc550] hover:bg-[#ffc550] hover:text-white disabled:text-[#EEEEEE]"
+                className="border border-[#FFF6CC] bg-[#FFFBE5] font-pretendard text-[#FFD400] hover:bg-[#FFD400] hover:text-white disabled:text-[#EEEEEE]"
                 onClick={(e) => {
                   e.stopPropagation();
                 }}
-                disabled
               >
                 <CircleMinus />
                 거절
@@ -167,7 +166,7 @@ const columns: ColumnDef<User>[] = [
             <>
               {/* <Button
                 variants="secondary"
-                className="border border-[#D8D7DB] bg-[#F3FCF3] font-pretendard text-[#33A14B] hover:bg-[#33A14B] hover:text-white disabled:text-[#EEEEEE]"
+                className="border border-[#CEE9D4] bg-[#EEF7F0] font-pretendard text-[#008A1E] hover:bg-[#008A1E] hover:text-white disabled:text-[#EEEEEE]"
                 onClick={(e) => {
                   e.stopPropagation();
                 }}
@@ -178,7 +177,7 @@ const columns: ColumnDef<User>[] = [
               </Button> */}
               <Button
                 variants="secondary"
-                className="border border-[#D8D7DB] bg-[#fff8e9] font-pretendard text-[#ffc550] hover:bg-[#ffc550] hover:text-white disabled:text-[#EEEEEE]"
+                className="border border-[#FFF6CC] bg-[#FFFBE5] font-pretendard text-[#FFD400] hover:bg-[#FFD400] hover:text-white disabled:border-0 disabled:text-[#EEEEEE]"
                 onClick={(e) => {
                   e.stopPropagation();
                 }}
@@ -189,7 +188,7 @@ const columns: ColumnDef<User>[] = [
               </Button>
               {/* <Button
                 variants="secondary"
-                className="border border-[#D8D7DB] bg-[#FEF1F1] font-pretendard text-[#F23B3B] hover:bg-[#F23B3B] hover:text-white"
+                className="border border-[#FCCCCC] bg-[#FEF1F1] font-pretendard text-[#EE0000] hover:bg-[#EE0000] hover:text-white"
                 onClick={(e) => {
                   e.stopPropagation();
                 }}
@@ -197,6 +196,8 @@ const columns: ColumnDef<User>[] = [
                 <CircleX />
                 삭제
               </Button> */}
+
+              <DeleteUserDialog selected={id} />
             </>
           )}
         </div>

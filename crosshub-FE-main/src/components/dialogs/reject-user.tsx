@@ -69,7 +69,7 @@ const RejectUserDialog = ({ id }: { id: string }) => {
       <DialogTrigger className="w-fit" asChild>
         <Button
           variants="secondary"
-          className="border border-[#D8D7DB] bg-[#FEF1F1] font-pretendard text-[#F23B3B] hover:bg-[#F23B3B] hover:text-white"
+          className="border border-[#FCCCCC] bg-[#FEF1F1] font-pretendard text-[#EE0000] hover:bg-[#EE0000] hover:text-white"
           onClick={(e) => {
             e.stopPropagation();
           }}

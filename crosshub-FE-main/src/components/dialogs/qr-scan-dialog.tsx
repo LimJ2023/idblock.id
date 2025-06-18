@@ -90,7 +90,8 @@ const QrScanDialog = () => {
           <span>QR코드 촬영</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="gap-8 rounded-[1rem] font-pretendard">
+
+      <DialogContent className="w-full min-w-fit gap-8 rounded-[1rem] font-pretendard">
         <DialogHeader>
           <DialogTitle className="text-center text-2xl">
             방문자 승인
@@ -101,66 +102,73 @@ const QrScanDialog = () => {
           </DialogDescription>
         </DialogHeader>
 
-        <Html5QrcodePlugin
-          fps={10}
-          qrbox={300}
-          disableFlip={false}
-          qrCodeSuccessCallback={onNewScanResult}
-        />
-        {result && result.success && (
-          <div className="mb-12">
-            <h1 className="mb-12 text-center text-3xl font-bold">
-              방문자 신분증
-            </h1>
-            <div className="flex gap-5">
-              <div className="basis-52">
-                <img
-                  src={result.value.profileImageKey}
-                  alt="방문자 사진"
-                  className="w-full"
-                />
-              </div>
-              <div className="flex flex-1 flex-col gap-5 divide-y border-t border-black">
-                <div className="flex pt-5">
-                  <div className="flex flex-1 font-bold text-black">이름</div>
-                  <div className="flex flex-1 text-[#666666]">
-                    {result.value.name}
-                  </div>
+        <div className={result && result.success ? "flex w-[70vw] gap-10" : ""}>
+          <Html5QrcodePlugin
+            fps={10}
+            qrbox={300}
+            disableFlip={false}
+            qrCodeSuccessCallback={onNewScanResult}
+            className={result && result.success ? "flex-[1]" : ""}
+          />
+          {result && result.success && (
+            <div className="flex-[1.4]">
+              <h1 className="mb-6 text-center text-xl font-semibold">
+                방문자 신분증
+              </h1>
+              <div className="flex gap-5 border-t border-[#666666]">
+                <div className="mt-5 box-border h-[140px] w-[100px] shrink-0 overflow-hidden rounded-lg border border-[#e5e7eb]">
+                  <img
+                    src={result.value.profileImageKey}
+                    alt="방문자 사진"
+                    className="h-full w-full object-cover"
+                  />
                 </div>
-                <div className="flex pt-5">
-                  <div className="flex flex-1 font-bold text-black">국가</div>
-                  <div className="flex flex-1 text-[#666666]">
-                    {result.value.countryCode}
+                <div className="flex flex-col gap-5 divide-y">
+                  <div className="flex pt-5">
+                    <div className="flex flex-[1] text-sm font-medium text-[#333333]">
+                      이름
+                    </div>
+                    <div className="flex flex-[2] text-sm text-[#666666]">
+                      {result.value.name}
+                    </div>
                   </div>
-                </div>
-                <div className="flex pt-5">
-                  <div className="flex flex-1 font-bold text-black">
-                    명예시민
+                  <div className="flex pt-5">
+                    <div className="flex flex-[1] text-sm font-medium text-[#333333]">
+                      국가
+                    </div>
+                    <div className="flex flex-[2] text-sm text-[#666666]">
+                      {result.value.countryCode}
+                    </div>
                   </div>
-                  <div className="flex flex-1 text-[#666666]">
-                    {result.value.cityId}
+                  <div className="flex pt-5">
+                    <div className="flex flex-[1] text-sm font-medium text-[#333333]">
+                      명예시민
+                    </div>
+                    <div className="flex flex-[2] text-sm text-[#666666]">
+                      {result.value.cityId}
+                    </div>
                   </div>
-                </div>
-                <div className="flex pt-5">
-                  <div className="flex flex-1 font-bold text-black">
-                    생년월일
+                  <div className="flex pt-5">
+                    <div className="flex flex-[1] text-sm font-medium text-[#333333]">
+                      생년월일
+                    </div>
+                    <div className="flex flex-[2] text-sm text-[#666666]">
+                      {result.value.birthday}
+                    </div>
                   </div>
-                  <div className="flex flex-1 text-[#666666]">
-                    {result.value.birthday}
-                  </div>
-                </div>
-                <div className="flex pt-5">
-                  <div className="flex flex-1 font-bold text-black">
-                    블록체인 주소
-                  </div>
-                  <div className="flex flex-1 text-wrap break-all text-[#666666]">
-                    {result.value.txHash}
+                  <div className="flex pt-5">
+                    <div className="flex flex-[1] text-sm font-medium text-[#333333]">
+                      블록체인 주소
+                    </div>
+                    <div className="flex flex-[2] text-wrap break-all text-sm text-[#666666]">
+                      {result.value.txHash}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         <DialogFooter className="flex justify-center gap-4">
           <DialogClose asChild>

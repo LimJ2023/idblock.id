@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // file = Html5QrcodePlugin.jsx
+import { cn } from "@/lib/utils";
 import { Html5QrcodeScanner } from "html5-qrcode";
 import { Html5QrcodeScannerConfig } from "html5-qrcode/esm/html5-qrcode-scanner";
 import { QrCode } from "lucide-react";
@@ -33,6 +34,7 @@ const Html5QrcodePlugin = (
       verbose: boolean;
       qrCodeSuccessCallback: any;
       qrCodeErrorCallback: any;
+      className?: string;
     }
   >,
 ) => {
@@ -206,7 +208,10 @@ const Html5QrcodePlugin = (
   }, []);
 
   return (
-    <div id={qrcodeRegionId} className="box-border w-full text-[#333333]" />
+    <div
+      id={qrcodeRegionId}
+      className={cn("box-border w-full text-[#333333]", props.className)}
+    />
   );
 };
 export default Html5QrcodePlugin;
