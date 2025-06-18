@@ -84,7 +84,7 @@ const VisitReviewTable = <TData, TValue>({
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && "selected"}
-                className="flex w-full flex-wrap items-center rounded-lg border-none bg-[#FAFAFA] px-5 py-3 hover:bg-[#FAFAFA]"
+                className="mb-4 flex w-full flex-wrap items-center rounded-lg border-none bg-[#FAFAFA] px-5 py-3 hover:bg-[#FAFAFA]"
                 onClick={() => {}}
               >
                 {row.getVisibleCells().map((cell, index) => {
