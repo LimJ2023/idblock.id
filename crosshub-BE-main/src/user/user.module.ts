@@ -6,9 +6,10 @@ import { DatabaseModule } from 'src/database/database.module';
 import { S3Module } from 'src/s3/s3.module';
 import { ThirdwebModule } from 'src/thirdweb/thirdweb.module';
 import { NotificationModule } from 'src/notification/notification.module';
+import { ArgosModule } from 'src/argos/argos.module';
 
 @Module({
-  imports: [DatabaseModule, S3Module, ThirdwebModule, NotificationModule],
+  imports: [DatabaseModule, S3Module, ThirdwebModule, NotificationModule, ArgosModule],
   controllers:
     (process.env as unknown as TEnv).API_SCOPE === 'ADMIN' ?
       [AdminUserController]

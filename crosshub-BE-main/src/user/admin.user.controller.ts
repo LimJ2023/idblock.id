@@ -34,6 +34,7 @@ import { S3Service } from 'src/s3/s3.service';
 import { AdminPermissionGuard } from 'src/auth/admin-permission.guard';
 import { RequireAdminPermission } from 'src/auth/admin-permission.decorator';
 import { AdminPermission } from 'src/database/schema/admin-user';
+import { ArgosService } from 'src/argos/argos.service';
 
 @ApiTags('회원 관리')
 @Controller('user')
@@ -43,6 +44,7 @@ export class AdminUserController {
   constructor(
     private readonly userService: UserService,
     private readonly s3Service: S3Service,
+    private readonly argosService: ArgosService,
   ) {}
 
   @Get('')
@@ -74,7 +76,7 @@ export class AdminUserController {
   })
   @RequireAdminPermission(AdminPermission.MIDDLE)
   async getArgosIdLiveness(@Body() body: UserVerificationDocumetDetailDto) {
-    return await this.userService.argosProcessPipeline(body.data.documentId);
+    return await this.argosService.argosProcessPipeline(body.data.documentId);
   }
 
   @Post('argos-recognition')
@@ -108,11 +110,8 @@ export class AdminUserController {
     if (!file) {
       throw new BadRequestException('파일이 업로드되지 않았습니다.');
     }
-
     try {
-      const fileUrl = await this.s3Service.uploadFile(file, 'public/passport/');
-      console.log('fileUrl >>>>>>.', fileUrl);
-      return await this.userService.argosRecognition(fileUrl.url);
+      return await this.argosService.recognitionFromFile(file);
     } catch (error) {
       console.error('File upload error:', error);
       throw new BadRequestException('파일 업로드 중 오류가 발생했습니다.');

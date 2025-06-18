@@ -25,11 +25,10 @@ import { email } from 'valibot';
 import { S3Service } from 'src/s3/s3.service';
 import QRCode from 'qrcode';
 import { ERROR_CODE } from 'src/common/error-code';
-import axios from 'axios';
-import sharp from 'sharp';
 import { EnvService } from 'src/env/env.service';
 import { ThirdwebService } from 'src/thirdweb/thirdweb.service';
 import { NotificationService } from 'src/notification/notification.service';
+import { ArgosService } from 'src/argos/argos.service';
 @Injectable()
 export class AuthService {
   constructor(
@@ -40,6 +39,7 @@ export class AuthService {
     private readonly envService: EnvService,
     private readonly thirdwebService: ThirdwebService,
     private readonly notificationService: NotificationService,
+    private readonly argosService: ArgosService,
   ) {}
 
   private validateBirthday(dateString: string) {
@@ -478,111 +478,23 @@ export class AuthService {
     );
   }
 
-  private async fetchImageAsBase64(url: string): Promise<string> {
-    try {
-      const response = await axios.get(url, {
-        responseType: 'arraybuffer',
-        timeout: 10000, // 10초 타임아웃 설정
-      });
-      const inputBuffer = Buffer.from(response.data, 'binary');
-      const maxSizeKB = 5000;
-
-      let outputBuffer: Buffer = Buffer.from('');
-
-      // Reduce quality until under max size or quality is too low
-      for (let quality = 90; quality > 10; quality -= 10) {
-        outputBuffer = await sharp(inputBuffer).jpeg({ quality }).toBuffer();
-
-        if (outputBuffer.length / 1024 <= maxSizeKB) {
-          break;
-        }
-      }
-      const base64 = outputBuffer.toString('base64');
-      return `${base64}`;
-    } catch (error) {
-      console.error('Error fetching image:', error);
-      throw new BadRequestException('Failed to fetch image from S3');
-    }
-  }
   async argosRecognition(file: Express.Multer.File) {
-    const fileUrl = await this.s3Service.uploadFile(file, 'public/passport/');
-    const idImageBase64 = await this.fetchImageAsBase64(fileUrl.url);
-    try {
-      const response = await axios.post<RecognitionResponse>(
-        'https://idverify-api.argosidentity.com/modules/recognition',
-        {
-          idImage: idImageBase64,
-          issuingCountry: 'KOR',
-          idType: 'passport',
-        },
-        {
-          headers: {
-            'x-api-key': this.envService.get('ARGOS_API_KEY'),
-          },
-        },
-      );
-
-      // console.log('recognition raw data >>>>>>.', JSON.stringify(response.data.result.data.raw, null, 2));
-      console.log(
-        'recognition ocr data >>>>>>.',
-        JSON.stringify(response.data.result.data, null, 2),
-      );
-      const ocrData = response.data.result.data.ocr;
-      return ocrData;
-    } catch (error) {
-      console.error('Error fetching Argos Recognition:', error);
-      throw new BadRequestException('Failed to fetch Argos Recognition');
-    }
+    return this.argosService.recognitionFromFile(file);
   }
 
   async argosFaceCompare(originFaceKey: string, targetFaceKey: string) {
-    try {
-      // S3 키에서 presigned URL 생성
-      const originFaceUrl =
-        await this.s3Service.createPresignedUrlWithClient(originFaceKey);
-      const targetFaceUrl =
-        await this.s3Service.createPresignedUrlWithClient(targetFaceKey);
-
-      // URL에서 이미지를 가져와서 base64로 변환
-      const originFaceBase64 = await this.fetchImageAsBase64(originFaceUrl);
-      const targetFaceBase64 = await this.fetchImageAsBase64(targetFaceUrl);
-
-      const response = await axios.post<FaceCompareResponse>(
-        'https://idverify-api.argosidentity.com/modules/compare',
-        {
-          originFace: originFaceBase64,
-          targetFace: targetFaceBase64,
-        },
-        {
-          headers: {
-            'x-api-key': this.envService.get('ARGOS_API_KEY'),
-          },
-        },
-      );
-
-      const similarity = response.data.result.faceMatch.similarity;
-      const confidence = response.data.result.faceMatch.confidence;
-
-      console.log(`user similarity: ${similarity}, confidence: ${confidence}`);
-      if (similarity >= 95 && confidence >= 95) {
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.error('Error fetching Argos Face Compare:', error);
-      return false;
-      // throw new BadRequestException('Failed to fetch Argos Face Compare');
-    }
+    return this.argosService.faceCompare(originFaceKey, targetFaceKey);
   }
 
-  async autoApproveUser(documentId: bigint, passportImageKey: string, profileImageKey: string): Promise<boolean> {
+  async autoApproveUser(documentId: bigint): Promise<boolean> {
     console.log(`autoApproveUser documentId: ${documentId}`);
 
     try {
       // 얼굴 비교 수행
-      const isFaceMatchSuccess = await this.argosFaceCompare(passportImageKey, profileImageKey);
+      const verificationData = await this.argosService.argosProcessPipeline(documentId);
       
-      if (!isFaceMatchSuccess) {
+      if (verificationData.matchSimilarity === null || verificationData.matchConfidence === null || 
+        Number(verificationData.matchSimilarity) < 95 || Number(verificationData.matchConfidence) < 95) {
         console.log('얼굴 비교 실패 - 자동 승인하지 않음');
         return false;
       }
@@ -590,16 +502,8 @@ export class AuthService {
       console.log('얼굴 비교 성공 - 자동 승인 처리 시작');
 
       await this.db.transaction(async (trx) => {
-        // 먼저 UserVerificationDocument에서 userId를 조회
-        const document = await trx.query.UserVerificationDocument.findFirst({
-          where: (table, { eq }) => eq(table.id, documentId),
-        });
 
-        if (!document) {
-          throw new BadRequestException('Document not found');
-        }
-
-        const userId = document.userId;
+        const userId = verificationData.userId;
 
         // approvalStatus 업데이트
         await trx
@@ -650,72 +554,4 @@ export class AuthService {
     }
   }
 }
-export interface IdLivenessResponse {
-  apiType: string;
-  transactionId: string;
-  result: {
-    screenReplay: LivenessScore;
-    paperPrinted: LivenessScore;
-    replacePortraits: LivenessScore;
-  };
-}
 
-export interface FaceCompareResponse {
-  apiType: string;
-  transactionId: string;
-  result: {
-    face: Face;
-    faceMatch: FaceMatch;
-  };
-}
-
-export interface RecognitionResponse {
-  apiType: string;
-  transactionId: string;
-  result: any;
-}
-
-export interface FaceLivenessResponse {
-  apiType: string;
-  transactionId: string;
-  result: LivenessScore;
-}
-interface LivenessScore {
-  liveness_score: number;
-}
-interface Face {
-  isAvailable: boolean;
-  boundingBox: BoundingBox;
-}
-
-interface FaceMatch {
-  isAvailable: boolean;
-  boundingBox: BoundingBox;
-  similarity: number;
-  confidence: number;
-  landmarks: Landmark[];
-  pose: Pose;
-  quality: Quality;
-}
-interface BoundingBox {
-  Width: number;
-  Height: number;
-  Left: number;
-  Top: number;
-}
-interface Landmark {
-  Type: string;
-  X: number;
-  Y: number;
-}
-
-interface Pose {
-  Roll: number;
-  Yaw: number;
-  Pitch: number;
-}
-
-interface Quality {
-  Brightness: number;
-  Sharpness: number;
-}

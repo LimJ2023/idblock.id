@@ -266,9 +266,7 @@ export class AuthController {
     console.log('document 생성됨 : ', document);
     // 자동 인증 처리 (얼굴 비교 및 승인 처리 포함)
     const isAutoApproved = await this.authService.autoApproveUser(
-      document.id,
-      body.data.passportImageKey,
-      body.data.profileImageKey,
+      document.id
     );
     console.log('자동인증 결과 : ', isAutoApproved);
 
