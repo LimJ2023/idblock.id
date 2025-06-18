@@ -138,12 +138,40 @@ const columns: ColumnDef<User>[] = [
             </>
           ) : approvalStatus === 1 ? (
             <>
-              {/* <Button
+              <Button
                 variants="secondary"
-                className="border border-[#D8D7DB] bg-[#F3FCF3] font-pretendard text-[#33A14B] hover:bg-[#33A14B] hover:text-white"
+                className="border border-[#D8D7DB] bg-[#F3FCF3] font-pretendard text-[#33A14B] hover:bg-[#33A14B] hover:text-white disabled:text-[#EEEEEE]"
                 onClick={(e) => {
                   e.stopPropagation();
                 }}
+                disabled
+              >
+                <CircleCheck />
+                승인
+              </Button>
+              {/* <Button
+                variants="secondary"
+                className="border border-[#D8D7DB] bg-[#fff8e9] font-pretendard text-[#ffc550] hover:bg-[#ffc550] hover:text-white disabled:text-[#EEEEEE]"
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+                disabled
+              >
+                <CircleMinus />
+                거절
+              </Button> */}
+
+              <DeleteUserDialog selected={id} />
+            </>
+          ) : (
+            <>
+              {/* <Button
+                variants="secondary"
+                className="border border-[#D8D7DB] bg-[#F3FCF3] font-pretendard text-[#33A14B] hover:bg-[#33A14B] hover:text-white disabled:text-[#EEEEEE]"
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+                disabled
               >
                 <CircleCheck />
                 승인
@@ -159,32 +187,6 @@ const columns: ColumnDef<User>[] = [
                 <CircleMinus />
                 거절
               </Button>
-
-              <DeleteUserDialog selected={id} />
-            </>
-          ) : (
-            <>
-              <Button
-                variants="secondary"
-                className="border border-[#D8D7DB] bg-[#F3FCF3] font-pretendard text-[#33A14B] hover:bg-[#33A14B] hover:text-white disabled:text-[#EEEEEE]"
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
-                disabled
-              >
-                <CircleCheck />
-                승인
-              </Button>
-              {/* <Button
-                variants="secondary"
-                className="border border-[#D8D7DB] bg-[#fff8e9] font-pretendard text-[#ffc550] hover:bg-[#ffc550] hover:text-white"
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
-              >
-                <CircleMinus />
-                거절
-              </Button> */}
               {/* <Button
                 variants="secondary"
                 className="border border-[#D8D7DB] bg-[#FEF1F1] font-pretendard text-[#F23B3B] hover:bg-[#F23B3B] hover:text-white"

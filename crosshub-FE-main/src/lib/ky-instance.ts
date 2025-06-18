@@ -8,9 +8,9 @@ const multipartApi = ky.create({
 
 const api = ky.create({
   // TODO
-  // prefixUrl: "https://admin.idblock-test.site/api/v1/",
+  prefixUrl: "https://admin.idblock-test.site/api/v1/",
   // prefixUrl: "https://manager.idblock.id/api/v1/",
-  prefixUrl: "/api/v1/",
+  // prefixUrl: "/api/v1/",
   credentials: "include",
   headers: {
     "Content-Type": "application/json",
