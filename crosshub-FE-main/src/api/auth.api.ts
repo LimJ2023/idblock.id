@@ -12,10 +12,6 @@ type AdminLogin = {
   password: string;
 };
 
-type AdminEmail = {
-  email: string;
-};
-
 const postLogin = async (loginData: AdminLogin) => {
   try {
     await api.post("admin-auth/login", {
@@ -69,25 +65,5 @@ const logout = async () => {
   }
 };
 
-const deleteUser = async (emailData: AdminEmail) => {
-  try {
-    await api.post("auth/delete-user", {
-      json: emailData,
-    });
-
-    return Success(null);
-  } catch (e) {
-    if (e instanceof HTTPError) {
-      return Failure(await e.response.json<ErrorResponse>());
-    }
-
-    return Failure({
-      message: "Something went wrong!",
-      error: "Error",
-      statusCode: -1,
-    });
-  }
-};
-
-export { getAuthStatus, logout, postLogin, deleteUser };
+export { getAuthStatus, logout, postLogin };
 export type { AdminLogin };

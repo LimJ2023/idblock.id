@@ -23,7 +23,9 @@ export const User = pgTable(
     name: text().notNull().default('guest'),
     countryCode: text('country_code').notNull().default('TEMP_COUNTRY'),
     birthday: date(),
-    passportNumber: text('passport_number').notNull().default('TEMP_PASSPORT_NUMBER'),
+    passportNumber: text('passport_number')
+      .notNull()
+      .default('TEMP_PASSPORT_NUMBER'),
     approvalId: bigint('approval_id', { mode: 'bigint' }),
     cityId: text('city_id').notNull().default('TEMP_CITY_ID'),
   },

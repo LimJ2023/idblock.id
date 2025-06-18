@@ -42,7 +42,7 @@ export interface FaceCompareResponse {
 export interface RecognitionResponse {
   apiType: string;
   transactionId: string;
-  result: any
+  result: any;
 }
 
 export interface FaceLivenessResponse {
@@ -99,9 +99,9 @@ export class UserService {
   ) {}
   private async fetchImageAsBase64(url: string): Promise<string> {
     try {
-      const response = await axios.get(url, { 
+      const response = await axios.get(url, {
         responseType: 'arraybuffer',
-        timeout: 10000 // 10초 타임아웃 설정
+        timeout: 10000, // 10초 타임아웃 설정
       });
       const inputBuffer = Buffer.from(response.data, 'binary');
       const maxSizeKB = 5000;
@@ -110,9 +110,7 @@ export class UserService {
 
       // Reduce quality until under max size or quality is too low
       for (let quality = 90; quality > 10; quality -= 10) {
-        outputBuffer = await sharp(inputBuffer)
-          .jpeg({ quality })
-          .toBuffer();
+        outputBuffer = await sharp(inputBuffer).jpeg({ quality }).toBuffer();
 
         if (outputBuffer.length / 1024 <= maxSizeKB) {
           break;
@@ -126,7 +124,7 @@ export class UserService {
     }
   }
 
- async argosRecognition(idImage: string) {
+  async argosRecognition(idImage: string) {
     const idImageBase64 = await this.fetchImageAsBase64(idImage);
     try {
       const response = await axios.post<RecognitionResponse>(
@@ -143,9 +141,15 @@ export class UserService {
         },
       );
 
-      console.log('recognition raw data >>>>>>.', JSON.stringify(response.data.result.data.raw, null, 2));
-      console.log('recognition ocr data >>>>>>.', JSON.stringify(response.data.result.data.ocr, null, 2));
-      
+      console.log(
+        'recognition raw data >>>>>>.',
+        JSON.stringify(response.data.result.data.raw, null, 2),
+      );
+      console.log(
+        'recognition ocr data >>>>>>.',
+        JSON.stringify(response.data.result.data.ocr, null, 2),
+      );
+
       return response.data;
     } catch (error) {
       console.error('Error fetching Argos Recognition:', error);
@@ -393,10 +397,7 @@ export class UserService {
         },
       ]);
 
-      await trx
-        .update(User)
-        .set({ approvalId })
-        .where(eq(User.id, userId));
+      await trx.update(User).set({ approvalId }).where(eq(User.id, userId));
 
       await this.notificationService.sendNotification({
         userId,
@@ -432,9 +433,28 @@ export class UserService {
   }
 
   async deleteUser(documentId: bigint) {
-    return this.db
-      .update(UserVerificationDocument)
-      .set({ approvalStatus: 3 })
-      .where(eq(UserVerificationDocument.id, documentId));
+    // return this.db
+    //   .update(UserVerificationDocument)
+    //   .set({ approvalStatus: 3 })
+    //   .where(eq(UserVerificationDocument.id, documentId));
+
+    // 1. 문서 조회
+    const target = await this.db.query.UserVerificationDocument.findFirst({
+      where: (t, { eq }) => eq(t.id, documentId),
+    });
+    if (!target) {
+      throw new BadRequestException('해당 문서를 찾을 수 없습니다.');
+    }
+
+    // 2. 문서에 연결된 유저 조회
+    const targetUser = await this.db.query.User.findFirst({
+      where: (t, { eq }) => eq(t.id, target.userId),
+    });
+    if (!targetUser) {
+      throw new BadRequestException('해당 유저를 찾을 수 없습니다.');
+    }
+
+    // 3. 유저 삭제
+    return this.db.delete(User).where(eq(User.id, target.userId));
   }
 }
