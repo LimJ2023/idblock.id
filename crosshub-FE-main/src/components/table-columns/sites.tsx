@@ -56,7 +56,7 @@ const columns: ColumnDef<Site>[] = [
         <div className="flex items-center gap-2">
           <Button
             asChild
-            className="border border-[#D8D7DB] bg-[#fff8e9] font-pretendard text-[#ffc550] hover:bg-[#ffc550] hover:text-white"
+            className="border border-[#FFF6CC] bg-[#FFFBE5] font-pretendard text-[#FFD400] hover:bg-[#FFD400] hover:text-white disabled:text-[#EEEEEE]"
           >
             <Link to={`/main/sites/edit/${id}`}>
               <CircleAlert />
