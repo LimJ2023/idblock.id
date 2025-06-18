@@ -56,11 +56,12 @@ const UserDetailPage = () => {
       <main className="flex h-full w-full flex-col border-t border-[#E5E7EB] bg-[#FAFBFC] px-6 py-4">
         <div className="flex justify-end pb-4">
           <Button
-            className="rounded-lg border border-[#E5E7EB] px-3.5 py-2"
+            className="cursor-pointer rounded-lg border border-[#E5E7EB] px-3.5 py-2"
             variants={"default"}
             asChild
+            onClick={() => navigate(-1)}
           >
-            <Link to={".."}>홈으로</Link>
+            <p>홈으로</p>
           </Button>
         </div>
 
