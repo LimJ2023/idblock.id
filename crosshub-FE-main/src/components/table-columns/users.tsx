@@ -197,6 +197,8 @@ const columns: ColumnDef<User>[] = [
                 <CircleX />
                 삭제
               </Button> */}
+
+              <DeleteUserDialog selected={id} />
             </>
           )}
         </div>
