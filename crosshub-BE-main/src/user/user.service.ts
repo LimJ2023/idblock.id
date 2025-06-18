@@ -438,23 +438,34 @@ export class UserService {
     //   .set({ approvalStatus: 3 })
     //   .where(eq(UserVerificationDocument.id, documentId));
 
-    // 1. 문서 조회
-    const target = await this.db.query.UserVerificationDocument.findFirst({
-      where: (t, { eq }) => eq(t.id, documentId),
-    });
-    if (!target) {
-      throw new BadRequestException('해당 문서를 찾을 수 없습니다.');
-    }
+    return this.db.transaction(async (trx) => {
+      // 1. 해당 문서 찾기
+      const target = await trx.query.UserVerificationDocument.findFirst({
+        where: (t, { eq }) => eq(t.id, documentId),
+      });
 
-    // 2. 문서에 연결된 유저 조회
-    const targetUser = await this.db.query.User.findFirst({
-      where: (t, { eq }) => eq(t.id, target.userId),
-    });
-    if (!targetUser) {
-      throw new BadRequestException('해당 유저를 찾을 수 없습니다.');
-    }
+      if (!target) {
+        throw new BadRequestException('해당 문서를 찾을 수 없습니다.');
+      }
 
-    // 3. 유저 삭제
-    return this.db.delete(User).where(eq(User.id, target.userId));
+      // 2. 해당 유저 찾기
+      const targetUser = await trx.query.User.findFirst({
+        where: (t, { eq }) => eq(t.id, target.userId),
+      });
+
+      if (!targetUser) {
+        throw new BadRequestException('해당 유저를 찾을 수 없습니다.');
+      }
+
+      // 3. 문서 삭제
+      await trx
+        .delete(UserVerificationDocument)
+        .where(eq(UserVerificationDocument.id, documentId));
+
+      // 4. 유저 삭제
+      await trx.delete(User).where(eq(User.id, target.userId));
+
+      return { success: true };
+    });
   }
 }
