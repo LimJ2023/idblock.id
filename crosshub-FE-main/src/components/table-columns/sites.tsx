@@ -53,7 +53,7 @@ const columns: ColumnDef<Site>[] = [
       }>();
 
       return (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-center gap-2">
           <Button
             asChild
             className="border border-[#FFF6CC] bg-[#FFFBE5] font-pretendard text-[#FFD400] hover:bg-[#FFD400] hover:text-white disabled:text-[#EEEEEE]"
