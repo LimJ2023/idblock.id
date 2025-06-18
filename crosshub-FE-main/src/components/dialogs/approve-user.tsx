@@ -47,7 +47,7 @@ const ApproveUserDialog = ({ selected }: { selected: string }) => {
       <DialogTrigger asChild>
         <Button
           variants="default"
-          className="border border-[#D8D7DB] bg-[#F3FCF3] font-pretendard text-[#33A14B] hover:bg-[#33A14B] hover:text-white"
+          className="border border-[#CEE9D4] bg-[#EEF7F0] font-pretendard text-[#008A1E] hover:bg-[#008A1E] hover:text-white"
           onClick={(e) => {
             e.stopPropagation();
           }}
