@@ -457,6 +457,14 @@ export class UserService {
         throw new BadRequestException('해당 유저를 찾을 수 없습니다.');
       }
 
+      // 유저의 UserApproval 레코드 삭제
+      const userApprovals = await trx.query.UserApproval.findMany({
+        where: (table, { eq }) => eq(table.userId, target.userId),
+      });
+
+      if (userApprovals.length > 0) {
+        await trx.delete(UserApproval).where(eq(UserApproval.userId, target.userId));
+      }
       // 3. 문서 삭제
       await trx
         .delete(UserVerificationDocument)
