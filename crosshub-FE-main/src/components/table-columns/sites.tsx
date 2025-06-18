@@ -40,11 +40,7 @@ const columns: ColumnDef<Site>[] = [
   {
     accessorKey: "description",
     header: () => <div className="text-center">설명</div>,
-    cell: (row) => (
-      <div className="max-w-xs truncate text-center">
-        {row.getValue<string>()}
-      </div>
-    ),
+    cell: (row) => <div className="text-center">{row.getValue<string>()}</div>,
   },
   {
     id: "interact",
