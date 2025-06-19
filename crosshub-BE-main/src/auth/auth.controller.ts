@@ -30,6 +30,7 @@ import {
   DeleteUserDto,
   SignupSimpleDto,
   GetQrCodeDto,
+  GetUserCountryDto,
 } from './auth.dto';
 import { Request, Response } from 'express';
 import * as v from 'valibot';
@@ -416,6 +417,20 @@ export class AuthController {
   @ApiOperation({ summary: '비밀번호 재설정' })
   async resetPassword(@Body() body: ResetPaswordDto) {
     return this.authService.resetPassword(body.data.uuid, body.data.password);
+  }
+
+  @Public()
+  @Get('country/:code3')
+  @ApiOperation({ summary: '사용자 국가 조회'})
+  async getUserCountry(@Param() param: GetUserCountryDto) {
+    return this.authService.getUserCountry(param.code3);
+  }
+
+  @Public()
+  @Get('city/:countryCode')
+  @ApiOperation({ summary: '사용자 도시 조회'})
+  async getUserCity(@Param() param: {countryCode: string}) {
+    return this.authService.getUserCity(param.countryCode);
   }
 
   @Public()

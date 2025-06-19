@@ -367,3 +367,12 @@ export class GetQrCodeDto {
   })
   userId: bigint;
 }
+
+export class GetUserCountryDto {
+  @ApiProperty({
+    title: '국가 코드',
+    description: '국가 코드',
+    example: 'KOR',
+  })
+  code3: string
+}

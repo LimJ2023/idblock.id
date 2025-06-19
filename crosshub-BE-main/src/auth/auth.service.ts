@@ -11,6 +11,7 @@ import { TLoginDto, TUpdateInfoDto } from './auth.dto';
 import { JwtService } from '@nestjs/jwt';
 import {
   City,
+  Country,
   EmailVerification,
   UserApproval,
   UserVerificationDocument,
@@ -552,6 +553,17 @@ export class AuthService {
       console.error('자동 승인 처리 중 오류 발생:', error);
       return false;
     }
+  }
+
+  async getUserCountry(code_3: string) {
+    return this.db.query.Country.findFirst({
+      where: eq(Country.code_3, code_3),
+    })
+  }
+  async getUserCity(countryCode: string) {
+    return this.db.query.City.findMany({
+      where: eq(City.countryCode, countryCode),
+    })
   }
 }
 

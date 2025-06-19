@@ -10,6 +10,8 @@ import {
   RecognitionResponse,
 } from './argos.types';
 import {
+  City,
+  Country,
     UserVerificationDocument,
   } from 'src/database/schema';
 import { DrizzleDB, INJECT_DRIZZLE } from 'src/database/drizzle.provider';
@@ -97,7 +99,15 @@ export class ArgosService {
         JSON.stringify(response.data.result.data, null, 2),
       );
       const ocrData = response.data.result.data.ocr;
-      return ocrData;
+
+      // 국적과 도시 리스트 추출
+      const country = await this.db.query.Country.findFirst({
+        where: eq(Country.code_3, ocrData.ocr_nationality),
+      });
+      const cityList = await this.db.query.City.findMany({
+        where: eq(City.countryCode, country?.code || ''),
+      });
+      return {ocrData, country, cityList};
     } catch (error) {
       console.error('Error fetching Argos Recognition:', error);
       throw new BadRequestException('Failed to fetch Argos Recognition');
