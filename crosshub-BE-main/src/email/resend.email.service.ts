@@ -14,7 +14,7 @@ export class ResendEmailService implements EmailService {
       html: `
         <div style="font-family: Arial, sans-serif; padding: 32px; background-color: #f9f9f9;">
           <div style="max-width: 600px; margin: 0 auto; background: #fff; padding: 32px; border-radius: 8px; text-align: center;">
-            <img src="https://d2qilacgdmcy5c.cloudfront.net/idblock_icon.png" alt="logo" style="width: 48px;" />
+            <img src="https://d2qilacgdmcy5c.cloudfront.net/idblock_icon.png" alt="logo" style="width: 48px; border-radius: 8px;" />
             
             <h2 style="color: #333;">VERIFY YOUR EMAIL ADDRESS</h2>
             
