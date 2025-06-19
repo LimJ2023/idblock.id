@@ -556,9 +556,14 @@ export class AuthService {
   }
 
   async getUserCountry(code_3: string) {
-    return this.db.query.Country.findFirst({
+
+    const country = await this.db.query.Country.findFirst({
       where: eq(Country.code_3, code_3),
     })
+    if(!country) {
+      throw new BadRequestException(ERROR_CODE.INVALID_COUNTRY_CODE);
+    }
+    return country;
   }
   async getUserCity(countryCode: string) {
     return this.db.query.City.findMany({
