@@ -287,10 +287,10 @@ export const SignupPassport = memo(function ({ route }: Params) {
               <Text style={[font.BODY3_SB, style.cameraButtonText]}>Take a photo of your passport</Text>
             </Button>
             <Button
-              style={[style.nextButton, { backgroundColor: image ? COLOR.PRI_1_500 : COLOR.DISABLED }]}
-              disabled={!image}
+              style={[style.nextButton, { backgroundColor: image && !isLoading ? COLOR.PRI_1_500 : COLOR.DISABLED }]}
+              disabled={!image && isLoading}
               onPress={handleNext}>
-              <Text style={[font.BODY3_SB, { color: image ? COLOR.WHITE : COLOR.PRI_3_600 }]}>Next</Text>
+              <Text style={[font.BODY3_SB, { color: image && !isLoading ? COLOR.WHITE : COLOR.PRI_3_600 }]}>Next</Text>
             </Button>
           </View>
           <View style={style.passportCameraButtonWrap}>

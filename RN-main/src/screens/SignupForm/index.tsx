@@ -30,6 +30,8 @@ import Util from '~/utils/common';
 
 import style from './style';
 import { getNextScreenInFlow, SIGNUP_FLOW } from '~/utils/screenFlow';
+import { useApiGetUserCountry } from '~/hooks/api.get.user.country';
+import { useApiGetUserCity } from '~/hooks/api.get.user.city';
 
 export const SignupForm = memo(function ({ route }: Params) {
   const { uuid, email, pw, ocr_fullName, ocr_gender, ocr_birthDate, ocr_nationality, ocr_number, ocr_issueDate, ocr_expireDate, passportImage } = route.params;
@@ -41,16 +43,21 @@ export const SignupForm = memo(function ({ route }: Params) {
 
   const [countryList, setCountryList] = useState<Country[]>([]);
   const [cityList, setCityList] = useState<City[]>([
-    {
-      id: '1835848',
-      country: 'South Korea',
-      name: 'Seoul',
-    },
-    {
-      id: '1838524',
-      country: 'South Korea',
-      name: 'Busan',
-    }
+    { id: '1835848', country: 'South Korea', name: 'Seoul' },
+    { id: '1838524', country: 'South Korea', name: 'Busan' },
+    { id: '1835329', country: 'South Korea', name: 'Daegu' },      // 대구
+    { id: '1843561', country: 'South Korea', name: 'Incheon' },    // 인천
+    { id: '1835235', country: 'South Korea', name: 'Daejeon' },    // 대전
+    { id: '1841808', country: 'South Korea', name: 'Gwangju' },    // 광주
+    { id: '1833747', country: 'South Korea', name: 'Ulsan' },      // 울산
+    { id: '1835553', country: 'South Korea', name: 'Suwon' },      // 수원
+    { id: '1846326', country: 'South Korea', name: 'Changwon' },   // 창원
+    { id: '1842485', country: 'South Korea', name: 'Goyang' },     // 고양
+    { id: '1897000', country: 'South Korea', name: 'Seongnam' },   // 성남
+    { id: '1845604', country: 'South Korea', name: 'Cheongju' },   // 청주
+    { id: '1845457', country: 'South Korea', name: 'Jeonju' },     // 전주
+    { id: '1846266', country: 'South Korea', name: 'Jeju City' },  // 제주시
+    { id: '11523293', country: 'South Korea', name: 'Sejong' },    // 세종
   ]);
 
   const [isVisibleCountryPicker, setIsVisibleCountryPicker] = useState<boolean>(false);
@@ -62,6 +69,7 @@ export const SignupForm = memo(function ({ route }: Params) {
   const [cityIndex, setCityIndex] = useState<number>();
   const [birth, setBirth] = useState<string>('');
   const [passport, setPassport] = useState<string>('');
+  const [country, setCountry] = useState<Country>();
 
   const [pwMessage, setPwMessage] = useState<InputMessage>();
   const [pw2Message, setPw2Message] = useState<InputMessage>();
@@ -76,6 +84,8 @@ export const SignupForm = memo(function ({ route }: Params) {
   const { apiPostVerifyPassport } = useApiPostVerifyPassport();
   const { apiGetCountryList } = useApiGetCountryList();
   const { apiGetCityList } = useApiGetCityList();
+  const { apiGetUserCountry } = useApiGetUserCountry();
+
   const { bottom } = useSafeAreaInsets();
 
   const accessTokenRef = useRef<string>();
@@ -144,7 +154,11 @@ export const SignupForm = memo(function ({ route }: Params) {
     passportRef.current = passport;
   }
 
+  const countryRef = useRef<Country>();
  
+  if(countryRef.current !== country) {
+    countryRef.current = country;
+  }
 
   const handlePw2 = useCallback((text: string) => {
     setPw2Message(undefined);
@@ -352,16 +366,29 @@ export const SignupForm = memo(function ({ route }: Params) {
   }, []);
 
   useEffect(() => {
+    // 국가 목록 가져오기
     apiGetCountryList().then((list) => {
       setCountryList(list);
+      
+      // OCR 국가 정보가 있고, 국가 목록이 로드된 후에 처리
+      if (ocr_nationality && list.length > 0) {
+        apiGetUserCountry({ code3: ocr_nationality }).then((country) => {
+          if (country) {
+            setCountry(country);
+            // 국가 목록에서 해당 국가의 인덱스 찾아서 설정
+            const foundIndex = list.findIndex(c => c.code3 === ocr_nationality);
+            if (foundIndex !== -1) {
+              setCountryIndex(foundIndex);
+            }
+          }
+        }).catch((error) => {
+          console.warn('Failed to get user country:', error);
+        });
+      }
+    }).catch((error) => {
+      console.warn('Failed to get country list:', error);
     });
-
-    // apiGetCityList({
-    //   code: 'KR',
-    // }).then((list) => {
-    //   setCityList(list);
-    // });
-  }, []);
+  }, [ocr_nationality]);
 
   // OCR 데이터를 초기값으로 설정
   useEffect(() => {
@@ -417,7 +444,7 @@ export const SignupForm = memo(function ({ route }: Params) {
                   wrapperStyle={style.inputWrapper}
                   containerStyle={style.inputDisabledContainer}
                   style={style.inputDisabledText}
-                  editable={false}
+                  disabled={true}
                 />
                 <Text style={[font.BODY2_M, style.labelText]}>Password</Text>
                 <Input
@@ -426,7 +453,9 @@ export const SignupForm = memo(function ({ route }: Params) {
                   placeholder="Enter Password"
                   wrapperStyle={style.inputWrapper}
                   message={pwMessage}
-                  editable={false}
+                  containerStyle={style.inputDisabledContainer}
+                  style={style.inputDisabledText}
+                  disabled={true}
                 />
                 {/* <Text style={[font.BODY2_M, style.labelText]}>Enter Password Again</Text> */}
                 {/* <Input
@@ -445,7 +474,7 @@ export const SignupForm = memo(function ({ route }: Params) {
             <Button
               style={[style.selectButton, { borderColor: countryMessage ? COLOR.ERROR : style.selectButton.borderColor }]}
               onPress={handleCountry}>
-              <Text style={[font.BODY1_R, style.selectButtonText]}>{countryList[countryIndex]?.name || 'Country'}</Text>
+              <Text style={[font.BODY1_R, style.selectButtonText]}>{country?.name || 'Country'}</Text>
               <FastImage source={STATIC_IMAGE.ARROW_DOWN_BLACK} style={style.selectButtonImage} resizeMode="contain" />
             </Button>
             {countryMessage?.text && <Text style={[font.CAPTION1_M, style.messageText]}>{countryMessage.text}</Text>}
