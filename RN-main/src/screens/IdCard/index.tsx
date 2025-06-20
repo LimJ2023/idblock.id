@@ -20,6 +20,7 @@ import { COLOR } from '~/utils/guide';
 import { font } from '~/style';
 
 import style from './style';
+import { Flag } from '~/components/Flag';
 
 export const IdCard = memo(function () {
   const navigation = useNavigation<StackNavigationProp<any>>();
@@ -80,6 +81,8 @@ export const IdCard = memo(function () {
     }, []),
   );
 
+  console.log(countryCode);
+
   return (
     <View style={style.container}>
       <FastImage source={STATIC_IMAGE.IDCARD_BG} style={style.containerImageBg} resizeMode="contain" />
@@ -93,13 +96,21 @@ export const IdCard = memo(function () {
                   source={!!countryCode && !!bgSource && cityBackgrounds[countryCode] && cityBackgrounds[countryCode][bgSource]}
                   style={style.idcardPendingCard}>
                   <View style={{ width: 300, height: 450, paddingVertical: 24, paddingHorizontal: 21, position: 'relative' }}>
-                    <Text style={[font.BODY2_M, { color: COLOR.UI_COLOR_400, position: 'absolute', top: 24, right: 21 }]}>
-                      {profile.city?.country}
-                    </Text>
-                    <View style={{ width: 120, height: 160, backgroundColor: 'red', borderRadius: 8, overflow: 'hidden' }}>
+                    <View
+                      style={{
+                        width: 120,
+                        height: 160,
+                        backgroundColor: 'red',
+                        borderRadius: 8,
+                        overflow: 'hidden',
+                      }}>
                       {profile.profileImage && (
                         <FastImage source={{ uri: profile.profileImage }} style={style.faceImage} resizeMode="cover" />
                       )}
+                    </View>
+                    <View style={{ display: 'flex', alignItems: 'flex-end', position: 'absolute', top: 24, right: 21 }}>
+                      <Flag countryCode={countryCode} />
+                      <Text style={[font.BODY2_M, { color: COLOR.UI_COLOR_400 }]}>{profile.city?.country}</Text>
                     </View>
                     <Text style={[font.SUBTITLE1_SB, style.nameText]}>{profile.name}</Text>
                   </View>
