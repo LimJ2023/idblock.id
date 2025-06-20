@@ -15,7 +15,7 @@ import { BadgeAlert, BadgeCheck, BadgeX } from "lucide-react";
 
 const UsersListPage = () => {
   const [filterState, setFilterState] = useState<StatusFilter>("OPENED");
-  const { data: result } = useSuspenseQuery({
+  const { data: result, refetch } = useSuspenseQuery({
     ...queries.users.all(filterState),
   });
   const queryClient = useQueryClient();
@@ -67,12 +67,14 @@ const UsersListPage = () => {
         <div className="bg-whit6 mt-6 flex w-full flex-col rounded-3xl border border-[#E5E7EB] bg-white p-6">
           <ErrorBoundary
             renderFallback={(props) => (
-              <ErrorTable error={props.error} columns={usersColumns} />
+              <ErrorTable error={props.error} columns={usersColumns(refetch)} />
             )}
             onError={(error) => console.error(error)}
           >
-            <Suspense fallback={<LoadingTable columns={usersColumns} />}>
-              <UsersTable columns={usersColumns} result={result} />
+            <Suspense
+              fallback={<LoadingTable columns={usersColumns(refetch)} />}
+            >
+              <UsersTable columns={usersColumns(refetch)} result={result} />
             </Suspense>
           </ErrorBoundary>
         </div>

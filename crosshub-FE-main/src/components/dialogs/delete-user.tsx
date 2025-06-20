@@ -18,7 +18,13 @@ import { useQueryClient } from "@tanstack/react-query";
 import { queries } from "@/queries";
 import { CircleX } from "lucide-react";
 
-const DeleteUserDialog = ({ selected }: { selected: string }) => {
+const DeleteUserDialog = ({
+  selected,
+  onSuccess,
+}: {
+  selected: string;
+  onSuccess: () => void;
+}) => {
   const queryClient = useQueryClient();
 
   const { mutateAsync, isPending } = useMutation({ mutationFn: deleteUser });
@@ -32,6 +38,7 @@ const DeleteUserDialog = ({ selected }: { selected: string }) => {
     // }
 
     await mutateAsync(selected);
+    onSuccess();
 
     // if (!results.success) {
     //   setMessage(MESSAGES.ERROR);

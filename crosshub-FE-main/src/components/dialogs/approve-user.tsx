@@ -17,7 +17,13 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Spinner } from "../ui/spinner";
 import { CircleCheck } from "lucide-react";
 
-const ApproveUserDialog = ({ selected }: { selected: string }) => {
+const ApproveUserDialog = ({
+  selected,
+  onSuccess,
+}: {
+  selected: string;
+  onSuccess: () => void;
+}) => {
   const queryClient = useQueryClient();
 
   const { mutateAsync, isPending } = useMutation({ mutationFn: approveUser });
@@ -31,6 +37,7 @@ const ApproveUserDialog = ({ selected }: { selected: string }) => {
     // }
 
     await mutateAsync(selected);
+    onSuccess();
 
     // if (!results.success) {
     //   setMessage(MESSAGES.ERROR);

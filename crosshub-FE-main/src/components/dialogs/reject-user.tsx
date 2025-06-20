@@ -24,7 +24,13 @@ import { Textarea } from "../ui/textarea";
 import { queries } from "@/queries";
 import { CircleX } from "lucide-react";
 
-const RejectUserDialog = ({ id }: { id: string }) => {
+const RejectUserDialog = ({
+  id,
+  onSuccess,
+}: {
+  id: string;
+  onSuccess: () => void;
+}) => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -48,6 +54,7 @@ const RejectUserDialog = ({ id }: { id: string }) => {
         description: "승인이 거절 되었습니다.",
       });
       queryClient.invalidateQueries(queries.users.all());
+      onSuccess();
 
       return;
     }

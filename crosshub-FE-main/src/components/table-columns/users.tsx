@@ -7,7 +7,7 @@ import { Button } from "../ui/button";
 import { DeleteUserDialog } from "../dialogs/delete-user";
 import { CircleCheck, CircleMinus } from "lucide-react";
 
-const columns: ColumnDef<User>[] = [
+const columns = (refetch: () => void): ColumnDef<User>[] => [
   {
     id: "userNum",
     accessorKey: "id",
@@ -123,8 +123,8 @@ const columns: ColumnDef<User>[] = [
         <div className="flex items-center justify-center gap-2">
           {approvalStatus === 0 ? (
             <>
-              <ApproveUserDialog selected={id} />
-              <RejectUserDialog id={id} />
+              <ApproveUserDialog selected={id} onSuccess={refetch} />
+              <RejectUserDialog id={id} onSuccess={refetch} />
               {/* <Button
                 variants="secondary"
                 className="border border-[#FFF6CC] bg-[#FFFBE5] font-pretendard text-[#FFD400] hover:bg-[#FFD400] hover:text-white"
@@ -160,7 +160,7 @@ const columns: ColumnDef<User>[] = [
                 거절
               </Button> */}
 
-              <DeleteUserDialog selected={id} />
+              <DeleteUserDialog selected={id} onSuccess={refetch} />
             </>
           ) : (
             <>
@@ -197,7 +197,7 @@ const columns: ColumnDef<User>[] = [
                 삭제
               </Button> */}
 
-              <DeleteUserDialog selected={id} />
+              <DeleteUserDialog selected={id} onSuccess={refetch} />
             </>
           )}
         </div>
