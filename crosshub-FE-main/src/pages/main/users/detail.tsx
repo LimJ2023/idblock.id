@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { queries } from "@/queries";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Info, RefreshCcw, ShieldCheck } from "lucide-react";
+import { Info, RefreshCcw } from "lucide-react";
 import {
   Link,
   useLoaderData,
@@ -46,7 +46,7 @@ const UserDetailPage = () => {
   };
 
   return (
-    <div className="flex min-h-full w-full flex-col bg-white text-[#1E1E1E]">
+    <div className="flex h-full min-h-full w-full flex-col bg-white text-[#1E1E1E]">
       <div className="p-5">
         <h1 className="px-4 py-2 text-3xl font-semibold text-[#1E1E1E]">
           사용자 관리
@@ -132,7 +132,7 @@ const UserDetailPage = () => {
                 </Label>
                 <div
                   className={cn(
-                    "flex flex-1 items-center justify-center text-wrap break-all rounded-[1.25rem] border-[#CECECE] bg-white px-6 font-pretendard text-sm font-normal text-[#666]",
+                    "rounded-[1.25rem] border-[#CECECE] bg-white px-6 font-pretendard text-sm font-normal text-[#666]",
                   )}
                 >
                   {data.passportNumber}
@@ -178,30 +178,25 @@ const UserDetailPage = () => {
             <div className="mb-2"></div>
             <div className="flex-2 box-border flex flex-col gap-5 divide-y border-t border-[#999999]">
               <Label className="pt-5 font-pretendard">여권 및 얼굴 사진</Label>
-              <div className="box-border flex w-fit items-start items-center rounded-xl border-none bg-[#F7F7F7] p-4">
-                <div className="flex-2">
+              <div className="box-border flex w-full items-start items-center gap-6 rounded-xl border-none bg-[#F7F7F7] p-4">
+                <div className="flex-2 w-full">
                   <Link target="_blank" to={data.passportImageKey}>
-                    <div className="box-content h-[100px] w-full overflow-hidden rounded-xl border-2 border-[#E4E4E4]">
+                    <div className="box-content h-[200px] w-full overflow-hidden rounded-xl">
                       <img
                         src={data.passportImageKey}
                         alt="passport"
-                        className="h-full w-full object-cover"
+                        className="h-full w-full object-contain"
                       />
                     </div>
                   </Link>
                 </div>
-                <div className="h-0.5 w-7 bg-[#E4E4E4]"></div>
-                <div className="rounded-full bg-[#E4E4E4] p-1">
-                  <ShieldCheck className="h-[32px] w-[32px] text-[#666666]" />
-                </div>
-                <div className="h-0.5 w-7 bg-[#E4E4E4]"></div>
-                <div className="flex-2">
+                <div className="flex-2 w-full">
                   <Link target="_blank" to={data.profileImageKey}>
-                    <div className="box-content h-[100px] w-full overflow-hidden rounded-xl border-2 border-[#E4E4E4]">
+                    <div className="box-content h-[200px] w-full overflow-hidden rounded-xl">
                       <img
                         src={data.profileImageKey}
                         alt="profile"
-                        className="h-full w-full object-cover"
+                        className="h-full w-full object-contain"
                       />
                     </div>
                   </Link>
