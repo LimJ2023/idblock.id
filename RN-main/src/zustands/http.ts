@@ -11,7 +11,7 @@ import Util from '~/utils/common';
 let isLockedRefresh = false;
 
 const axios: AxiosInstance = Axios.create({
-  timeout: 7000,
+  timeout: 15000,
   headers: { 'Cache-Control': 'no-cache' },
 });
 
