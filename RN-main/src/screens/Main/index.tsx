@@ -176,7 +176,7 @@ export const Main = memo(function () {
     }
   }, []);
 
-        const handlePassportStart = useCallback(() => {
+  const handlePassportStart = useCallback(() => {
     // 여권 인증 확인 모달 열기
     setIsVisiblePassportConfirm(true);
   }, []);
@@ -292,36 +292,38 @@ export const Main = memo(function () {
       if (accessToken) {
         console.log(`[${Platform.OS}] ACCESS_TOKEN = ${accessToken}`);
 
-        apiGetAuthProfile().then((profile) => {
-          console.log('Profile loaded successfully:', profile);
-          /*
-           * 푸시 토큰 설정 (권한 요청 및 토큰 등록)
-           */
-          notificationPermissionCheck().then(async (currentPermissionStatus) => {
-            if (['granted', 'limited'].includes(currentPermissionStatus)) {
-              initPush();
+        apiGetAuthProfile()
+          .then((profile) => {
+            console.log('Profile loaded successfully:', profile);
+            /*
+             * 푸시 토큰 설정 (권한 요청 및 토큰 등록)
+             */
+            notificationPermissionCheck().then(async (currentPermissionStatus) => {
+              if (['granted', 'limited'].includes(currentPermissionStatus)) {
+                initPush();
 
-              const token = await firebase.messaging().getToken();
+                const token = await firebase.messaging().getToken();
 
-              console.log(`PUSH_TOKEN = ${token}`);
+                console.log(`PUSH_TOKEN = ${token}`);
 
-              apiPostNotificationFcm({
-                fcmToken: token,
+                apiPostNotificationFcm({
+                  fcmToken: token,
+                });
+              }
+            });
+
+            setProfile(profile);
+          })
+          .catch((error) => {
+            console.log('Profile API failed:', error);
+            // 401 에러 등 인증 실패 시 로그인 화면으로 이동
+            if (error?.statusCode === 401 || error?.status === 401) {
+              console.log('Token expired, redirecting to signin');
+              signout().then(() => {
+                navigation.replace(MENU.STACK.SCREEN.SIGNIN);
               });
             }
           });
-
-          setProfile(profile);
-        }).catch((error) => {
-          console.log('Profile API failed:', error);
-          // 401 에러 등 인증 실패 시 로그인 화면으로 이동
-          if (error?.statusCode === 401 || error?.status === 401) {
-            console.log('Token expired, redirecting to signin');
-            signout().then(() => {
-              navigation.replace(MENU.STACK.SCREEN.SIGNIN);
-            });
-          }
-        });
       } else {
         navigation.popToTop();
         navigation.replace(MENU.STACK.SCREEN.SIGNIN);
@@ -423,11 +425,7 @@ export const Main = memo(function () {
               profile.status !== PROFILE_STATUS.APPROVED ? { color: '#777777' } : {},
             )}
             {}
-            {MemoizedMainButton(
-              STATIC_IMAGE.PASSPORT_SAMPLE,
-              '여권인증시작하기',
-              handlePassportStart,
-            )}
+            {MemoizedMainButton(STATIC_IMAGE.PASSPORT_SAMPLE, 'Passport Authentication', handlePassportStart)}
           </View>
           {/* <View style={style.footer}>
             <FastImage source={STATIC_IMAGE.LOGO_IMAGE} style={style.logoImage} resizeMode="contain" />
