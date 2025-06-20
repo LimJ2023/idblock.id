@@ -213,7 +213,7 @@ const UserDetailPage = () => {
                     신원 검증 데이터
                   </Label>
                   <Button
-                    className="group rounded-full border border-[#D8D7DB] bg-[#F3F4F8] p-2 hover:stroke-white"
+                    className="group rounded-full border border-[#D8D7DB] bg-[#F7F7F7] p-2 hover:stroke-white"
                     disabled={isPending}
                     onClick={handleArgos}
                   >
@@ -249,7 +249,9 @@ const UserDetailPage = () => {
                       </TooltipProvider>
                     </div>
                     <div className="flex-1 text-xs text-[#666666]">
-                      {data.screenReplay ?? "-"} %
+                      {typeof data.screenReplay === "number"
+                        ? `${Math.floor(data.screenReplay * 10) / 10} %`
+                        : "-"}
                     </div>
                   </div>
                   <div className="flex py-4">
@@ -274,7 +276,9 @@ const UserDetailPage = () => {
                       </TooltipProvider>
                     </div>
                     <div className="flex-1 text-xs text-[#666666]">
-                      {data.paperPrinted ?? "-"} %
+                      {typeof data.paperPrinted === "number"
+                        ? `${Math.floor(data.paperPrinted * 10) / 10} %`
+                        : "-"}
                     </div>
                   </div>
                   <div className="flex py-4">
@@ -299,7 +303,9 @@ const UserDetailPage = () => {
                       </TooltipProvider>
                     </div>
                     <div className="flex-1 text-xs text-[#666666]">
-                      {data.replacePortraits ?? "-"} %
+                      {typeof data.replacePortraits === "number"
+                        ? `${Math.floor(data.replacePortraits * 10) / 10} %`
+                        : "-"}
                     </div>
                   </div>
                   <div className="flex py-4">
@@ -324,7 +330,9 @@ const UserDetailPage = () => {
                       </TooltipProvider>
                     </div>
                     <div className="flex-1 text-xs text-[#666666]">
-                      {data.matchSimilarity ?? "-"} %
+                      {typeof data.matchSimilarity === "string"
+                        ? `${Math.floor(data.matchSimilarity * 10) / 10} %`
+                        : "-"}
                     </div>
                   </div>
                   <div className="flex py-4">
@@ -349,7 +357,9 @@ const UserDetailPage = () => {
                       </TooltipProvider>
                     </div>
                     <div className="flex-1 text-xs text-[#666666]">
-                      {data.matchConfidence ?? "-"} %
+                      {typeof data.matchConfidence === "string"
+                        ? `${Math.floor(data.matchConfidence * 10) / 10} %`
+                        : "-"}
                     </div>
                   </div>
                   <div className="flex py-4 pb-2 pt-4">
@@ -371,7 +381,9 @@ const UserDetailPage = () => {
                       </TooltipProvider>
                     </div>
                     <div className="flex-1 text-xs text-[#666666]">
-                      {data.faceLiveness ?? "-"} %
+                      {typeof data.faceLiveness === "number"
+                        ? `${Math.floor(data.faceLiveness * 10) / 10} %`
+                        : "-"}
                     </div>
                   </div>
                 </div>
