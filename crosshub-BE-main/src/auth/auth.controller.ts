@@ -256,11 +256,8 @@ export class AuthController {
     );
     console.log('document 생성됨 : ', document);
     // 자동 인증 처리 (얼굴 비교 및 승인 처리 포함)
-    const isAutoApproved = await this.authService.autoApproveUser(
-      document.id
-    );
+    const isAutoApproved = await this.authService.autoApproveUser(document.id);
     console.log('자동인증 결과 : ', isAutoApproved);
-
 
     // 유저 테이블 업데이트
     await this.authService.updateUser(userId!, {
@@ -271,9 +268,9 @@ export class AuthController {
       profileImageKey: body.data.profileImageKey,
       cityId: body.data.cityId,
       countryCode: body.data.countryCode,
-    })
-    
-    return {userId, isAutoApproved};
+    });
+
+    return { userId, isAutoApproved };
   }
 
   @Public()
@@ -423,15 +420,15 @@ export class AuthController {
 
   @Public()
   @Get('country/:code3')
-  @ApiOperation({ summary: '사용자 국가 조회'})
+  @ApiOperation({ summary: '사용자 국가 조회' })
   async getUserCountry(@Param() param: GetUserCountryDto) {
     return this.authService.getUserCountry(param.code3);
   }
 
   @Public()
   @Get('city/:countryCode')
-  @ApiOperation({ summary: '사용자 도시 조회'})
-  async getUserCity(@Param() param: {countryCode: string}) {
+  @ApiOperation({ summary: '사용자 도시 조회' })
+  async getUserCity(@Param() param: { countryCode: string }) {
     return this.authService.getUserCity(param.countryCode);
   }
 

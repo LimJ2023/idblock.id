@@ -88,21 +88,21 @@ export const SignupFace = memo(function ({ route }: Params) {
   }, []);
 
   const handleGalleryPicker = useCallback(() => {
-        launchImageLibrary(
-          {
-            mediaType: 'photo',
-            quality: 0.8,
-            includeBase64: false,
-          },
-          (response) => {
-            if (response.assets && response.assets[0]) {
-              const asset = response.assets[0];
-              if (asset.uri) {
-                setImage(asset.uri);
-              }
-            }
+    launchImageLibrary(
+      {
+        mediaType: 'photo',
+        quality: 0.8,
+        includeBase64: false,
+      },
+      (response) => {
+        if (response.assets && response.assets[0]) {
+          const asset = response.assets[0];
+          if (asset.uri) {
+            setImage(asset.uri);
           }
-        );
+        }
+      },
+    );
   }, []);
 
   const stepLabels = ['여권 이미지 업로드', '얼굴 이미지 업로드', '회원가입 처리', '완료'];
@@ -179,19 +179,19 @@ export const SignupFace = memo(function ({ route }: Params) {
               profileImageKey: faceUploadResult.key,
             });
           } else {
-                isSuccessSignup = await apiPostAuthSignup({
-                  uuid,
-                  email: email,
-                  password: pw,
-                  passwordCheck: pw,
-                  name,
-                  birthday: birth,
-                  countryCode: country,
-                  cityId: honorary,
-                  passportNumber: passport,
-                  passportImageKey: passportUploadResult.key,
-                  profileImageKey: faceUploadResult.key,
-                });
+            isSuccessSignup = await apiPostAuthSignup({
+              uuid,
+              email: email,
+              password: pw,
+              passwordCheck: pw,
+              name,
+              birthday: birth,
+              countryCode: country,
+              cityId: honorary,
+              passportNumber: passport,
+              passportImageKey: passportUploadResult.key,
+              profileImageKey: faceUploadResult.key,
+            });
           }
         } catch (error) {
           if (error?.code === 'ECONNABORTED') {
@@ -208,12 +208,12 @@ export const SignupFace = memo(function ({ route }: Params) {
           // 4단계: 완료
           setCurrentStep(4);
           setCurrentStepText('회원가입이 완료되었습니다. 다음 화면으로 이동합니다...');
-          
+
           // 약간의 지연 후 화면 이동 (완료 상태를 보여주기 위해)
           setTimeout(() => {
             try {
               const nextScreen = getNextScreenInFlow(SIGNUP_FLOW, MENU.STACK.SCREEN.SIGNUP_FACE);
-              
+
               if (nextScreen) {
                 navigation.push(nextScreen);
               } else {
@@ -332,9 +332,9 @@ export const SignupFace = memo(function ({ route }: Params) {
               <Text style={[font.BODY3_SB, { color: image ? COLOR.WHITE : COLOR.PRI_3_600 }]}>Request Approval</Text>
             </Button>
             <Button style={[style.cameraButton, { marginTop: 10, backgroundColor: COLOR.PRI_3_500 }]} onPress={handleGalleryPicker}>
-                <FastImage source={STATIC_IMAGE.CAMERA_WHITE} style={style.cameraButtonImage} resizeMode="contain" />
-                <Text style={[font.BODY3_SB, style.cameraButtonText]}>Choose Mock Image from Gallery (Dev)</Text>
-              </Button>
+              <FastImage source={STATIC_IMAGE.CAMERA_WHITE} style={style.cameraButtonImage} resizeMode="contain" />
+              <Text style={[font.BODY3_SB, style.cameraButtonText]}>Choose Mock Image from Gallery (Dev)</Text>
+            </Button>
           </View>
         </View>
       </ScrollView>

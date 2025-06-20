@@ -34,7 +34,19 @@ import { useApiGetUserCountry } from '~/hooks/api.get.user.country';
 import { useApiGetUserCity } from '~/hooks/api.get.user.city';
 
 export const SignupForm = memo(function ({ route }: Params) {
-  const { uuid, email, pw, ocr_fullName, ocr_gender, ocr_birthDate, ocr_nationality, ocr_number, ocr_issueDate, ocr_expireDate, passportImage } = route.params;
+  const {
+    uuid,
+    email,
+    pw,
+    ocr_fullName,
+    ocr_gender,
+    ocr_birthDate,
+    ocr_nationality,
+    ocr_number,
+    ocr_issueDate,
+    ocr_expireDate,
+    passportImage,
+  } = route.params;
 
   // 디버깅: 전달받은 값들 확인
   // console.log('SignupForm params:', { email, pw, uuid });
@@ -44,20 +56,21 @@ export const SignupForm = memo(function ({ route }: Params) {
   const [countryList, setCountryList] = useState<Country[]>([]);
   const [cityList, setCityList] = useState<City[]>([
     { id: '1835848', country: 'South Korea', name: 'Seoul' },
-    { id: '1838524', country: 'South Korea', name: 'Busan' },
-    { id: '1835329', country: 'South Korea', name: 'Daegu' },      // 대구
-    { id: '1843561', country: 'South Korea', name: 'Incheon' },    // 인천
-    { id: '1835235', country: 'South Korea', name: 'Daejeon' },    // 대전
-    { id: '1841808', country: 'South Korea', name: 'Gwangju' },    // 광주
-    { id: '1833747', country: 'South Korea', name: 'Ulsan' },      // 울산
-    { id: '1835553', country: 'South Korea', name: 'Suwon' },      // 수원
-    { id: '1846326', country: 'South Korea', name: 'Changwon' },   // 창원
-    { id: '1842485', country: 'South Korea', name: 'Goyang' },     // 고양
-    { id: '1897000', country: 'South Korea', name: 'Seongnam' },   // 성남
-    { id: '1845604', country: 'South Korea', name: 'Cheongju' },   // 청주
-    { id: '1845457', country: 'South Korea', name: 'Jeonju' },     // 전주
-    { id: '1846266', country: 'South Korea', name: 'Jeju City' },  // 제주시
-    { id: '11523293', country: 'South Korea', name: 'Sejong' },    // 세종
+    { id: '1838524', country: 'South Korea', name: 'Busan' }, // 부산
+    { id: '1835329', country: 'South Korea', name: 'Daegu' }, // 대구
+    { id: '1843564', country: 'South Korea', name: 'Incheon' }, // 인천
+    { id: '1835235', country: 'South Korea', name: 'Daejeon' }, // 대전
+    { id: '1841810', country: 'South Korea', name: 'Gwangju' }, // 광주
+    { id: '1833747', country: 'South Korea', name: 'Ulsan' }, // 울산
+    { id: '1841610', country: 'South Korea', name: 'Gyeonggi' }, // 경기
+    { id: '4681948', country: 'South Korea', name: 'Gangwon' }, // 광원
+    { id: '1845105', country: 'South Korea', name: 'Chungnam' }, // 충남
+    { id: '1845106', country: 'South Korea', name: 'Chungbuk' }, // 충북
+    { id: '1845788', country: 'South Korea', name: 'Jeonnam' }, // 전남
+    { id: '1845789', country: 'South Korea', name: 'Jeonbuk' }, // 전북
+    { id: '1902028', country: 'South Korea', name: 'Gyeongnam' }, // 경남
+    { id: '1841597', country: 'South Korea', name: 'Gyeongbuk' }, // 경북
+    { id: '1846266', country: 'South Korea', name: 'Jeju City' }, // 제주시
   ]);
 
   const [isVisibleCountryPicker, setIsVisibleCountryPicker] = useState<boolean>(false);
@@ -155,8 +168,8 @@ export const SignupForm = memo(function ({ route }: Params) {
   }
 
   const countryRef = useRef<Country>();
- 
-  if(countryRef.current !== country) {
+
+  if (countryRef.current !== country) {
     countryRef.current = country;
   }
 
@@ -179,7 +192,7 @@ export const SignupForm = memo(function ({ route }: Params) {
   const handleCountryPicker = useCallback((index) => {
     setCountryMessage(undefined);
     setCountryIndex(index);
-    
+
     // 선택된 인덱스에 해당하는 country 객체도 설정
     if (countryListRef.current && countryListRef.current[index]) {
       setCountry(countryListRef.current[index]);
@@ -244,7 +257,6 @@ export const SignupForm = memo(function ({ route }: Params) {
     let isValid = true;
 
     if (!accessTokenRef.current) {
-
       console.log('pwRef.current : ', pwRef.current);
       console.log('birthRef : ', birthRef.current);
       console.log('passportNumber : ', passportRef.current);
@@ -371,27 +383,31 @@ export const SignupForm = memo(function ({ route }: Params) {
 
   useEffect(() => {
     // 국가 목록 가져오기
-    apiGetCountryList().then((list) => {
-      setCountryList(list);
-      
-      // OCR 국가 정보가 있고, 국가 목록이 로드된 후에 처리
-      if (ocr_nationality && list.length > 0) {
-        apiGetUserCountry({ code3: ocr_nationality }).then((country) => {
-          if (country) {
-            setCountry(country);
-            // 국가 목록에서 해당 국가의 인덱스 찾아서 설정
-            const foundIndex = list.findIndex(c => c.code3 === ocr_nationality);
-            if (foundIndex !== -1) {
-              setCountryIndex(foundIndex);
-            }
-          }
-        }).catch((error) => {
-          console.warn('Failed to get user country:', error);
-        });
-      }
-    }).catch((error) => {
-      console.warn('Failed to get country list:', error);
-    });
+    apiGetCountryList()
+      .then((list) => {
+        setCountryList(list);
+
+        // OCR 국가 정보가 있고, 국가 목록이 로드된 후에 처리
+        if (ocr_nationality && list.length > 0) {
+          apiGetUserCountry({ code3: ocr_nationality })
+            .then((country) => {
+              if (country) {
+                setCountry(country);
+                // 국가 목록에서 해당 국가의 인덱스 찾아서 설정
+                const foundIndex = list.findIndex((c) => c.code3 === ocr_nationality);
+                if (foundIndex !== -1) {
+                  setCountryIndex(foundIndex);
+                }
+              }
+            })
+            .catch((error) => {
+              console.warn('Failed to get user country:', error);
+            });
+        }
+      })
+      .catch((error) => {
+        console.warn('Failed to get country list:', error);
+      });
   }, [ocr_nationality]);
 
   // OCR 데이터를 초기값으로 설정
@@ -479,7 +495,7 @@ export const SignupForm = memo(function ({ route }: Params) {
               style={[style.selectButton, { borderColor: countryMessage ? COLOR.ERROR : style.selectButton.borderColor }]}
               onPress={handleCountry}>
               <Text style={[font.BODY1_R, style.selectButtonText]}>
-                {countryIndex !== undefined ? countryList[countryIndex]?.name : (country?.name || 'Country')}
+                {countryIndex !== undefined ? countryList[countryIndex]?.name : country?.name || 'Country'}
               </Text>
               <FastImage source={STATIC_IMAGE.ARROW_DOWN_BLACK} style={style.selectButtonImage} resizeMode="contain" />
             </Button>
