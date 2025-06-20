@@ -276,6 +276,14 @@ export class ArgosService {
         throw new BadRequestException('Failed to update UserVerificationDocument');
       }
 
+      //target 데이터 업데이트
+      target.screenReplay = data?.result?.screenReplay?.liveness_score;
+      target.paperPrinted = data?.result?.paperPrinted?.liveness_score;
+      target.replacePortraits = data?.result?.replacePortraits?.liveness_score;
+      target.faceLiveness = faceData?.result?.liveness_score;
+      target.matchSimilarity = compareData?.similarity;
+      target.matchConfidence = compareData?.confidence;
+
       return target;
   }
 } 
