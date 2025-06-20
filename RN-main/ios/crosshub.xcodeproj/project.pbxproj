@@ -542,7 +542,7 @@
 				CODE_SIGN_ENTITLEMENTS = crosshub/crosshub.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 250620001;
+				CURRENT_PROJECT_VERSION = 250620002;
 				DEVELOPMENT_TEAM = L75M7AB9MS;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = crosshub/Info.plist;
@@ -577,7 +577,7 @@
 				CODE_SIGN_ENTITLEMENTS = crosshub/crosshub.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 250620001;
+				CURRENT_PROJECT_VERSION = 250620002;
 				DEVELOPMENT_TEAM = L75M7AB9MS;
 				INFOPLIST_FILE = crosshub/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "ID Block (아이디블록)";

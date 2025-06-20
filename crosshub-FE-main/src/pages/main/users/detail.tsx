@@ -150,6 +150,20 @@ const UserDetailPage = () => {
                   {data.txHash}
                 </div>
               </div>
+              {data.approvalStatus === 2 && (
+                <div className="flex items-center gap-2 pt-5">
+                  <Label className="flex-shrink-0 basis-24 font-pretendard">
+                    거절 사유
+                  </Label>
+                  <div
+                    className={cn(
+                      "flex-1 text-wrap break-all rounded-[1.25rem] border-[#CECECE] bg-white px-6 font-pretendard text-sm font-normal text-[#666]",
+                    )}
+                  >
+                    {data.rejectReason}
+                  </div>
+                </div>
+              )}
             </div>
           </section>
 

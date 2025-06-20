@@ -149,6 +149,13 @@ const deleteUser = async (documentId: string) => {
   }
 };
 
-export { getUsers, approveUser, rejectUser, getUserDetail, argosCall, deleteUser };
+export {
+  getUsers,
+  approveUser,
+  rejectUser,
+  getUserDetail,
+  argosCall,
+  deleteUser,
+};
 
 export type { ErrorResponse, User, RejectUser };
