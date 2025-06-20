@@ -179,6 +179,11 @@ export const SignupForm = memo(function ({ route }: Params) {
   const handleCountryPicker = useCallback((index) => {
     setCountryMessage(undefined);
     setCountryIndex(index);
+    
+    // 선택된 인덱스에 해당하는 country 객체도 설정
+    if (countryListRef.current && countryListRef.current[index]) {
+      setCountry(countryListRef.current[index]);
+    }
   }, []);
 
   const handleCity = useCallback(() => {
@@ -288,7 +293,7 @@ export const SignupForm = memo(function ({ route }: Params) {
       });
     }
 
-    if (countryIndexRef.current === undefined) {
+    if (countryIndexRef.current === undefined && countryRef.current === undefined) {
       isValid = false;
 
       setCountryMessage({
@@ -347,14 +352,13 @@ export const SignupForm = memo(function ({ route }: Params) {
     }
 
     const nextScreen = getNextScreenInFlow(SIGNUP_FLOW, MENU.STACK.SCREEN.SIGNUP_FORM);
-    
     if (nextScreen) {
       navigation.push(nextScreen, {
         uuid,
         email,
         pw: pwRef.current,
         name: nameRef.current,
-        country: countryListRef.current[countryIndexRef.current].code,
+        country: countryRef.current.code,
         honorary: cityListRef.current?.[cityIndexRef.current]?.id || undefined,
         birth: birthRef.current,
         passport: passportRef.current,
@@ -474,7 +478,9 @@ export const SignupForm = memo(function ({ route }: Params) {
             <Button
               style={[style.selectButton, { borderColor: countryMessage ? COLOR.ERROR : style.selectButton.borderColor }]}
               onPress={handleCountry}>
-              <Text style={[font.BODY1_R, style.selectButtonText]}>{country?.name || 'Country'}</Text>
+              <Text style={[font.BODY1_R, style.selectButtonText]}>
+                {countryIndex !== undefined ? countryList[countryIndex]?.name : (country?.name || 'Country')}
+              </Text>
               <FastImage source={STATIC_IMAGE.ARROW_DOWN_BLACK} style={style.selectButtonImage} resizeMode="contain" />
             </Button>
             {countryMessage?.text && <Text style={[font.CAPTION1_M, style.messageText]}>{countryMessage.text}</Text>}

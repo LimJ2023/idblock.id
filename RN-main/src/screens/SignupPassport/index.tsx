@@ -133,7 +133,6 @@ export const SignupPassport = memo(function ({ route }: Params) {
       setIsLoading(true);
       const response = await apiPostRecogPassport({ formData });
 
-      console.log('response : ', response);
       if (!response.ocr_fullName && !response.ocr_birthDate && !response.ocr_issueDate && !response.ocr_expireDate) {
         Toast.show('Please select a passport image', Toast.SHORT);
       } else {

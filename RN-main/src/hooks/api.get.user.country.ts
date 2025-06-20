@@ -6,13 +6,10 @@ import { useHttp } from "~/zustands/http";
 
 
 export function useApiGetUserCountry () {
-    const { get} = useHttp();
+    const { get } = useHttp();
 
     const apiGetUserCountry = useCallback(async ({ code3 }: Params) => {
-        const response: HttpResponse<Country> = await get('/v1/auth/country', {
-            code3: code3,
-        });
-
+        const response: HttpResponse<Country> = await get(`/v1/auth/country/${code3}`);
         return response?.data || null;
     },[]);
 
