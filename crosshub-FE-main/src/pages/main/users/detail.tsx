@@ -132,7 +132,7 @@ const UserDetailPage = () => {
                 </Label>
                 <div
                   className={cn(
-                    "flex-1 text-wrap break-all rounded-[1.25rem] border-[#CECECE] bg-white px-6 font-pretendard text-sm font-normal text-[#666]",
+                    "flex flex-1 items-center justify-center text-wrap break-all rounded-[1.25rem] border-[#CECECE] bg-white px-6 font-pretendard text-sm font-normal text-[#666]",
                   )}
                 >
                   {data.passportNumber}
@@ -226,9 +226,9 @@ const UserDetailPage = () => {
                   </div>
                 </div>
 
-                <div className="divide-y rounded-xl bg-[#F7F7F7] p-4">
-                  <div className="flex pb-4 pt-2">
-                    <div className="flex basis-60 items-center gap-2 text-xs font-semibold uppercase text-[#333333]">
+                <div className="grid grid-cols-2 gap-x-4 divide-y rounded-xl bg-[#F7F7F7] p-4 py-2">
+                  <div className="flex justify-between py-4">
+                    <div className="flex items-center gap-2 text-xs font-semibold uppercase text-[#333333]">
                       <span>Screen replay</span>
                       <TooltipProvider delayDuration={100}>
                         <Tooltip>
@@ -248,14 +248,14 @@ const UserDetailPage = () => {
                         </Tooltip>
                       </TooltipProvider>
                     </div>
-                    <div className="flex-1 text-xs text-[#666666]">
+                    <div className="flex items-center justify-center text-xs text-[#666666]">
                       {typeof data.screenReplay === "number"
                         ? `${Math.floor(data.screenReplay * 10) / 10} %`
                         : "-"}
                     </div>
                   </div>
-                  <div className="flex py-4">
-                    <div className="flex basis-60 items-center gap-2 text-xs font-semibold uppercase text-[#333333]">
+                  <div className="flex justify-between border-t-transparent py-4">
+                    <div className="flex items-center gap-2 text-xs font-semibold uppercase text-[#333333]">
                       <span>Paper printed</span>
                       <TooltipProvider delayDuration={100}>
                         <Tooltip>
@@ -275,14 +275,14 @@ const UserDetailPage = () => {
                         </Tooltip>
                       </TooltipProvider>
                     </div>
-                    <div className="flex-1 text-xs text-[#666666]">
+                    <div className="flex items-center justify-center text-xs text-[#666666]">
                       {typeof data.paperPrinted === "number"
                         ? `${Math.floor(data.paperPrinted * 10) / 10} %`
                         : "-"}
                     </div>
                   </div>
-                  <div className="flex py-4">
-                    <div className="flex basis-60 items-center gap-2 text-xs font-semibold uppercase text-[#333333]">
+                  <div className="flex justify-between py-4">
+                    <div className="flex items-center gap-2 text-xs font-semibold uppercase text-[#333333]">
                       <span>replace portraits</span>
                       <TooltipProvider delayDuration={100}>
                         <Tooltip>
@@ -302,14 +302,14 @@ const UserDetailPage = () => {
                         </Tooltip>
                       </TooltipProvider>
                     </div>
-                    <div className="flex-1 text-xs text-[#666666]">
+                    <div className="flex items-center justify-center text-xs text-[#666666]">
                       {typeof data.replacePortraits === "number"
                         ? `${Math.floor(data.replacePortraits * 10) / 10} %`
                         : "-"}
                     </div>
                   </div>
-                  <div className="flex py-4">
-                    <div className="flex basis-60 items-center gap-2 text-xs font-semibold uppercase text-[#333333]">
+                  <div className="flex justify-between py-4">
+                    <div className="flex items-center gap-2 text-xs font-semibold uppercase text-[#333333]">
                       <span>similarity</span>
                       <TooltipProvider delayDuration={100}>
                         <Tooltip>
@@ -329,14 +329,14 @@ const UserDetailPage = () => {
                         </Tooltip>
                       </TooltipProvider>
                     </div>
-                    <div className="flex-1 text-xs text-[#666666]">
+                    <div className="flex items-center justify-center text-xs text-[#666666]">
                       {typeof data.matchSimilarity === "string"
                         ? `${Math.floor(data.matchSimilarity * 10) / 10} %`
                         : "-"}
                     </div>
                   </div>
-                  <div className="flex py-4">
-                    <div className="flex basis-60 items-center gap-2 text-xs font-semibold uppercase text-[#333333]">
+                  <div className="flex justify-between py-4">
+                    <div className="flex items-center gap-2 text-xs font-semibold uppercase text-[#333333]">
                       <span>Confidence</span>
                       <TooltipProvider delayDuration={100}>
                         <Tooltip>
@@ -356,14 +356,14 @@ const UserDetailPage = () => {
                         </Tooltip>
                       </TooltipProvider>
                     </div>
-                    <div className="flex-1 text-xs text-[#666666]">
+                    <div className="flex items-center justify-center text-xs text-[#666666]">
                       {typeof data.matchConfidence === "string"
                         ? `${Math.floor(data.matchConfidence * 10) / 10} %`
                         : "-"}
                     </div>
                   </div>
-                  <div className="flex py-4 pb-2 pt-4">
-                    <div className="flex basis-60 items-center gap-2 text-xs font-semibold uppercase text-[#333333]">
+                  <div className="flex justify-between py-4">
+                    <div className="flex items-center gap-2 text-xs font-semibold uppercase text-[#333333]">
                       <span>liveness</span>
                       <TooltipProvider delayDuration={100}>
                         <Tooltip>
@@ -380,7 +380,7 @@ const UserDetailPage = () => {
                         </Tooltip>
                       </TooltipProvider>
                     </div>
-                    <div className="flex-1 text-xs text-[#666666]">
+                    <div className="flex items-center justify-center text-xs text-[#666666]">
                       {typeof data.faceLiveness === "number"
                         ? `${Math.floor(data.faceLiveness * 10) / 10} %`
                         : "-"}
