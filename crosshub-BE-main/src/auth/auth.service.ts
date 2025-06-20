@@ -296,6 +296,13 @@ export class AuthService {
     passportImageKey: string,
     profileImageKey: string,
   ) {
+    const user = await this.db.query.UserVerificationDocument.findFirst({
+      where: (table, { eq }) => eq(table.userId, userId),
+    })
+    if(user) {
+      await this.db.delete(UserVerificationDocument).where(eq(UserVerificationDocument.userId, userId));
+    }
+    
     return this.db
       .insert(UserVerificationDocument)
       .values({
