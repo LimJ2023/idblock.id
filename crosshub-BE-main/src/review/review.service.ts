@@ -26,7 +26,15 @@ export class ReviewService {
       .where(eq(SiteManager.id, managerId));
 
     return result.map((r) => {
-      const { password, ...rest } = r.user!;
+      if (!r.user) {
+        return {
+          ...r.site_visit_review,
+          visit: r.site_visit,
+          user: null,
+        };
+      }
+
+      const { password, ...rest } = r.user;
       return {
         ...r.site_visit_review,
         visit: r.site_visit,

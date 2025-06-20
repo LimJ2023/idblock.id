@@ -95,8 +95,8 @@ export class ArgosService {
       );
 
       console.log(
-        'recognition ocr data >>>>>>.',
-        JSON.stringify(response.data.result.data, null, 2),
+        'response >>>>>>.',
+        JSON.stringify(response.data),
       );
       const ocrData = response.data.result.data.ocr;
 

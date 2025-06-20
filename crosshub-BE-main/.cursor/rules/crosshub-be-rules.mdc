@@ -3,14 +3,136 @@ description:
 globs: 
 alwaysApply: false
 ---
-이 프로젝트의 주요 기술 스택
-- 프레임워크: NestJS (TypeScript 기반)
-- 언어: TypeScript
-- ORM: Drizzle
-- 이메일 서비스:  Resend
-- 스토리지: AWS S3, GCP gcs
-- 푸시 알림: Firebase FCM
+# Crosshub 백엔드 프로젝트 가이드
 
+## 🚀 프로젝트 개요
+이 프로젝트는 **NestJS** 기반의 멀티 스코프 백엔드 API 서버입니다. API_SCOPE 환경 변수에 따라 다른 모드로 동작합니다.
 
+## 📋 기술 스택
+- **프레임워크**: NestJS (TypeScript 기반)
+- **언어**: TypeScript  
+- **ORM**: Drizzle ORM with PostgreSQL
+- **인증**: JWT + Cookie 기반 인증
+- **파일 스토리지**: AWS S3, Google Cloud Storage
+- **이메일**: Resend, AWS SES
+- **푸시 알림**: Firebase FCM  
+- **블록체인**: Thirdweb
+- **패키지 매니저**: pnpm
+- **테스트**: Jest
+- **API 문서**: Swagger + Scalar
 
-- 테스트: Jest
+## 🏗️ 프로젝트 구조
+
+### 📁 메인 진입점
+- [src/main.ts](mdc:src/main.ts): 애플리케이션 부트스트랩 및 글로벌 설정
+- [src/app.module.ts](mdc:src/app.module.ts): 루트 모듈, API_SCOPE에 따른 조건부 모듈 로딩
+
+### 🔐 인증 모듈들
+- [src/auth/](mdc:src/auth): 기본 사용자 인증 (JWT)
+- [src/admin-auth/](mdc:src/admin-auth): 관리자 인증 및 권한 관리
+- [src/manager-auth/](mdc:src/manager-auth): 사이트 매니저 인증
+
+### 🗄️ 데이터베이스
+- [src/database/](mdc:src/database): 데이터베이스 연결 및 설정
+- [src/database/schema/](mdc:src/database/schema): Drizzle 스키마 정의
+- [drizzle.config.ts](mdc:drizzle.config.ts): Drizzle ORM 설정
+- [drizzle/](mdc:drizzle): 마이그레이션 파일들
+
+### 🔧 핵심 모듈들
+- [src/user/](mdc:src/user): 사용자 관리 (얼굴 인식 포함)
+- [src/site/](mdc:src/site): 사이트 관리 (관리자/매니저/퍼블릭 컨트롤러 분리)
+- [src/visitor/](mdc:src/visitor): 방문자 관리
+- [src/notification/](mdc:src/notification): 푸시 알림 관리
+- [src/review/](mdc:src/review): 사이트 방문 리뷰 관리
+
+### ☁️ 외부 서비스 연동
+- [src/s3/](mdc:src/s3): AWS S3 파일 업로드
+- [src/gcp/](mdc:src/gcp): Google Cloud Storage
+- [src/firebase/](mdc:src/firebase): Firebase FCM 푸시 알림
+- [src/email/](mdc:src/email): 이메일 서비스 (Resend, AWS SES)
+- [src/thirdweb/](mdc:src/thirdweb): 블록체인 연동
+- [src/argos/](mdc:src/argos): 얼굴 인식 API
+
+### 🔌 API 및 공통 모듈
+- [src/api/](mdc:src/api): 외부 API 키 관리 및 외부 API 엔드포인트
+- [src/common/](mdc:src/common): 공통 유틸리티 및 서비스
+- [src/env/](mdc:src/env): 환경 변수 관리 및 검증
+
+### 🛠️ 유틸리티
+- [src/lib/typeschema/](mdc:src/lib/typeschema): Valibot 기반 타입 스키마 및 검증
+- [src/interceptors/](mdc:src/interceptors): 로깅 및 응답 변환 인터셉터
+
+## 🔄 API 스코프 시스템
+프로젝트는 `API_SCOPE` 환경 변수에 따라 다른 모드로 동작:
+
+- **PUBLIC**: 일반 사용자 API ([src/app.controller.ts](mdc:src/app.controller.ts))
+- **ADMIN**: 관리자 API ([src/admin-auth/admin-auth.controller.ts](mdc:src/admin-auth/admin-auth.controller.ts))
+- **MANAGER**: 사이트 매니저 API ([src/manager-auth/manager-auth.controller.ts](mdc:src/manager-auth/manager-auth.controller.ts))
+- **EXTERNAL_API**: 외부 API ([src/api/external.controller.ts](mdc:src/api/external.controller.ts))
+
+## 📝 개발 패턴
+
+### 모듈 구조
+각 모듈은 다음 패턴을 따릅니다:
+- `*.module.ts`: 모듈 정의
+- `*.controller.ts`: 컨트롤러 (여러 스코프별로 분리 가능)
+- `*.service.ts`: 비즈니스 로직
+- `*.dto.ts`: 데이터 전송 객체 (Valibot 스키마 사용)
+
+### 데이터베이스 스키마
+- [src/database/schema/index.ts](mdc:src/database/schema/index.ts)에서 모든 스키마 export
+- Drizzle ORM 사용, camelCase 컨벤션
+- PostgreSQL + PostGIS 확장 사용
+
+### 인증 및 권한
+- JWT 토큰 + 쿠키 기반 인증
+- 관리자 권한 데코레이터: [src/auth/admin-permission.decorator.ts](mdc:src/auth/admin-permission.decorator.ts)
+- 가드: [src/auth/auth.guard.ts](mdc:src/auth/auth.guard.ts), [src/auth/admin-permission.guard.ts](mdc:src/auth/admin-permission.guard.ts)
+
+## 🚀 개발 명령어
+
+```bash
+# 개발 서버 시작 (API + Drizzle Studio)
+pnpm dev
+
+# API 서버만 시작
+pnpm start:dev
+
+# Drizzle Studio 시작
+pnpm start:studio
+
+# 빌드
+pnpm build
+
+# 테스트
+pnpm test
+
+# 얼굴 인식 테스트
+pnpm test:face-compare
+```
+
+## 🔍 주요 기능
+
+### 얼굴 인식
+- Argos API 연동을 통한 얼굴 비교 기능
+- [src/user/face-compare-test.util.ts](mdc:src/user/face-compare-test.util.ts): 얼굴 비교 유틸리티
+- [test-images/faces/](mdc:test-images/faces): 테스트 이미지들
+
+### 파일 업로드
+- AWS S3와 GCP 두 가지 스토리지 지원
+- 이미지 리사이징 (Sharp 사용)
+- 프리사인드 URL 생성
+
+### 알림 시스템
+- Firebase FCM 푸시 알림
+- 이메일 알림 (Resend, AWS SES)
+
+## 🌐 프론트엔드 통합
+- [admin-fe/](mdc:admin-fe): 관리자 프론트엔드 (정적 파일)
+- [manager-fe/](mdc:manager-fe): 매니저 프론트엔드 (정적 파일)
+- API_SCOPE에 따라 해당 프론트엔드 서빙
+
+## 📚 추가 리소스
+- [ADMIN_PERMISSIONS.md](mdc:ADMIN_PERMISSIONS.md): 관리자 권한 가이드
+- [FACE_COMPARE_TEST.md](mdc:FACE_COMPARE_TEST.md): 얼굴 비교 테스트 가이드
+- [scripts/](mdc:scripts): 유틸리티 스크립트들

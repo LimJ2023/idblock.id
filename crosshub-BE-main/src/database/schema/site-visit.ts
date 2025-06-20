@@ -30,7 +30,7 @@ export const SiteVisit = pgTable(
         name: 'site_visit_user_id_fkey',
       })
         .onUpdate('restrict')
-        .onDelete('restrict'),
+        .onDelete('cascade'),
       siteVisitSiteIdFkey: foreignKey({
         columns: [table.siteId],
         foreignColumns: [Site.id],

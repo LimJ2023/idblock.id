@@ -33,7 +33,7 @@ export const SiteVisitReview = pgTable(
         name: 'site_visit_review_visit_id_fkey',
       })
         .onUpdate('restrict')
-        .onDelete('restrict'),
+        .onDelete('cascade'),
     };
   },
 );
