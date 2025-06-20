@@ -31,7 +31,7 @@
 			<key>idblock-test.site</key>
 			<dict>
 				<key>NSIncludesSubdomains</key>
-				<true/>
+				<false/>
 				<key>NSTemporaryExceptionAllowsInsecureHTTPLoads</key>
 				<true/>
 				<key>NSTemporaryExceptionMinimumTLSVersion</key>
