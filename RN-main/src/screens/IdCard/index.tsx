@@ -48,6 +48,7 @@ export const IdCard = memo(function () {
       jeonbuk: require('~/assets/images/id-bg-kr-jeonbuk.png'),
       gyeongnam: require('~/assets/images/id-bg-kr-gyeongnam.png'),
       gyeongbuk: require('~/assets/images/id-bg-kr-gyeongbuk.png'),
+      ulsan: require('~/assets/images/id-bg-kr-ulsan.png'),
       jeju: require('~/assets/images/id-bg-kr-jeju.png'),
     },
   };
