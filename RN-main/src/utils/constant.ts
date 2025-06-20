@@ -12,7 +12,6 @@ const DEV_API_OPTIONS = {
   DEVICE: 'http://10.177.196.83:8989/api',
   // ADB 포트 포워딩 사용시
   LOCALHOST: 'http://localhost:8989/api',
-  
 };
 
 // 운영 환경 API 주소들
@@ -86,6 +85,7 @@ export const STATIC_IMAGE = {
   MAIN_BUTTON_1: require('~/assets/images/main.button.1.png'),
   MAIN_BUTTON_2: require('~/assets/images/main.button.2.png'),
   MAIN_BUTTON_3: require('~/assets/images/main.button.3.png'),
+  MAIN_BUTTON_4: require('~/assets/images/main.button.4.png'),
   MAIN_BUTTON_2_DISABLE: require('~/assets/images/main.button.2.disable.png'),
   MAIN_BUTTON_3_DISABLE: require('~/assets/images/main.button.3.disable.png'),
   MENU: require('~/assets/images/menu.png'),

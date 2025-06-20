@@ -355,7 +355,7 @@ export const Main = memo(function () {
       <ModalConfirm
         isVisible={isVisiblePassportConfirm}
         title="여권 인증"
-        message="여권 인증을 시작하시겠습니까?{'\n'}본인의 여권 정보를 이용하여 신원 확인을 진행합니다."
+        message={`여권 인증을 시작하시겠습니까? ${'\n'}본인의 여권 정보를 이용해 신원 확인을 진행합니다.`}
         cancelText="취소"
         confirmText="확인"
         onCancel={handlePassportConfirmCancel}
@@ -425,7 +425,7 @@ export const Main = memo(function () {
               profile.status !== PROFILE_STATUS.APPROVED ? { color: '#777777' } : {},
             )}
             {}
-            {MemoizedMainButton(STATIC_IMAGE.PASSPORT_SAMPLE, 'Passport Authentication', handlePassportStart)}
+            {MemoizedMainButton(STATIC_IMAGE.MAIN_BUTTON_4, 'Passport Authentication', handlePassportStart)}
           </View>
           {/* <View style={style.footer}>
             <FastImage source={STATIC_IMAGE.LOGO_IMAGE} style={style.logoImage} resizeMode="contain" />
