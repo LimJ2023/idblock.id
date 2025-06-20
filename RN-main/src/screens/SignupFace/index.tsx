@@ -166,10 +166,10 @@ export const SignupFace = memo(function ({ route }: Params) {
         // 3단계: 회원가입 처리
         setCurrentStep(3);
         setCurrentStepText('회원가입을 처리하고 있습니다...');
-        let isSuccessSignup = false;
+        let isAutoApproval = false;
         try {
           if (accessTokenRef.current) {
-            isSuccessSignup = await apiPutAuthInformation({
+            isAutoApproval = await apiPutAuthInformation({
               name,
               birthday: birth,
               countryCode: country,
@@ -179,7 +179,7 @@ export const SignupFace = memo(function ({ route }: Params) {
               profileImageKey: faceUploadResult.key,
             });
           } else {
-            isSuccessSignup = await apiPostAuthSignup({
+            isAutoApproval = await apiPostAuthSignup({
               uuid,
               email: email,
               password: pw,
@@ -204,7 +204,6 @@ export const SignupFace = memo(function ({ route }: Params) {
           return;
         }
 
-        if (isSuccessSignup) {
           // 4단계: 완료
           setCurrentStep(4);
           setCurrentStepText('회원가입이 완료되었습니다. 다음 화면으로 이동합니다...');
@@ -212,6 +211,10 @@ export const SignupFace = memo(function ({ route }: Params) {
           // 약간의 지연 후 화면 이동 (완료 상태를 보여주기 위해)
           setTimeout(() => {
             try {
+              if (isAutoApproval) {
+                navigation.push(MENU.STACK.SCREEN.SIGNUP_AUTO_APPROVAL);
+                return;
+              }
               const nextScreen = getNextScreenInFlow(SIGNUP_FLOW, MENU.STACK.SCREEN.SIGNUP_FACE);
 
               if (nextScreen) {
@@ -226,9 +229,7 @@ export const SignupFace = memo(function ({ route }: Params) {
               Toast.show('화면 이동 중 오류가 발생했습니다.', Toast.SHORT);
             }
           }, 1000);
-        } else {
-          Toast.show('Registration failed. Please try again.', Toast.SHORT);
-        }
+        
       } else {
         Toast.show('File upload failed. Please try again.', Toast.SHORT);
       }

@@ -15,6 +15,7 @@ import { SignupEmail } from '~/screens/SignupEmail';
 import { SignupFace } from '~/screens/SignupFace';
 import { SignupForm } from '~/screens/SignupForm';
 import { SignupTerm } from '~/screens/SignupTerm';
+import SignupAutoApproval from '~/screens/SignupAutoApproval';
 import { History } from '~/screens/History';
 import { IdCard } from '~/screens/IdCard';
 import { Signin } from '~/screens/Signin';
@@ -95,6 +96,11 @@ export const StackNavigator = memo(function () {
         options={{ headerShown: false, gestureEnabled: false }}
       />
       <Stack.Screen name={MENU.STACK.SCREEN.SIGNUP_TERM} component={SignupTerm} options={{ headerShown: false, gestureEnabled: false }} />
+      <Stack.Screen
+        name={MENU.STACK.SCREEN.SIGNUP_AUTO_APPROVAL}
+        component={SignupAutoApproval}
+        options={{ headerShown: false, gestureEnabled: false }}
+      />
     </Stack.Navigator>
   );
 });

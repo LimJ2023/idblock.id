@@ -15,8 +15,8 @@ export function useApiPostAuthSignup() {
       const response: HttpResponse<HttpResponseSignup> = await post('/v1/auth/sign-up', params);
       console.log('/v1/auth/sign-up response : ', response);
       
-      const isSuccess = !!response?.data;
-      console.log('회원가입 성공 여부:', isSuccess);
+      const isSuccess = !!response?.data?.isAutoApproved;
+      console.log('자동인증 요청 성공 여부:', isSuccess);
       
       return isSuccess;
     } catch (error) {

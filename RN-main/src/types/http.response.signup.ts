@@ -1,4 +1,4 @@
 export interface HttpResponseSignup {
-  id?: string;
-  email?: string;
+  userId: string;
+  isAutoApproved: boolean;
 }
