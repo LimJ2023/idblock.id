@@ -245,18 +245,8 @@ export class AuthController {
   async signup(@Body() body: SignUpDto) {
     console.log('body : ', body);
 
-    // const created = await this.authService.createUser(
-    //   v.parse(insertUserSchema, body.data, {}),
-    // );
-    // if (!created) {
-    //   throw new BadRequestException(ERROR_CODE.ALREADY_USED_EMAIL);
-    // }
     const userId = await this.authService.getUserId(body.data.email);
     console.log('userid : ', userId);
-    // const userId = await this.authService.getUserId(body.data.email);
-    // if (!userId) {
-    //   throw new BadRequestException(ERROR_CODE.ALREADY_USED_EMAIL);
-    // }
 
     // 항상 먼저 UserVerificationDocument 생성
     const [document] = await this.authService.createUserVerificationDocument(
@@ -271,6 +261,18 @@ export class AuthController {
     );
     console.log('자동인증 결과 : ', isAutoApproved);
 
+
+    // 유저 테이블 업데이트
+    await this.authService.updateUser(userId!, {
+      name: body.data.name,
+      birthday: body.data.birthday,
+      passportNumber: body.data.passportNumber,
+      passportImageKey: body.data.passportImageKey,
+      profileImageKey: body.data.profileImageKey,
+      cityId: body.data.cityId,
+      countryCode: body.data.countryCode,
+    })
+    
     return {userId, isAutoApproved};
   }
 

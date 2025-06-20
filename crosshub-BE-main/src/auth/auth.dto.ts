@@ -317,6 +317,7 @@ export class UpdateInfoDto extends TypeschemaDto(VUpdateInfoDto) {
       'private/profile/6d60d03bb9497e4478d33d1ba40d8e285beaada2a2e39f4388194fbb866d6662',
   })
   profileImageKey: string;
+
 }
 
 const VResetPasswordDto = v.object({
