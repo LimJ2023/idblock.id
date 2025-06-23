@@ -344,6 +344,7 @@ export const SignupForm = memo(function ({ route }: Params) {
     }
 
     const verifyPassportResult = await apiPostVerifyPassport({
+      email: email,
       birthday: birthRef.current,
       passportNumber: passportRef.current,
     });

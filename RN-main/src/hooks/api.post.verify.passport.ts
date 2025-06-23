@@ -24,6 +24,7 @@ export function useApiPostVerifyPassport() {
 }
 
 interface Params {
+  email: string;
   birthday: string;
   passportNumber: string;
 }
