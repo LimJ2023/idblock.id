@@ -10,6 +10,30 @@ export class ScanService {
     @Inject(INJECT_DRIZZLE) private readonly db: DrizzleDB,
   ) {}
 
+  // 날짜 변환 헬퍼 함수
+  private transformDates(data: any): any {
+    if (Array.isArray(data)) {
+      return data.map(item => this.transformDates(item));
+    }
+    
+    if (data && typeof data === 'object') {
+      const transformed = { ...data };
+      if (transformed.createdAt instanceof Date) {
+        transformed.createdAt = transformed.createdAt.toISOString();
+      }
+      if (transformed.updatedAt instanceof Date) {
+        transformed.updatedAt = transformed.updatedAt.toISOString();
+      }
+      // BigInt을 문자열로 변환
+      if (typeof transformed.id === 'bigint') {
+        transformed.id = transformed.id.toString();
+      }
+      return transformed;
+    }
+    
+    return data;
+  }
+
   async getTransactions(query: GetTransactionsQueryDto) {
     const { contractAddress, page = '1', limit = '10', sort = 'desc' } = query;
     
@@ -46,7 +70,7 @@ export class ScanService {
 
     return {
       success: true,
-      data: transactions,
+      data: this.transformDates(transactions),
       total,
       page: pageNum,
       limit: limitNum,
@@ -66,7 +90,7 @@ export class ScanService {
 
     return {
       success: true,
-      data: transaction[0],
+      data: this.transformDates(transaction[0]),
     };
   }
 
@@ -83,7 +107,7 @@ export class ScanService {
 
     return {
       success: true,
-      data: block[0],
+      data: this.transformDates(block[0]),
     };
   }
 

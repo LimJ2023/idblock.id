@@ -1,7 +1,13 @@
 import { Tx } from "@/api/polygon.api";
 import type { ColumnDef } from "@tanstack/react-table";
-import { formatDistanceToNow, fromUnixTime } from "date-fns";
 import { Link } from "react-router-dom";
+
+// Wei를 ETH로 변환하는 함수
+function weiToEth(weiValue: string): string {
+  const wei = BigInt(weiValue);
+  const eth = Number(wei) / 1e18;
+  return eth.toFixed(6);
+}
 
 const columns: ColumnDef<Tx>[] = [
   {
@@ -12,14 +18,13 @@ const columns: ColumnDef<Tx>[] = [
     cell: (row) => (
       <Link to={`/tx/${row.getValue<string>()}`}>
         <div className="min-h-6 max-w-32 items-center overflow-hidden text-ellipsis whitespace-nowrap font-bold text-primary">
-          {row.getValue<number>()}
+          {row.getValue<string>()}
         </div>
       </Link>
     ),
   },
   {
     accessorKey: "blockNumber",
-    // accessorFn: (faq) => faq,
     header: () => (
       <div className="flex min-h-6 items-center justify-center">Block</div>
     ),
@@ -34,13 +39,11 @@ const columns: ColumnDef<Tx>[] = [
   {
     accessorKey: "timeStamp",
     header: () => (
-      <div className="flex min-h-6 items-center justify-center">Age</div>
+      <div className="flex min-h-6 items-center justify-center">Timestamp</div>
     ),
     cell: (row) => (
       <div className="flex min-h-6 items-center justify-center">
-        {formatDistanceToNow(
-          new Date(fromUnixTime(Number(row.getValue<string>()))),
-        )}
+        {row.getValue<string>()}
       </div>
     ),
   },
@@ -86,7 +89,7 @@ const columns: ColumnDef<Tx>[] = [
     ),
     cell: (row) => (
       <div className="flex min-h-6 items-center justify-center gap-2">
-        <span>{row.getValue<string>()}</span>
+        <span>{weiToEth(row.getValue<string>())}</span>
         <span>ETH</span>
       </div>
     ),

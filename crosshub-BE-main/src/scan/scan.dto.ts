@@ -94,11 +94,17 @@ export class TransactionResponseDto {
   @ApiProperty({ required: false })
   functionName?: string;
 
-  @ApiProperty()
-  createdAt: Date;
+  @ApiProperty({ 
+    description: '생성일시',
+    example: '2025-06-23T08:18:24.275Z'
+  })
+  createdAt: string;
 
-  @ApiProperty()
-  updatedAt: Date;
+  @ApiProperty({ 
+    description: '수정일시',
+    example: '2025-06-23T08:18:24.275Z'
+  })
+  updatedAt: string;
 }
 
 export class TransactionListResponseDto {
@@ -154,11 +160,17 @@ export class BlockResponseDto {
   @ApiProperty({ required: false })
   size?: string;
 
-  @ApiProperty()
-  createdAt: Date;
+  @ApiProperty({ 
+    description: '생성일시',
+    example: '2025-06-23T08:18:24.275Z'
+  })
+  createdAt: string;
 
-  @ApiProperty()
-  updatedAt: Date;
+  @ApiProperty({ 
+    description: '수정일시',
+    example: '2025-06-23T08:18:24.275Z'
+  })
+  updatedAt: string;
 }
 
 export class BlockDetailResponseDto {

@@ -160,7 +160,7 @@ const router = createBrowserRouter([
               path: "/",
               loader: async () => {
                 const result = await getQueryClient().fetchQuery(
-                  queries.txs.all,
+                  queries.txs.all(),
                 );
                 return result;
               },
@@ -173,14 +173,21 @@ const router = createBrowserRouter([
                   throw new Error("Insufficient path variable");
                 }
 
+                console.log("🔍 라우터에서 트랜잭션 상세 요청:", { txId: params.id });
+
                 const result = await getQueryClient().fetchQuery(
                   queries.txs.detail(params.id),
                 );
 
+                console.log("🔍 라우터에서 받은 결과:", result);
+                console.log("🔍 result.success:", result.success);
+
                 if (!result.success) {
+                  console.error("❌ 라우터에서 success가 false:", result);
                   throw new Error("No such tx");
                 }
 
+                console.log("🔍 result.value:", result.value);
                 return result.value;
               },
               element: <TxDetailPage />,
@@ -192,14 +199,21 @@ const router = createBrowserRouter([
                   throw new Error("Insufficient path variable");
                 }
 
+                console.log("🔍 라우터에서 블록 상세 요청:", { blockId: params.id });
+
                 const result = await getQueryClient().fetchQuery(
                   queries.txs.block(params.id),
                 );
 
+                console.log("🔍 라우터에서 받은 블록 결과:", result);
+                console.log("🔍 블록 result.success:", result.success);
+
                 if (!result.success) {
+                  console.error("❌ 라우터에서 블록 success가 false:", result);
                   throw new Error("No such tx");
                 }
 
+                console.log("🔍 블록 result.value:", result.value);
                 return result.value;
               },
               element: <BlockDetailPage />,
