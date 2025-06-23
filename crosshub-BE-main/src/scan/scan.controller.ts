@@ -37,7 +37,7 @@ export class ScanController {
     name: 'limit',
     required: false,
     description: '페이지당 항목 수',
-    example: '100',
+    example: '10',
   })
   @ApiQuery({
     name: 'sort',

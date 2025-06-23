@@ -121,7 +121,13 @@ export interface Transaction {
 // 데이터베이스에서 트랜잭션 목록 가져오기
 let isRequestInProgress = false;
 
-const getTxs: () => Promise<Result<Tx[], ErrorResponse>> = async () => {
+interface GetTxsParams {
+  page?: number;
+  limit?: number;
+  contractAddress?: string;
+}
+
+const getTxs: (params?: GetTxsParams) => Promise<Result<DbTxResponse, ErrorResponse>> = async (params = {}) => {
   // 이미 요청 중인 경우 대기
   if (isRequestInProgress) {
     console.log("⏳ 이미 요청 진행 중입니다. 대기...");
@@ -136,9 +142,9 @@ const getTxs: () => Promise<Result<Tx[], ErrorResponse>> = async () => {
   try {
     const requestUrl = "transactions";
     const searchParams = {
-      contractAddress: "0x671645FC21615fdcAA332422D5603f1eF9752E03",
-      page: "1",
-      limit: "100",
+      contractAddress: params.contractAddress || "0x671645FC21615fdcAA332422D5603f1eF9752E03",
+      page: (params.page || 1).toString(),
+      limit: (params.limit || 10).toString(),
       sort: "desc",
     };
     
@@ -153,7 +159,7 @@ const getTxs: () => Promise<Result<Tx[], ErrorResponse>> = async () => {
       .get(requestUrl, {
         searchParams,
       })
-      .json<DbTxResponse>();
+      .json<{data: DbTxResponse}>();
 
     const endTime = Date.now();
     console.log("✅ API 응답 받음:", { 
@@ -162,8 +168,20 @@ const getTxs: () => Promise<Result<Tx[], ErrorResponse>> = async () => {
       timestamp: new Date().toISOString()
     });
 
-    if (!response.success) {
-      console.error("❌ API 응답 실패:", response);
+    // 실제 응답 데이터는 response.data에 있음
+    const actualResponse = response.data;
+    
+    console.log("🔍 실제 응답 데이터:", {
+      "실제 응답": actualResponse,
+      "success": actualResponse.success,
+      "데이터 개수": actualResponse.data?.length || 0,
+      "total": actualResponse.total,
+      "page": actualResponse.page,
+      "limit": actualResponse.limit
+    });
+
+    if (!actualResponse.success) {
+      console.error("❌ API 응답 실패:", actualResponse);
       return Failure({
         message: "트랜잭션 데이터를 가져오는데 실패했습니다.",
         error: "API Error",
@@ -171,8 +189,8 @@ const getTxs: () => Promise<Result<Tx[], ErrorResponse>> = async () => {
       });
     }
 
-    console.log("📊 데이터 개수:", response.data?.length || 0);
-    return Success(response.data);
+    console.log("📊 데이터 개수:", actualResponse.data?.length || 0);
+    return Success(actualResponse);
   } catch (e) {
     console.error("🚨 API 호출 에러:", e);
     
@@ -186,7 +204,7 @@ const getTxs: () => Promise<Result<Tx[], ErrorResponse>> = async () => {
         console.log("🤔 백엔드 엔드포인트가 없습니다. 목업 데이터를 반환합니다.");
         
         // 임시 목업 데이터
-        const mockData: Tx[] = [
+        const mockTxs: Tx[] = [
           {
             id: 1,
             blockNumber: "12345",
@@ -238,8 +256,17 @@ const getTxs: () => Promise<Result<Tx[], ErrorResponse>> = async () => {
             updatedAt: new Date().toISOString(),
           }
         ];
+
+        // 목업 응답 생성 (페이지네이션 정보 포함)
+        const mockResponse: DbTxResponse = {
+          success: true,
+          data: mockTxs,
+          total: 1000, // 전체 트랜잭션 수 (목업)
+          page: params.page || 1,
+          limit: params.limit || 10,
+        };
         
-        return Success(mockData);
+        return Success(mockResponse);
       }
       
       // 다른 HTTP 에러인 경우

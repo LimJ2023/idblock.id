@@ -16,10 +16,10 @@ export class GetTransactionsQueryDto {
 
   @ApiPropertyOptional({
     description: '페이지당 항목 수',
-    example: '100',
-    default: '100',
+    example: '10',
+    default: '10',
   })
-  limit?: string = '100';
+  limit?: string = '10';
 
   @ApiPropertyOptional({
     description: '정렬 순서',
