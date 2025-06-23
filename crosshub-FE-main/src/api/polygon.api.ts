@@ -119,7 +119,20 @@ export interface Transaction {
 }
 
 // 데이터베이스에서 트랜잭션 목록 가져오기
+let isRequestInProgress = false;
+
 const getTxs: () => Promise<Result<Tx[], ErrorResponse>> = async () => {
+  // 이미 요청 중인 경우 대기
+  if (isRequestInProgress) {
+    console.log("⏳ 이미 요청 진행 중입니다. 대기...");
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    if (isRequestInProgress) {
+      console.log("⚠️ 요청이 너무 오래 걸립니다. 새로운 요청을 시작합니다.");
+    }
+  }
+
+  isRequestInProgress = true;
+  
   try {
     const requestUrl = "transactions";
     const searchParams = {
@@ -129,8 +142,12 @@ const getTxs: () => Promise<Result<Tx[], ErrorResponse>> = async () => {
       sort: "desc",
     };
     
-    console.log("🔍 API 호출 시작:", { requestUrl, searchParams });
-    console.log("🌐 Base URL:", "https://manager.idblock.id/api/v1/");
+    const startTime = Date.now();
+    console.log("🔍 API 호출 시작:", { 
+      requestUrl, 
+      searchParams, 
+      timestamp: new Date().toISOString() 
+    });
     
     const response = await api
       .get(requestUrl, {
@@ -138,7 +155,12 @@ const getTxs: () => Promise<Result<Tx[], ErrorResponse>> = async () => {
       })
       .json<DbTxResponse>();
 
-    console.log("✅ API 응답 받음:", response);
+    const endTime = Date.now();
+    console.log("✅ API 응답 받음:", { 
+      response, 
+      duration: `${endTime - startTime}ms`,
+      timestamp: new Date().toISOString()
+    });
 
     if (!response.success) {
       console.error("❌ API 응답 실패:", response);
@@ -242,6 +264,9 @@ const getTxs: () => Promise<Result<Tx[], ErrorResponse>> = async () => {
       error: "Network Error",
       statusCode: -1,
     });
+  } finally {
+    isRequestInProgress = false;
+    console.log("🏁 API 요청 완료");
   }
 };
 

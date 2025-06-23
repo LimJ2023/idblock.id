@@ -38,6 +38,7 @@
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/serve-static": "^4.0.2",
     "@nestjs/swagger": "^7.4.2",
+    "@nestjs/throttler": "^6.4.0",
     "@node-rs/argon2": "^2.0.0",
     "@scalar/nestjs-api-reference": "^0.3.166",
     "@swc/cli": "0.4.1-nightly.20240914",

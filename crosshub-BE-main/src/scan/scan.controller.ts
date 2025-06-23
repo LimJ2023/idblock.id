@@ -1,5 +1,6 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { ScanService } from './scan.service';
 import {
   GetTransactionsQueryDto,
@@ -14,6 +15,7 @@ import { Public } from 'src/auth/auth.guard';
 export class ScanController {
   constructor(private readonly scanService: ScanService) {}
   @Public()
+  @Throttle({ default: { limit: 100, ttl: 60000 } })
   @Get('transactions')
   @ApiOperation({ 
     summary: '트랜잭션 목록 조회',

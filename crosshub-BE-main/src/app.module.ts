@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConditionalModule, ConfigModule } from '@nestjs/config';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { DatabaseModule } from './database/database.module';
 import { EnvModule } from './env/env.module';
 import { AuthModule } from './auth/auth.module';
@@ -38,6 +39,10 @@ import { ScanModule } from './scan/scan.module';
 @Module({
   imports: [
     ConfigModule.forRoot(),
+    ThrottlerModule.forRoot([{
+      ttl: 60000, // 1분
+      limit: 100, // 1분당 100회
+    }]),
     JwtModule.registerAsync({
       global: true,
       imports: [EnvModule],

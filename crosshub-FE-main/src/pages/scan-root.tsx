@@ -9,20 +9,29 @@ import { Link } from "react-router-dom";
 const ScanRootPage = () => {
   console.log("🔄 ScanRootPage 렌더링 시작");
   
-  const { data: result, isLoading, error, isError } = useQuery({
+  const { data: result, isLoading, error, isError, refetch, isFetching } = useQuery({
     ...queries.txs.all,
-    // 임시로 자동 새로고침 비활성화 (버그 해결 후 다시 활성화)
+    // 모든 자동 재요청 비활성화
     refetchInterval: false,
-    // 에러 재시도 제한
-    retry: 1,
-    // 에러 발생 시 재시도 지연
-    retryDelay: 5000,
-    // 백그라운드 리페치 비활성화
     refetchOnWindowFocus: false,
-    refetchOnMount: true,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    // 에러 재시도 완전 비활성화
+    retry: false,
+    // 캐시 시간 설정 (5분)
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    // 초기 로드 시에만 데이터 가져오기
+    enabled: true,
   });
 
-  console.log("📋 쿼리 상태:", { result, isLoading, error, isError });
+  console.log("📋 쿼리 상태:", { result, isLoading, error, isError, isFetching });
+
+  // 수동 새로고침 함수
+  const handleRefresh = () => {
+    console.log("🔄 수동 새로고침 시작");
+    refetch();
+  };
 
   // 로딩 중인 경우
   if (isLoading) {
@@ -81,12 +90,21 @@ const ScanRootPage = () => {
               <p className="text-sm text-gray-500 mb-4">
                 브라우저 개발자도구(F12) → Console 탭에서 자세한 에러 확인 가능
               </p>
-              <button 
-                onClick={() => window.location.reload()} 
-                className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-              >
-                페이지 새로고침
-              </button>
+              <div className="flex gap-2 justify-center">
+                <button 
+                  onClick={handleRefresh}
+                  disabled={isFetching}
+                  className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-gray-400"
+                >
+                  {isFetching ? "로딩 중..." : "다시 시도"}
+                </button>
+                <button 
+                  onClick={() => window.location.reload()} 
+                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
+                  페이지 새로고침
+                </button>
+              </div>
             </div>
           </div>
         </section>
@@ -116,6 +134,13 @@ const ScanRootPage = () => {
           <div className="flex w-full flex-col gap-4 rounded-3xl bg-white p-6">
             <div className="p-8 text-center">
               <p className="text-gray-600">데이터가 없습니다.</p>
+              <button 
+                onClick={handleRefresh}
+                disabled={isFetching}
+                className="mt-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-gray-400"
+              >
+                {isFetching ? "로딩 중..." : "데이터 로드"}
+              </button>
             </div>
           </div>
         </section>
@@ -135,8 +160,17 @@ const ScanRootPage = () => {
           </h1>
           <span>0x671645FC21615fdcAA332422D5603f1eF9752E03</span>
         </div>
-        <div className="px-4 text-sm text-gray-600">
-          💡 데이터베이스에서 트랜잭션 정보를 가져왔습니다. (자동 새로고침 임시 비활성화)
+        <div className="flex items-center justify-between px-4">
+          <div className="text-sm text-gray-600">
+            💡 데이터베이스에서 트랜잭션 정보를 가져왔습니다.
+          </div>
+          <button
+            onClick={handleRefresh}
+            disabled={isFetching}
+            className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400"
+          >
+            {isFetching ? "로딩 중..." : "🔄 새로고침"}
+          </button>
         </div>
       </header>
       <section className="flex-1">

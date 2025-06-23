@@ -14,7 +14,7 @@ export class ScanService {
     const { contractAddress, page = '1', limit = '100', sort = 'desc' } = query;
     
     const pageNum = parseInt(page, 10);
-    const limitNum = parseInt(limit, 10);
+    const limitNum = Math.min(parseInt(limit, 10), 500); // 최대 500개로 제한
     const offset = (pageNum - 1) * limitNum;
 
     // 조건 구성
