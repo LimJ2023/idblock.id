@@ -70,10 +70,19 @@ export class DeleteEmailVerificationDto extends TypeschemaDto(
 }
 
 const VStep1Veification = v.object({
+  email: VEmail,
   birthday: VBirthday,
   passportNumber: v.string(),
 });
 export class Step1VerificationDto extends TypeschemaDto(VStep1Veification) {
+
+  @ApiProperty({
+    title: '이메일',
+    description: '이메일',
+    example: "heuristic2022@gmail.com"
+  })
+  email: string;
+
   @ApiProperty({
     title: '생년월일',
     description: '생년월일',

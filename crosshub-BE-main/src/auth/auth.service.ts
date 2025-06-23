@@ -97,8 +97,21 @@ export class AuthService {
 
     return user;
   }
-  async signupVerifyStep1(data: { birthday: string, passportNumber: string }) {
+  async signupVerifyStep1(data: { birthday: string, passportNumber: string, email: string }) {
     console.log('signupVerifyStep1 >>>>>>.', data);
+
+    const isSamePerson = await this.db.query.User.findFirst( {
+      where: (table, { eq, and }) => and(
+        eq(table.passportNumber, data.passportNumber),
+        eq(table.birthday, data.birthday),
+        eq(table.email, data.email)
+    )
+    }) ? true : false;
+    // 이미 가입된 사용자인 경우 바로 반환
+    if(isSamePerson) {
+      return data;
+    }
+
     const isValidBirthday = this.validateBirthday(data.birthday);
     if (!isValidBirthday) {
       throw new BadRequestException(ERROR_CODE.INVALID_DATE_FORMAT);
