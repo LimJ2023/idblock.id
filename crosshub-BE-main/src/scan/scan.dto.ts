@@ -173,6 +173,47 @@ export class BlockResponseDto {
   updatedAt: string;
 }
 
+export class GetBlocksQueryDto {
+  @ApiPropertyOptional({
+    description: '페이지 번호',
+    example: '1',
+    default: '1',
+  })
+  page?: string = '1';
+
+  @ApiPropertyOptional({
+    description: '페이지당 항목 수',
+    example: '10',
+    default: '10',
+  })
+  limit?: string = '10';
+
+  @ApiPropertyOptional({
+    description: '정렬 순서',
+    example: 'desc',
+    default: 'desc',
+    enum: ['desc', 'asc'],
+  })
+  sort?: 'desc' | 'asc' = 'desc';
+}
+
+export class BlockListResponseDto {
+  @ApiProperty()
+  success: boolean;
+
+  @ApiProperty({ type: [BlockResponseDto] })
+  data: BlockResponseDto[];
+
+  @ApiProperty()
+  total: number;
+
+  @ApiProperty()
+  page: number;
+
+  @ApiProperty()
+  limit: number;
+}
+
 export class BlockDetailResponseDto {
   @ApiProperty()
   success: boolean;

@@ -22,32 +22,25 @@ function generateWeightedDate(): Date {
   const endDate = new Date('2025-06-30T23:59:59Z');
   const peakDate = new Date('2025-01-15T12:00:00Z'); // 2025년 1월 중순 피크
   
-  // 전체 기간을 일 단위로 계산
-  const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-  const peakDay = Math.ceil((peakDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+  // 전체 기간을 밀리초로 계산
+  const totalMs = endDate.getTime() - startDate.getTime();
+  const peakMs = peakDate.getTime() - startDate.getTime();
   
-  // 베타 분포를 사용하여 피크 근처에서 높은 확률을 가지도록 조정
-  const alpha = 2;
-  const beta = 2;
-  
-  // 0~1 사이의 랜덤 값을 베타 분포로 변환
-  let u1 = Math.random();
-  let u2 = Math.random();
-  
-  // Box-Muller 변환을 사용한 정규분포 근사
+  // 정규분포를 사용하여 피크 근처에서 높은 확률 생성
+  // Box-Muller 변환으로 정규분포 생성
+  const u1 = Math.random();
+  const u2 = Math.random();
   const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
-  const normalizedZ = (z + 3) / 6; // -3~3을 0~1로 정규화
-  const clampedZ = Math.max(0, Math.min(1, normalizedZ));
   
-  // 피크 중심으로 조정
-  const adjustedValue = Math.pow(clampedZ, 0.5); // 피크를 더 강하게
-  const dayOffset = Math.floor(adjustedValue * totalDays);
+  // 표준편차를 조정하여 분포의 폭 조절 (전체 기간의 1/6 정도)
+  const stdDev = totalMs / 6;
+  const normalValue = z * stdDev + peakMs;
   
-  // 피크 날짜를 중심으로 분포 조정
-  const finalDay = Math.floor(peakDay + (dayOffset - totalDays / 2) * 0.8);
-  const constrainedDay = Math.max(0, Math.min(totalDays - 1, finalDay));
+  // 범위 내로 제한
+  const constrainedMs = Math.max(0, Math.min(totalMs, normalValue));
   
-  const resultDate = new Date(startDate.getTime() + constrainedDay * 24 * 60 * 60 * 1000);
+  // 최종 날짜 생성
+  const resultDate = new Date(startDate.getTime() + constrainedMs);
   
   // 하루 내 랜덤 시간 추가
   const randomHours = Math.floor(Math.random() * 24);

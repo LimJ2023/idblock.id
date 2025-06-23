@@ -4,8 +4,10 @@ import { Throttle } from '@nestjs/throttler';
 import { ScanService } from './scan.service';
 import {
   GetTransactionsQueryDto,
+  GetBlocksQueryDto,
   TransactionListResponseDto,
   TransactionDetailResponseDto,
+  BlockListResponseDto,
   BlockDetailResponseDto,
 } from './scan.dto';
 import { Public } from 'src/auth/auth.guard';
@@ -76,6 +78,41 @@ export class ScanController {
   })
   async getTransactionByHash(@Param('hash') hash: string) {
     return this.scanService.getTransactionByHash(hash);
+  }
+
+  @Public()
+  @Throttle({ default: { limit: 100, ttl: 60000 } })
+  @Get('blocks')
+  @ApiOperation({ 
+    summary: '블록 목록 조회',
+    description: '블록 목록을 페이지네이션과 함께 조회합니다. 최신 블록이 먼저 표시됩니다.',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    description: '페이지 번호',
+    example: '1',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    description: '페이지당 항목 수',
+    example: '10',
+  })
+  @ApiQuery({
+    name: 'sort',
+    required: false,
+    description: '정렬 순서',
+    enum: ['desc', 'asc'],
+    example: 'desc',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '블록 목록 조회 성공',
+    type: BlockListResponseDto,
+  })
+  async getBlocks(@Query() query: GetBlocksQueryDto) {
+    return this.scanService.getBlocks(query);
   }
 
   @Public()

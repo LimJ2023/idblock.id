@@ -158,7 +158,7 @@ export interface BlockDetail {
   number: string;
   gasLimit: string;
   gasUsed: string;
-  timestamp: string;
+  timeStamp: string;
   extraData?: string;
   mixHash?: string;
   nonce?: string;
@@ -521,7 +521,7 @@ const getBlockByNumber: (
           number: blockNumber, // 실제 요청한 블록 번호 사용
           gasLimit: "30000000",
           gasUsed: "21000",
-          timestamp: Math.floor(Date.now() / 1000 - 3600).toString(),
+          timeStamp: Math.floor(Date.now() / 1000 - 3600).toString(),
           hash: "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
           transactions: [
             {

@@ -1,6 +1,7 @@
 import { Tx } from "@/api/polygon.api";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Link } from "react-router-dom";
+import dayjs from "dayjs";
 
 // Wei를 ETH로 변환하는 함수
 function weiToEth(weiValue: string): string {
@@ -41,11 +42,18 @@ const columns: ColumnDef<Tx>[] = [
     header: () => (
       <div className="flex min-h-6 items-center justify-center">Timestamp</div>
     ),
-    cell: (row) => (
-      <div className="flex min-h-6 items-center justify-center">
-        {row.getValue<string>()}
-      </div>
-    ),
+    cell: (row) => {
+      const timestamp = row.getValue<string>();
+      // Unix timestamp (초 단위)를 Date 객체로 변환
+      const date = dayjs(parseInt(timestamp) * 1000);
+      const formattedDate = date.format("YYYY-MM-DD HH:mm:ss");
+      
+      return (
+        <div className="flex min-h-6 items-center justify-center">
+          {formattedDate}
+        </div>
+      );
+    },
   },
 
   {

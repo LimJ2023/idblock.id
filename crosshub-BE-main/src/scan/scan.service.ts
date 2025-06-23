@@ -1,8 +1,8 @@
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
-import { and, count, desc, asc, eq, SQL } from 'drizzle-orm';
+import { and, count, desc, asc, eq, SQL, sql } from 'drizzle-orm';
 import { DrizzleDB, INJECT_DRIZZLE } from 'src/database/drizzle.provider';
 import { Block, Transaction } from 'src/database/schema';
-import { GetTransactionsQueryDto } from './scan.dto';
+import { GetTransactionsQueryDto, GetBlocksQueryDto } from './scan.dto';
 
 @Injectable()
 export class ScanService {
@@ -57,8 +57,10 @@ export class ScanService {
 
     const total = Number(totalResult.count);
 
-    // 데이터 조회
-    const orderBy = sort === 'desc' ? desc(Transaction.id) : asc(Transaction.id);
+    // 데이터 조회 (timeStamp를 숫자로 변환하여 정렬 - 최근 날짜가 먼저 보이도록)
+    const orderBy = sort === 'desc' ? 
+      desc(sql`CAST(${Transaction.timeStamp} AS BIGINT)`) : 
+      asc(sql`CAST(${Transaction.timeStamp} AS BIGINT)`);
     
     const transactions = await this.db
       .select()
@@ -91,6 +93,41 @@ export class ScanService {
     return {
       success: true,
       data: this.transformDates(transaction[0]),
+    };
+  }
+
+  async getBlocks(query: GetBlocksQueryDto) {
+    const { page = '1', limit = '10', sort = 'desc' } = query;
+    
+    const pageNum = parseInt(page, 10);
+    const limitNum = parseInt(limit, 10);
+    const offset = (pageNum - 1) * limitNum;
+
+    // 총 개수 조회
+    const [totalResult] = await this.db
+      .select({ count: count() })
+      .from(Block);
+
+    const total = Number(totalResult.count);
+
+    // 데이터 조회 (timestamp를 숫자로 변환하여 정렬 - 최근 날짜가 먼저 보이도록)
+    const orderBy = sort === 'desc' ? 
+      desc(sql`CAST(${Block.timestamp} AS BIGINT)`) : 
+      asc(sql`CAST(${Block.timestamp} AS BIGINT)`);
+    
+    const blocks = await this.db
+      .select()
+      .from(Block)
+      .orderBy(orderBy)
+      .limit(limitNum)
+      .offset(offset);
+
+    return {
+      success: true,
+      data: this.transformDates(blocks),
+      total,
+      page: pageNum,
+      limit: limitNum,
     };
   }
 
