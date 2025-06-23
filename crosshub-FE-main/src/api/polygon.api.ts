@@ -154,77 +154,92 @@ const getTxs: () => Promise<Result<Tx[], ErrorResponse>> = async () => {
   } catch (e) {
     console.error("🚨 API 호출 에러:", e);
     
-    // 임시: 백엔드가 준비되지 않은 경우 목업 데이터 반환
-    // TODO: 백엔드 준비 후 이 코드 제거
-    console.log("🔧 임시 목업 데이터 반환");
-    const mockData: Tx[] = [
-      {
-        id: 1,
-        blockNumber: "12345",
-        timeStamp: Math.floor(Date.now() / 1000 - 3600).toString(), // 1시간 전
-        hash: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
-        nonce: "1",
-        blockHash: "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
-        transactionIndex: "0",
-        from: "0x742d35Cc6634C0532925a3b8D4C2aDEF7b8aa1D8",
-        to: "0x671645FC21615fdcAA332422D5603f1eF9752E03",
-        value: "1000000000000000000", // 1 ETH
-        gas: "21000",
-        gasPrice: "20000000000",
-        isError: "0",
-        txreceipt_status: "1",
-        input: "0x",
-        contractAddress: "0x671645FC21615fdcAA332422D5603f1eF9752E03",
-        cumulativeGasUsed: "21000",
-        gasUsed: "21000",
-        confirmations: "100",
-        methodId: "0x",
-        functionName: "",
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      },
-      {
-        id: 2,
-        blockNumber: "12346",
-        timeStamp: Math.floor(Date.now() / 1000 - 1800).toString(), // 30분 전
-        hash: "0xfedcba0987654321fedcba0987654321fedcba0987654321fedcba0987654321",
-        nonce: "2",
-        blockHash: "0x0987654321fedcba0987654321fedcba0987654321fedcba0987654321fedcba",
-        transactionIndex: "1",
-        from: "0x8ba1f109551bD432803012645Hac136c22Ad63e4",
-        to: "0x671645FC21615fdcAA332422D5603f1eF9752E03",
-        value: "500000000000000000", // 0.5 ETH
-        gas: "21000",
-        gasPrice: "25000000000",
-        isError: "0",
-        txreceipt_status: "1",
-        input: "0x",
-        contractAddress: "0x671645FC21615fdcAA332422D5603f1eF9752E03",
-        cumulativeGasUsed: "42000",
-        gasUsed: "21000",
-        confirmations: "99",
-        methodId: "0x",
-        functionName: "",
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      }
-    ];
-    
-    // 실제 에러인지 백엔드 미구현인지 확인
-    if (e instanceof HTTPError && e.response.status === 404) {
-      console.log("🤔 백엔드 엔드포인트가 없는 것 같습니다. 목업 데이터를 반환합니다.");
-      return Success(mockData);
-    }
-    
+    // HTTPError인 경우에만 상세 처리
     if (e instanceof HTTPError) {
-      const errorResponse = await e.response.json<ErrorResponse>();
-      console.error("🚨 HTTP 에러 상세:", errorResponse);
-      return Failure(errorResponse);
+      const status = e.response.status;
+      console.log(`🔍 HTTP 상태 코드: ${status}`);
+      
+      // 404 에러인 경우 목업 데이터 반환 (백엔드 엔드포인트 미구현)
+      if (status === 404) {
+        console.log("🤔 백엔드 엔드포인트가 없습니다. 목업 데이터를 반환합니다.");
+        
+        // 임시 목업 데이터
+        const mockData: Tx[] = [
+          {
+            id: 1,
+            blockNumber: "12345",
+            timeStamp: Math.floor(Date.now() / 1000 - 3600).toString(),
+            hash: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+            nonce: "1",
+            blockHash: "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+            transactionIndex: "0",
+            from: "0x742d35Cc6634C0532925a3b8D4C2aDEF7b8aa1D8",
+            to: "0x671645FC21615fdcAA332422D5603f1eF9752E03",
+            value: "1000000000000000000",
+            gas: "21000",
+            gasPrice: "20000000000",
+            isError: "0",
+            txreceipt_status: "1",
+            input: "0x",
+            contractAddress: "0x671645FC21615fdcAA332422D5603f1eF9752E03",
+            cumulativeGasUsed: "21000",
+            gasUsed: "21000",
+            confirmations: "100",
+            methodId: "0x",
+            functionName: "",
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+          {
+            id: 2,
+            blockNumber: "12346",
+            timeStamp: Math.floor(Date.now() / 1000 - 1800).toString(),
+            hash: "0xfedcba0987654321fedcba0987654321fedcba0987654321fedcba0987654321",
+            nonce: "2",
+            blockHash: "0x0987654321fedcba0987654321fedcba0987654321fedcba0987654321fedcba",
+            transactionIndex: "1",
+            from: "0x8ba1f109551bD432803012645Hac136c22Ad63e4",
+            to: "0x671645FC21615fdcAA332422D5603f1eF9752E03",
+            value: "500000000000000000",
+            gas: "21000",
+            gasPrice: "25000000000",
+            isError: "0",
+            txreceipt_status: "1",
+            input: "0x",
+            contractAddress: "0x671645FC21615fdcAA332422D5603f1eF9752E03",
+            cumulativeGasUsed: "42000",
+            gasUsed: "21000",
+            confirmations: "99",
+            methodId: "0x",
+            functionName: "",
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          }
+        ];
+        
+        return Success(mockData);
+      }
+      
+      // 다른 HTTP 에러인 경우
+      try {
+        const errorResponse = await e.response.json<ErrorResponse>();
+        console.error("🚨 HTTP 에러 상세:", errorResponse);
+        return Failure(errorResponse);
+      } catch (jsonError) {
+        console.error("🚨 HTTP 에러 응답 파싱 실패:", jsonError);
+        return Failure({
+          message: `HTTP ${status} 에러가 발생했습니다.`,
+          error: "HTTP Error",
+          statusCode: status,
+        });
+      }
     }
-
+    
+    // 네트워크 에러 또는 기타 에러
+    console.error("🚨 네트워크 또는 기타 에러:", e);
     return Failure({
-      message: "데이터베이스에서 트랜잭션 데이터를 가져오는데 실패했습니다.",
-      error: "Database Error",
+      message: "네트워크 연결을 확인해주세요.",
+      error: "Network Error",
       statusCode: -1,
     });
   }

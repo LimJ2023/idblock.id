@@ -7,12 +7,13 @@ import {
   TransactionDetailResponseDto,
   BlockDetailResponseDto,
 } from './scan.dto';
+import { Public } from 'src/auth/auth.guard';
 
 @ApiTags('Blockchain Scan')
 @Controller('scan')
 export class ScanController {
   constructor(private readonly scanService: ScanService) {}
-
+  @Public()
   @Get('transactions')
   @ApiOperation({ 
     summary: '트랜잭션 목록 조회',
@@ -51,7 +52,7 @@ export class ScanController {
   async getTransactions(@Query() query: GetTransactionsQueryDto) {
     return this.scanService.getTransactions(query);
   }
-
+  @Public()
   @Get('transactions/:hash')
   @ApiOperation({
     summary: '트랜잭션 상세 조회',
@@ -75,6 +76,7 @@ export class ScanController {
     return this.scanService.getTransactionByHash(hash);
   }
 
+  @Public()
   @Get('blocks/:blockNumber')
   @ApiOperation({
     summary: '블록 정보 조회',
