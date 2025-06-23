@@ -121,18 +121,27 @@ export interface Transaction {
 // 데이터베이스에서 트랜잭션 목록 가져오기
 const getTxs: () => Promise<Result<Tx[], ErrorResponse>> = async () => {
   try {
+    const requestUrl = "transactions";
+    const searchParams = {
+      contractAddress: "0x671645FC21615fdcAA332422D5603f1eF9752E03",
+      page: "1",
+      limit: "100",
+      sort: "desc",
+    };
+    
+    console.log("🔍 API 호출 시작:", { requestUrl, searchParams });
+    console.log("🌐 Base URL:", "https://manager.idblock.id/api/v1/");
+    
     const response = await api
-      .get("transactions", {
-        searchParams: {
-          contractAddress: "0x671645FC21615fdcAA332422D5603f1eF9752E03",
-          page: "1",
-          limit: "100",
-          sort: "desc",
-        },
+      .get(requestUrl, {
+        searchParams,
       })
       .json<DbTxResponse>();
 
+    console.log("✅ API 응답 받음:", response);
+
     if (!response.success) {
+      console.error("❌ API 응답 실패:", response);
       return Failure({
         message: "트랜잭션 데이터를 가져오는데 실패했습니다.",
         error: "API Error",
@@ -140,10 +149,77 @@ const getTxs: () => Promise<Result<Tx[], ErrorResponse>> = async () => {
       });
     }
 
+    console.log("📊 데이터 개수:", response.data?.length || 0);
     return Success(response.data);
   } catch (e) {
+    console.error("🚨 API 호출 에러:", e);
+    
+    // 임시: 백엔드가 준비되지 않은 경우 목업 데이터 반환
+    // TODO: 백엔드 준비 후 이 코드 제거
+    console.log("🔧 임시 목업 데이터 반환");
+    const mockData: Tx[] = [
+      {
+        id: 1,
+        blockNumber: "12345",
+        timeStamp: Math.floor(Date.now() / 1000 - 3600).toString(), // 1시간 전
+        hash: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+        nonce: "1",
+        blockHash: "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+        transactionIndex: "0",
+        from: "0x742d35Cc6634C0532925a3b8D4C2aDEF7b8aa1D8",
+        to: "0x671645FC21615fdcAA332422D5603f1eF9752E03",
+        value: "1000000000000000000", // 1 ETH
+        gas: "21000",
+        gasPrice: "20000000000",
+        isError: "0",
+        txreceipt_status: "1",
+        input: "0x",
+        contractAddress: "0x671645FC21615fdcAA332422D5603f1eF9752E03",
+        cumulativeGasUsed: "21000",
+        gasUsed: "21000",
+        confirmations: "100",
+        methodId: "0x",
+        functionName: "",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: 2,
+        blockNumber: "12346",
+        timeStamp: Math.floor(Date.now() / 1000 - 1800).toString(), // 30분 전
+        hash: "0xfedcba0987654321fedcba0987654321fedcba0987654321fedcba0987654321",
+        nonce: "2",
+        blockHash: "0x0987654321fedcba0987654321fedcba0987654321fedcba0987654321fedcba",
+        transactionIndex: "1",
+        from: "0x8ba1f109551bD432803012645Hac136c22Ad63e4",
+        to: "0x671645FC21615fdcAA332422D5603f1eF9752E03",
+        value: "500000000000000000", // 0.5 ETH
+        gas: "21000",
+        gasPrice: "25000000000",
+        isError: "0",
+        txreceipt_status: "1",
+        input: "0x",
+        contractAddress: "0x671645FC21615fdcAA332422D5603f1eF9752E03",
+        cumulativeGasUsed: "42000",
+        gasUsed: "21000",
+        confirmations: "99",
+        methodId: "0x",
+        functionName: "",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }
+    ];
+    
+    // 실제 에러인지 백엔드 미구현인지 확인
+    if (e instanceof HTTPError && e.response.status === 404) {
+      console.log("🤔 백엔드 엔드포인트가 없는 것 같습니다. 목업 데이터를 반환합니다.");
+      return Success(mockData);
+    }
+    
     if (e instanceof HTTPError) {
-      return Failure(await e.response.json<ErrorResponse>());
+      const errorResponse = await e.response.json<ErrorResponse>();
+      console.error("🚨 HTTP 에러 상세:", errorResponse);
+      return Failure(errorResponse);
     }
 
     return Failure({

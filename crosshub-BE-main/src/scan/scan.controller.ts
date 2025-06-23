@@ -9,7 +9,7 @@ import {
 } from './scan.dto';
 
 @ApiTags('Blockchain Scan')
-@Controller('api/v1')
+@Controller('scan')
 export class ScanController {
   constructor(private readonly scanService: ScanService) {}
 
