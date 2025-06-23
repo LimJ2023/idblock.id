@@ -100,22 +100,22 @@ export const getSignupFlowForABTest = (testGroup: 'A' | 'B' = 'A') => {
 export const FLOW_METADATA = {
   [JSON.stringify(DEFAULT_SIGNUP_FLOW)]: {
     name: 'Default Signup Flow',
-    description: '기본 회원가입 플로우',
+    description: 'Default registration flow',
     estimatedTime: '5-10 minutes',
   },
   [JSON.stringify(PASSPORT_FIRST_SIGNUP_FLOW)]: {
     name: 'Passport First Flow',
-    description: '여권 인증을 먼저 하는 플로우',
+    description: 'Flow that starts with passport verification',
     estimatedTime: '5-10 minutes',
   },
   [JSON.stringify(SIMPLIFIED_SIGNUP_FLOW)]: {
     name: 'Simplified Flow',
-    description: '간소화된 회원가입 플로우',
+    description: 'Simplified registration flow',
     estimatedTime: '3-5 minutes',
   },
   [JSON.stringify(AFTER_SIMPLE_SIGNUP_VERIFICATION_FLOW)]: {
     name: 'After Simple Signup Verification Flow',
-    description: '간편가입 후 나중에 여권인증 플로우',
+    description: 'Passport verification flow after simple registration',
     estimatedTime: '3-5 minutes',
   },
 }; 

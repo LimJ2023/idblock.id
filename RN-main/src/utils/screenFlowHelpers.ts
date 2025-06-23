@@ -48,7 +48,7 @@ export const getFlowMetadata = (flow: string[]) => {
   const flowKey = JSON.stringify(flow);
   return FLOW_METADATA[flowKey] || {
     name: 'Unknown Flow',
-    description: '알 수 없는 플로우',
+    description: 'Unknown flow',
     estimatedTime: 'Unknown',
   };
 };
@@ -100,16 +100,16 @@ export const isFlowStarted = (flow: string[], currentScreen: string): boolean =>
 // 화면 이름을 사용자 친화적인 제목으로 변환
 export const getScreenTitle = (screenName: string): string => {
   const titleMap: { [key: string]: string } = {
-    SIGNUP_EMAIL: '이메일 인증',
-    SIGNUP_TERM: '약관 동의',
-    SIGNUP_FORM: '정보 입력',
-    SIGNUP_PASSPORT: '여권 인증',
-    SIGNUP_FACE: '얼굴 인증',
-    SIGNUP_RESULT: '가입 완료',
-    RESET_FORM_EMAIL: '이메일 입력',
-    RESET_FORM_CODE: '인증번호 입력',
-    RESET_FORM_PASSWORD: '새 비밀번호',
-    RESET_FORM_RESULT: '재설정 완료',
+    SIGNUP_EMAIL: 'Email Verification',
+    SIGNUP_TERM: 'Terms Agreement',
+    SIGNUP_FORM: 'Information Input',
+    SIGNUP_PASSPORT: 'Passport Verification',
+    SIGNUP_FACE: 'Face Verification',
+    SIGNUP_RESULT: 'Registration Complete',
+    RESET_FORM_EMAIL: 'Email Input',
+    RESET_FORM_CODE: 'Verification Code Input',
+    RESET_FORM_PASSWORD: 'New Password',
+    RESET_FORM_RESULT: 'Reset Complete',
   };
 
   return titleMap[screenName] || screenName;

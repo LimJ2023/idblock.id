@@ -33,6 +33,7 @@ import { ManagerAuthController } from './manager-auth/manager-auth.controller';
 import { ExternalController } from './api/external.controller';
 import { GcsModule } from './gcp/gcs.module';
 import { ApiKeyGuard } from './api/api-key.guard';
+import { ScanModule } from './scan/scan.module';
 
 @Module({
   imports: [
@@ -104,6 +105,7 @@ import { ApiKeyGuard } from './api/api-key.guard';
       (env: NodeJS.ProcessEnv) =>
         (env as unknown as TEnv).API_SCOPE === 'EXTERNAL_API',
     ),
+    ScanModule,
   ],
   controllers:
     (process.env as unknown as TEnv).API_SCOPE === 'PUBLIC' ? [AppController]

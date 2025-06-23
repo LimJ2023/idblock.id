@@ -56,13 +56,13 @@ interface ProgressBarProps {
 
 - 각 단계에 표시될 라벨의 배열
 - 배열의 길이는 `totalSteps`와 일치해야 함
-- 예: `['여권 이미지 업로드', '얼굴 이미지 업로드', '회원가입 처리', '완료']`
+- 예: `['Passport Image Upload', 'Face Image Upload', 'Processing Registration', 'Complete']`
 
 #### `currentStepText?: string`
 
 - 현재 진행 중인 작업에 대한 상세 설명
 - 선택사항이며, 제공되지 않으면 표시되지 않음
-- 예: `'여권 이미지를 업로드하고 있습니다...'`
+- 예: `'Uploading passport image...'`
 
 ## 애니메이션 시스템
 
@@ -141,7 +141,7 @@ const [progressVisible, setProgressVisible] = useState<boolean>(false);
 const [currentStep, setCurrentStep] = useState<number>(0);
 const [currentStepText, setCurrentStepText] = useState<string>('');
 
-const stepLabels = ['여권 이미지 업로드', '얼굴 이미지 업로드', '회원가입 처리', '완료'];
+const stepLabels = ['Passport Image Upload', 'Face Image Upload', 'Processing Registration', 'Complete'];
 ```
 
 ### 2. 단계별 진행 제어
@@ -152,26 +152,26 @@ const handleNext = useCallback(async () => {
     // 초기화
     setProgressVisible(true);
     setCurrentStep(0);
-    setCurrentStepText('이미지를 업로드하기 전 검증을 진행하고 있습니다...');
+    setCurrentStepText('Verifying images before upload...');
 
     // 1단계: 여권 이미지 업로드
     setCurrentStep(1);
-    setCurrentStepText('여권 이미지를 업로드하고 있습니다...');
+    setCurrentStepText('Uploading passport image...');
     const passportResult = await apiPostAuthPassport({...});
 
     // 2단계: 얼굴 이미지 업로드
     setCurrentStep(2);
-    setCurrentStepText('얼굴 이미지를 업로드하고 있습니다...');
+    setCurrentStepText('Uploading face image...');
     const faceResult = await apiPostAuthFace({...});
 
     // 3단계: 회원가입 처리
     setCurrentStep(3);
-    setCurrentStepText('회원가입을 처리하고 있습니다...');
+    setCurrentStepText('Processing registration...');
     const signupResult = await apiPostAuthSignup({...});
 
     // 4단계: 완료
     setCurrentStep(4);
-    setCurrentStepText('회원가입이 완료되었습니다. 다음 화면으로 이동합니다...');
+    setCurrentStepText('Registration completed successfully. Moving to next screen...');
 
   } finally {
     setProgressVisible(false);

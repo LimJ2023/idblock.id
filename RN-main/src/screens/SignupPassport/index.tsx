@@ -103,7 +103,7 @@ export const SignupPassport = memo(function ({ route }: Params) {
 
     launchImageLibrary(options, (response) => {
       if (response.didCancel) {
-        console.log('사용자가 갤러리를 취소했습니다.');
+        console.log('User canceled gallery selection.');
         return;
       }
 
@@ -114,10 +114,10 @@ export const SignupPassport = memo(function ({ route }: Params) {
 
       const asset: Asset | undefined = response.assets?.[0];
       if (asset?.uri) {
-        console.log('선택된 이미지 URI:', asset.uri);
+        console.log('Selected image URI:', asset.uri);
         setImage(asset.uri);
       } else {
-        console.warn('이미지 자산을 찾을 수 없습니다.');
+        console.warn('Unable to find image asset.');
       }
     });
   };
@@ -217,9 +217,9 @@ export const SignupPassport = memo(function ({ route }: Params) {
               )}
               {passportData.ocr_fullName ? (
                 <View>
-                  <Text style={[font.BODY2_B, style.guideContentTitleText]}>인식된 여권의 정보를 확인해주세요</Text>
+                  <Text style={[font.BODY2_B, style.guideContentTitleText]}>Please verify the recognized passport information</Text>
                   <View style={style.inputContainer}>
-                    <Text style={[font.BODY2_B, style.passportDataText]}>이름:</Text>
+                    <Text style={[font.BODY2_B, style.passportDataText]}>Name:</Text>
                     <TextInput
                       style={style.input}
                       value={passportData?.ocr_fullName}
@@ -227,7 +227,7 @@ export const SignupPassport = memo(function ({ route }: Params) {
                     />
                   </View>
                   <View style={style.inputContainer}>
-                    <Text style={[font.BODY2_B, style.passportDataText]}>성별:</Text>
+                    <Text style={[font.BODY2_B, style.passportDataText]}>Gender:</Text>
                     <TextInput
                       style={style.input}
                       value={passportData?.ocr_gender}
@@ -235,7 +235,7 @@ export const SignupPassport = memo(function ({ route }: Params) {
                     />
                   </View>
                   <View style={style.inputContainer}>
-                    <Text style={[font.BODY2_B, style.passportDataText]}>생년월일:</Text>
+                    <Text style={[font.BODY2_B, style.passportDataText]}>Date of Birth:</Text>
                     <TextInput
                       style={style.input}
                       value={passportData?.ocr_birthDate}
@@ -243,7 +243,7 @@ export const SignupPassport = memo(function ({ route }: Params) {
                     />
                   </View>
                   <View style={style.inputContainer}>
-                    <Text style={[font.BODY2_B, style.passportDataText]}>발급일:</Text>
+                    <Text style={[font.BODY2_B, style.passportDataText]}>Issue Date:</Text>
                     <TextInput
                       style={style.input}
                       value={passportData?.ocr_issueDate}
@@ -251,7 +251,7 @@ export const SignupPassport = memo(function ({ route }: Params) {
                     />
                   </View>
                   <View style={style.inputContainer}>
-                    <Text style={[font.BODY2_B, style.passportDataText]}>만료일:</Text>
+                    <Text style={[font.BODY2_B, style.passportDataText]}>Expiry Date:</Text>
                     <TextInput
                       style={style.input}
                       value={passportData?.ocr_expireDate}
@@ -259,7 +259,7 @@ export const SignupPassport = memo(function ({ route }: Params) {
                     />
                   </View>
                   <View style={style.inputContainer}>
-                    <Text style={[font.BODY2_B, style.passportDataText]}>국적:</Text>
+                    <Text style={[font.BODY2_B, style.passportDataText]}>Nationality:</Text>
                     <TextInput
                       style={style.input}
                       value={passportData?.ocr_nationality}
@@ -267,7 +267,7 @@ export const SignupPassport = memo(function ({ route }: Params) {
                     />
                   </View>
                   <View style={style.inputContainer}>
-                    <Text style={[font.BODY2_B, style.passportDataText]}>여권번호:</Text>
+                    <Text style={[font.BODY2_B, style.passportDataText]}>Passport Number:</Text>
                     <TextInput
                       style={style.input}
                       value={passportData?.ocr_number}

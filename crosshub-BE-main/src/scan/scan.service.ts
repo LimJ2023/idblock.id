@@ -1,0 +1,126 @@
+import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { and, count, desc, asc, eq } from 'drizzle-orm';
+import { DrizzleDB, INJECT_DRIZZLE } from 'src/database/drizzle.provider';
+import { Block, Transaction } from 'src/database/schema';
+import { GetTransactionsQueryDto } from './scan.dto';
+
+@Injectable()
+export class ScanService {
+  constructor(
+    @Inject(INJECT_DRIZZLE) private readonly db: DrizzleDB,
+  ) {}
+
+  async getTransactions(query: GetTransactionsQueryDto) {
+    const { contractAddress, page = '1', limit = '100', sort = 'desc' } = query;
+    
+    const pageNum = parseInt(page, 10);
+    const limitNum = parseInt(limit, 10);
+    const offset = (pageNum - 1) * limitNum;
+
+    // 조건 구성
+    const conditions = [];
+    if (contractAddress) {
+      conditions.push(eq(Transaction.contractAddress, contractAddress));
+    }
+
+    const whereCondition = conditions.length > 0 ? and(...conditions) : undefined;
+
+    // 총 개수 조회
+    const [totalResult] = await this.db
+      .select({ count: count() })
+      .from(Transaction)
+      .where(whereCondition);
+
+    const total = Number(totalResult.count);
+
+    // 데이터 조회
+    const orderBy = sort === 'desc' ? desc(Transaction.id) : asc(Transaction.id);
+    
+    const transactions = await this.db
+      .select()
+      .from(Transaction)
+      .where(whereCondition)
+      .orderBy(orderBy)
+      .limit(limitNum)
+      .offset(offset);
+
+    return {
+      success: true,
+      data: transactions,
+      total,
+      page: pageNum,
+      limit: limitNum,
+    };
+  }
+
+  async getTransactionByHash(hash: string) {
+    const transaction = await this.db
+      .select()
+      .from(Transaction)
+      .where(eq(Transaction.hash, hash))
+      .limit(1);
+
+    if (!transaction.length) {
+      throw new NotFoundException(`트랜잭션을 찾을 수 없습니다: ${hash}`);
+    }
+
+    return {
+      success: true,
+      data: transaction[0],
+    };
+  }
+
+  async getBlockByNumber(blockNumber: string) {
+    const block = await this.db
+      .select()
+      .from(Block)
+      .where(eq(Block.number, blockNumber))
+      .limit(1);
+
+    if (!block.length) {
+      throw new NotFoundException(`블록을 찾을 수 없습니다: ${blockNumber}`);
+    }
+
+    return {
+      success: true,
+      data: block[0],
+    };
+  }
+
+  // 데이터 삽입 메서드들 (외부 API에서 데이터를 가져와 저장할 때 사용)
+  async insertTransaction(transactionData: typeof Transaction.$inferInsert) {
+    return await this.db
+      .insert(Transaction)
+      .values(transactionData)
+      .onConflictDoNothing({ target: Transaction.hash })
+      .returning();
+  }
+
+  async insertBlock(blockData: typeof Block.$inferInsert) {
+    return await this.db
+      .insert(Block)
+      .values(blockData)
+      .onConflictDoNothing({ target: Block.number })
+      .returning();
+  }
+
+  async insertTransactions(transactionsData: (typeof Transaction.$inferInsert)[]) {
+    if (transactionsData.length === 0) return [];
+    
+    return await this.db
+      .insert(Transaction)
+      .values(transactionsData)
+      .onConflictDoNothing({ target: Transaction.hash })
+      .returning();
+  }
+
+  async insertBlocks(blocksData: (typeof Block.$inferInsert)[]) {
+    if (blocksData.length === 0) return [];
+    
+    return await this.db
+      .insert(Block)
+      .values(blocksData)
+      .onConflictDoNothing({ target: Block.number })
+      .returning();
+  }
+} 

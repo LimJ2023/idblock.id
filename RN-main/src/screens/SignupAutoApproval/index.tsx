@@ -24,7 +24,7 @@ const SignupAutoApproval = memo(function () {
             <View style={style.body}>
                 <View style={style.bodyContent}>
                     <View style={style.contentWrap}>
-                        <Text style={[font.SUBTITLE1, style.finishTitleText]}>자동승인 완료</Text>
+                        <Text style={[font.SUBTITLE1, style.finishTitleText]}>Auto-Approval Complete</Text>
                         <FastImage source={STATIC_IMAGE.SUCCESS_GREEN} style={style.finishImage} resizeMode="contain" />
                         <Text style={[font.BODY1_SB, style.finishContentText]}>
                             계정이 자동으로 승인되었습니다.{'\n'}

@@ -46,10 +46,10 @@ export const ModalConfirm = memo(function ({
           <Text style={[font.BODY1_R, style.messageText]}>{message}</Text>
           <View style={style.buttonContainer}>
             <Button style={style.cancelButton} onPress={handleCancel}>
-              <Text style={[font.BODY1_B, style.cancelButtonText]}>{cancelText || '취소'}</Text>
+              <Text style={[font.BODY1_B, style.cancelButtonText]}>{cancelText || 'Cancel'}</Text>
             </Button>
             <Button style={style.confirmButton} onPress={handleConfirm}>
-              <Text style={[font.BODY1_B, style.confirmButtonText]}>{confirmText || '확인'}</Text>
+              <Text style={[font.BODY1_B, style.confirmButtonText]}>{confirmText || 'Confirm'}</Text>
             </Button>
           </View>
         </View>

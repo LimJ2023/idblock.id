@@ -105,13 +105,13 @@ export const SignupFace = memo(function ({ route }: Params) {
     );
   }, []);
 
-  const stepLabels = ['여권 이미지 업로드', '얼굴 이미지 업로드', '회원가입 처리', '완료'];
+  const stepLabels = ['Passport Image Upload', 'Face Image Upload', 'Processing Registration', 'Complete'];
 
   const handleNext = useCallback(async () => {
     try {
       setProgressVisible(true);
       setCurrentStep(0);
-      setCurrentStepText('이미지를 업로드하기 전 검증을 진행하고 있습니다...');
+      setCurrentStepText('Verifying images before upload...');
 
       // 필수 데이터 검증
       if (!passportImage) {
@@ -126,7 +126,7 @@ export const SignupFace = memo(function ({ route }: Params) {
 
       // 1단계: 여권 이미지 업로드
       setCurrentStep(1);
-      setCurrentStepText('여권 이미지를 업로드하고 있습니다...');
+      setCurrentStepText('Uploading passport image...');
       let passportUploadResult: any;
       try {
         passportUploadResult = await apiPostAuthPassport({
@@ -134,18 +134,18 @@ export const SignupFace = memo(function ({ route }: Params) {
         });
       } catch (error) {
         if (error?.code === 'ECONNABORTED') {
-          Toast.show('여권 이미지 업로드 시간이 초과되었습니다. 다시 시도해주세요.', Toast.SHORT);
+          Toast.show('Passport image upload timed out. Please try again.', Toast.SHORT);
         } else if (error?.code === 'ERR_NETWORK') {
-          Toast.show('네트워크 연결을 확인해주세요.', Toast.SHORT);
+          Toast.show('Please check your network connection.', Toast.SHORT);
         } else {
-          Toast.show('여권 이미지 업로드에 실패했습니다. 다시 시도해주세요.', Toast.SHORT);
+          Toast.show('Passport image upload failed. Please try again.', Toast.SHORT);
         }
         return;
       }
 
       // 2단계: 얼굴 이미지 업로드
       setCurrentStep(2);
-      setCurrentStepText('얼굴 이미지를 업로드하고 있습니다...');
+      setCurrentStepText('Uploading face image...');
       let faceUploadResult: any;
       try {
         faceUploadResult = await apiPostAuthFace({
@@ -153,11 +153,11 @@ export const SignupFace = memo(function ({ route }: Params) {
         });
       } catch (error) {
         if (error?.code === 'ECONNABORTED') {
-          Toast.show('얼굴 이미지 업로드 시간이 초과되었습니다. 다시 시도해주세요.', Toast.SHORT);
+          Toast.show('Face image upload timed out. Please try again.', Toast.SHORT);
         } else if (error?.code === 'ERR_NETWORK') {
-          Toast.show('네트워크 연결을 확인해주세요.', Toast.SHORT);
+          Toast.show('Please check your network connection.', Toast.SHORT);
         } else {
-          Toast.show('얼굴 이미지 업로드에 실패했습니다. 다시 시도해주세요.', Toast.SHORT);
+          Toast.show('Face image upload failed. Please try again.', Toast.SHORT);
         }
         return;
       }
@@ -165,7 +165,7 @@ export const SignupFace = memo(function ({ route }: Params) {
       if (passportUploadResult?.key && faceUploadResult?.key) {
         // 3단계: 회원가입 처리
         setCurrentStep(3);
-        setCurrentStepText('회원가입을 처리하고 있습니다...');
+        setCurrentStepText('Processing registration...');
         let isAutoApproval = false;
         try {
           if (accessTokenRef.current) {
@@ -195,18 +195,18 @@ export const SignupFace = memo(function ({ route }: Params) {
           }
         } catch (error) {
           if (error?.code === 'ECONNABORTED') {
-            Toast.show('요청 시간이 초과되었습니다. 다시 시도해주세요.', Toast.SHORT);
+            Toast.show('Request timed out. Please try again.', Toast.SHORT);
           } else if (error?.code === 'ERR_NETWORK') {
-            Toast.show('네트워크 연결을 확인해주세요. 서버에 접속할 수 없습니다.', Toast.SHORT);
+            Toast.show('Network connection error. Unable to connect to server.', Toast.SHORT);
           } else {
-            Toast.show('서버 처리 중 오류가 발생했습니다. 다시 시도해주세요.', Toast.SHORT);
+            Toast.show('Server processing error occurred. Please try again.', Toast.SHORT);
           }
           return;
         }
 
           // 4단계: 완료
           setCurrentStep(4);
-          setCurrentStepText('회원가입이 완료되었습니다. 다음 화면으로 이동합니다...');
+          setCurrentStepText('Registration completed successfully. Moving to next screen...');
 
           // 약간의 지연 후 화면 이동 (완료 상태를 보여주기 위해)
           setTimeout(() => {
@@ -226,7 +226,7 @@ export const SignupFace = memo(function ({ route }: Params) {
                 });
               }
             } catch (navError) {
-              Toast.show('화면 이동 중 오류가 발생했습니다.', Toast.SHORT);
+              Toast.show('An error occurred while navigating to the next screen.', Toast.SHORT);
             }
           }, 1000);
         
@@ -235,9 +235,9 @@ export const SignupFace = memo(function ({ route }: Params) {
       }
     } catch (error) {
       if (error?.code === 'ECONNABORTED') {
-        Toast.show('요청 시간이 초과되었습니다. 네트워크 상태를 확인해주세요.', Toast.SHORT);
+        Toast.show('Request timed out. Please check your network status.', Toast.SHORT);
       } else if (error?.code === 'ERR_NETWORK') {
-        Toast.show('네트워크 연결 오류입니다. 인터넷 연결을 확인해주세요.', Toast.SHORT);
+        Toast.show('Network connection error. Please check your internet connection.', Toast.SHORT);
       } else {
         Toast.show('An error occurred. Please try again.', Toast.SHORT);
       }

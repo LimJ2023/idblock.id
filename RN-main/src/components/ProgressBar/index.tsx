@@ -58,7 +58,7 @@ export const ProgressBar = memo(function ProgressBar({
   return (
     <Animated.View style={[style.container, { opacity: fadeAnim }]}>
       <View style={style.content}>
-        <Text style={[font.BODY2_B, style.title]}>처리 중...</Text>
+                  <Text style={[font.BODY2_B, style.title]}>Processing...</Text>
         
         <View style={style.progressContainer}>
           <View style={style.progressBackground}>

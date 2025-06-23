@@ -21,7 +21,7 @@ const ScanRootPage = () => {
       <header className="flex w-full flex-col gap-2 py-6">
         <div className="flex items-center justify-start gap-5 px-4">
           <h1 className="p-1 text-lg font-semibold leading-[1.35rem]">
-            Contract
+            Contract (Database)
           </h1>
           <span>0x671645FC21615fdcAA332422D5603f1eF9752E03</span>
         </div>

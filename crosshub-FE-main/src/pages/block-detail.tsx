@@ -38,7 +38,7 @@ const BlockDetailPage = () => {
           </div>
           <div className="flex-1">
             <span className="font-bold text-primary">
-              {data.transactions.length} transaction
+              {data.transactions?.length} transaction
             </span>{" "}
             in this block
           </div>
@@ -60,7 +60,7 @@ const BlockDetailPage = () => {
           <div className="w-1/4 flex-shrink-0 flex-grow-0 text-[#6c757d]">
             Size :
           </div>
-          <div className="flex-1">{parseInt(data.size, 16)} bytes</div>
+          <div className="flex-1">{parseInt(data.size ?? "0", 16)} bytes</div>
         </div>
         <div className="flex">
           <div className="w-1/4 flex-shrink-0 flex-grow-0 text-[#6c757d]">

@@ -354,10 +354,10 @@ export const Main = memo(function () {
       <Alert isVisible={!!alertMessage} message={alertMessage} onOk={() => setAlertMessage('')} />
       <ModalConfirm
         isVisible={isVisiblePassportConfirm}
-        title="여권 인증"
-        message={`여권 인증을 시작하시겠습니까? ${'\n'}본인의 여권 정보를 이용해 신원 확인을 진행합니다.`}
-        cancelText="취소"
-        confirmText="확인"
+        title="Passport Authentication"
+        message={`Would you like to start passport authentication? ${'\n'}We will verify your identity using your passport information.`}
+        cancelText="Cancel"
+        confirmText="Confirm"
         onCancel={handlePassportConfirmCancel}
         onConfirm={handlePassportConfirmOk}
       />

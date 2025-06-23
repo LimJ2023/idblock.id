@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>ID Block (아이디블록)</string>
+	<string>ID Block</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -44,9 +44,9 @@
 	<key>NSFaceIDUsageDescription</key>
 	<string>$(PRODUCT_NAME) Authentication with TouchId or FaceID</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>사진을 선택하려면 접근 권한이 필요합니다</string>
+	<string>Access to photos is required to select an image</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>사진을 저장하려면 앨범 접근 권한이 필요합니다</string>
+	<string>Access to photo library is required to save images</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Pretendard-Black.otf</string>

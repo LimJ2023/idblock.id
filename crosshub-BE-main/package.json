@@ -23,7 +23,8 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "test:face-compare": "tsx scripts/test-face-compare.ts",
     "simple-face-test": "tsx scripts/simple-face-test.ts",
-    "rename-test-images": "tsx scripts/rename-test-images.ts"
+    "rename-test-images": "tsx scripts/rename-test-images.ts",
+    "insert-bulk-blockchain-data": "tsx scripts/insert-bulk-blockchain-data.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.686.0",
