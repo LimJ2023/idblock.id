@@ -1,5 +1,5 @@
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
-import { and, count, desc, asc, eq } from 'drizzle-orm';
+import { and, count, desc, asc, eq, SQL } from 'drizzle-orm';
 import { DrizzleDB, INJECT_DRIZZLE } from 'src/database/drizzle.provider';
 import { Block, Transaction } from 'src/database/schema';
 import { GetTransactionsQueryDto } from './scan.dto';
@@ -18,7 +18,7 @@ export class ScanService {
     const offset = (pageNum - 1) * limitNum;
 
     // 조건 구성
-    const conditions = [];
+    const conditions: SQL[] = [];
     if (contractAddress) {
       conditions.push(eq(Transaction.contractAddress, contractAddress));
     }
