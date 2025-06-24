@@ -16,9 +16,6 @@ RUN pnpm prune --prod && pnpm store prune && rm -rf /root/.cache
 FROM node:20-alpine
 WORKDIR /app
 
-# curl 설치 (헬스체크용)
-RUN apk add --no-cache curl
-
 # 빌드 산출물 + prod 의존성만 복사
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
@@ -28,9 +25,8 @@ COPY package*.json ./
 # 애플리케이션 포트
 EXPOSE 8989
 
-# 헬스체크 설정 (NestJS 애플리케이션이 8989 포트에서 실행된다고 가정)
-HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-  CMD curl -f http://localhost:8989/health || exit 1
+# 헬스체크 비활성화
+HEALTHCHECK NONE
 
 # 실행 명령
 CMD ["node", "dist/main.js"]

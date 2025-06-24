@@ -17,8 +17,8 @@ RUN pnpm prune --prod && pnpm store prune && rm -rf /root/.cache
 FROM node:20-alpine
 WORKDIR /app
 
-# 필요한 런타임 패키지 설치 (curl 헬스체크용 추가)
-RUN apk add --no-cache tzdata curl
+# 필요한 런타임 패키지 설치
+RUN apk add --no-cache tzdata
 
 # 빌드 산출물 + prod 의존성만 복사
 COPY --from=builder /app/node_modules ./node_modules
@@ -31,14 +31,9 @@ COPY package*.json ./
 ENV API_SCOPE=TRANSACTION
 ENV TZ=Asia/Seoul
 ENV NODE_ENV=production
-ENV HEALTH_PORT=3001
 
-# 로그 디렉토리 생성
-RUN mkdir -p logs
+# 헬스체크 비활성화
+HEALTHCHECK NONE
 
-# 헬스체크 설정
-HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-  CMD curl -f http://localhost:3001/health || exit 1
-
-# 헬스서버와 트랜잭션 생성기 동시 실행
-CMD sh -c "node scripts/health-server.js & npx tsx scripts/auto-transaction-generator.ts" 
+# tsx로 직접 실행
+CMD ["npx", "tsx", "scripts/auto-transaction-generator.ts"] 

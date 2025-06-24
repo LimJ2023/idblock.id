@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { AppService } from './app.service';
 import { Public } from './auth/auth.guard';
-import { ApiExtraModels, ApiTags, ApiOperation } from '@nestjs/swagger';
+import { ApiExtraModels, ApiTags } from '@nestjs/swagger';
 import { ApiDataResponse } from './common/common.dto';
 
 // @ApiTags(
@@ -30,15 +30,5 @@ export class AppController {
   @Get()
   getHello() {
     return this.appService.getHello();
-  }
-
-  @Get('health')
-  @ApiOperation({ summary: '헬스체크', description: '애플리케이션 상태를 확인합니다.' })
-  getHealth() {
-    return {
-      status: 'ok',
-      timestamp: new Date().toISOString(),
-      service: 'crosshub-backend',
-    };
   }
 }
