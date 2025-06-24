@@ -30,24 +30,24 @@ const TxsTable = <TData, TValue>({
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
 
-  // 서버 사이드 페이지네이션을 위한 쿼리
+  // Server-side pagination query
   const { data: result } = useQuery({
     ...queries.txs.all({ page: currentPage, limit: pageSize }),
-    // 페이지 변경 시에만 다시 로드
-    staleTime: 30 * 1000, // 30초
-    gcTime: 5 * 60 * 1000, // 5분
+    // Reload only on page change
+    staleTime: 30 * 1000, // 30 seconds
+    gcTime: 5 * 60 * 1000, // 5 minutes
   });
 
   const { data: txsData = [], total = 0 } = result?.success ? result.value : {};
   const totalPages = Math.ceil(total / pageSize);
 
-  // 서버 사이드 페이지네이션을 위한 테이블 설정
+  // Table configuration for server-side pagination
   const table = useReactTable({
     columns,
     data: txsData as TData[],
     getCoreRowModel: getCoreRowModel(),
-    manualPagination: true, // 수동 페이지네이션 활성화
-    pageCount: totalPages, // 총 페이지 수 설정
+    manualPagination: true, // Enable manual pagination
+    pageCount: totalPages, // Set total page count
     state: {
       pagination: {
         pageIndex: currentPage - 1, // 0-based index
@@ -60,7 +60,7 @@ const TxsTable = <TData, TValue>({
           pageIndex: currentPage - 1,
           pageSize,
         });
-        setCurrentPage(newPagination.pageIndex + 1); // 1-based로 변환
+        setCurrentPage(newPagination.pageIndex + 1); // Convert to 1-based
       } else {
         setCurrentPage(updater.pageIndex + 1);
       }
@@ -71,7 +71,7 @@ const TxsTable = <TData, TValue>({
     <div className="flex flex-col gap-4">
       <Table captionSide={captionSide}>
         <TableCaption>
-          {caption} (페이지 {currentPage}/{totalPages}, 총 {total}개)
+          {caption} (Page {currentPage}/{totalPages}, Total {total} items)
         </TableCaption>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -106,7 +106,7 @@ const TxsTable = <TData, TValue>({
           ) : (
             <TableRow>
               <TableCell className="text-center" colSpan={columns.length}>
-                내용이 없습니다.
+                No content available.
               </TableCell>
             </TableRow>
           )}

@@ -1,11 +1,26 @@
 import { BlockDetail } from "@/api/polygon.api";
-import { formatDistanceToNow, fromUnixTime } from "date-fns";
 import { ChevronLeft } from "lucide-react";
 import { Link, useLoaderData } from "react-router-dom";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import dayjs from "dayjs";
+
+// Wei를 ETH로 변환하는 함수
+function weiToEth(weiValue: string): string {
+  const wei = BigInt(weiValue);
+  const eth = Number(wei) / 1e18;
+  return eth.toFixed(6);
+}
 
 const BlockDetailPage = () => {
   const data = useLoaderData() as BlockDetail;
-
+  console.log("블록 data",data);
   return (
     <div className="flex min-h-full w-full flex-col border bg-neutral-100 p-8">
       <Link to={"/"} className="px-4">
@@ -29,7 +44,10 @@ const BlockDetailPage = () => {
             Timestamp:
           </div>
           <div className="flex-1">
-            {formatDistanceToNow(fromUnixTime(parseInt(data.timestamp, 16)))}
+            {data.timeStamp ? (() => {
+              const date = dayjs(parseInt(data.timeStamp) * 1000);
+              return date.format("YYYY-MM-DD HH:mm:ss");
+            })() : 'N/A'}
           </div>
         </div>
         <div className="flex">
@@ -74,6 +92,66 @@ const BlockDetailPage = () => {
           </div>
           <div className="flex-1">{parseInt(data.gasLimit, 16)}</div>
         </div>
+        
+        {/* 트랜잭션 목록 표시 */}
+        {data.transactions && data.transactions.length > 0 && (
+          <div className="mt-8">
+            <h2 className="mb-4 text-lg font-semibold">Transactions</h2>
+            <div className="rounded-lg border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>TxHash</TableHead>
+                    <TableHead>From</TableHead>
+                    <TableHead></TableHead>
+                    <TableHead>To</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Gas Used</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {data.transactions.map((tx, index) => (
+                    <TableRow key={tx.hash || index}>
+                      <TableCell>
+                        <Link to={`/tx/${tx.hash}`}>
+                          <div className="min-h-6 max-w-32 items-center overflow-hidden text-ellipsis whitespace-nowrap font-bold text-primary">
+                            {tx.hash}
+                          </div>
+                        </Link>
+                      </TableCell>
+                      <TableCell>
+                        <div className="min-h-6 max-w-32 items-center overflow-hidden text-ellipsis whitespace-nowrap">
+                          {'fromAddress' in tx ? (tx as unknown as {fromAddress: string}).fromAddress : tx.from}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <span className="w-full rounded-md border border-emerald-600 border-opacity-25 bg-emerald-600/10 px-1.5 py-1.5 text-xs text-emerald-600">
+                          IN
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <div className="min-h-6 max-w-32 items-center overflow-hidden text-ellipsis whitespace-nowrap">
+                          {'toAddress' in tx ? (tx as unknown as {toAddress: string}).toAddress : tx.to}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex min-h-6 items-center justify-center gap-2">
+                          <span>{weiToEth(tx.value)}</span>
+                          <span>ETH</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex min-h-6 items-center justify-center">
+                          {tx.gas}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

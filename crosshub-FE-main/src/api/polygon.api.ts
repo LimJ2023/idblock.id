@@ -23,7 +23,6 @@ export interface TxResponse {
 
 // DB 데이터를 프론트엔드 형식으로 변환하는 함수
 function transformDbTxToTx(dbTx: DbTx): Tx {
-  console.log("🔄 변환 전 DB 데이터:", dbTx);
   
   const transformed = {
     id: dbTx.id,
@@ -51,7 +50,6 @@ function transformDbTxToTx(dbTx: DbTx): Tx {
     updatedAt: dbTx.updatedAt,
   };
   
-  console.log("✅ 변환 후 데이터:", transformed);
   return transformed;
 }
 
@@ -200,11 +198,7 @@ interface GetTxsParams {
 const getTxs: (params?: GetTxsParams) => Promise<Result<TxResponse, ErrorResponse>> = async (params = {}) => {
   // 이미 요청 중인 경우 대기
   if (isRequestInProgress) {
-    console.log("⏳ 이미 요청 진행 중입니다. 대기...");
     await new Promise(resolve => setTimeout(resolve, 1000));
-    if (isRequestInProgress) {
-      console.log("⚠️ 요청이 너무 오래 걸립니다. 새로운 요청을 시작합니다.");
-    }
   }
 
   isRequestInProgress = true;
@@ -218,49 +212,23 @@ const getTxs: (params?: GetTxsParams) => Promise<Result<TxResponse, ErrorRespons
       sort: "desc",
     };
     
-    const startTime = Date.now();
-    console.log("🔍 API 호출 시작:", { 
-      requestUrl, 
-      searchParams, 
-      timestamp: new Date().toISOString() 
-    });
-    
     const response = await api
       .get(requestUrl, {
         searchParams,
       })
       .json<{data: DbTxResponse}>();
 
-    const endTime = Date.now();
-    console.log("✅ API 응답 받음:", { 
-      response, 
-      duration: `${endTime - startTime}ms`,
-      timestamp: new Date().toISOString()
-    });
-
     // 실제 응답 데이터는 response.data에 있음
     const actualResponse = response.data;
-    
-    console.log("🔍 실제 응답 데이터:", {
-      "실제 응답": actualResponse,
-      "success": actualResponse.success,
-      "데이터 개수": actualResponse.data?.length || 0,
-      "total": actualResponse.total,
-      "page": actualResponse.page,
-      "limit": actualResponse.limit
-    });
 
     if (!actualResponse.success) {
-      console.error("❌ API 응답 실패:", actualResponse);
+      console.error("트랜잭션 API 응답 실패:", actualResponse);
       return Failure({
         message: "트랜잭션 데이터를 가져오는데 실패했습니다.",
         error: "API Error",
         statusCode: 400,
       });
     }
-
-    // 실제 DB 응답 데이터 구조 확인
-    console.log("🔍 실제 DB 응답 데이터 샘플:", actualResponse.data?.[0]);
     
     // DB 데이터를 프론트엔드 형식으로 변환
     const transformedData: Tx[] = actualResponse.data?.map(transformDbTxToTx) || [];
@@ -273,20 +241,17 @@ const getTxs: (params?: GetTxsParams) => Promise<Result<TxResponse, ErrorRespons
       limit: actualResponse.limit,
     };
 
-    console.log("📊 변환된 데이터 개수:", transformedData.length);
-    console.log("🔍 변환된 데이터 첫 번째 샘플:", transformedData[0]);
     return Success(transformedResponse);
   } catch (e) {
-    console.error("🚨 API 호출 에러:", e);
+    console.error("트랜잭션 API 호출 에러:", e);
     
     // HTTPError인 경우에만 상세 처리
     if (e instanceof HTTPError) {
       const status = e.response.status;
-      console.log(`🔍 HTTP 상태 코드: ${status}`);
       
       // 404 에러인 경우 목업 데이터 반환 (백엔드 엔드포인트 미구현)
       if (status === 404) {
-        console.log("🤔 백엔드 엔드포인트가 없습니다. 목업 데이터를 반환합니다.");
+        console.warn("백엔드 엔드포인트가 없어 목업 데이터를 반환합니다.");
         
         // 임시 목업 데이터 (DB 스키마 형식)
         const mockDbTxs: DbTx[] = [
@@ -360,10 +325,8 @@ const getTxs: (params?: GetTxsParams) => Promise<Result<TxResponse, ErrorRespons
       // 다른 HTTP 에러인 경우
       try {
         const errorResponse = await e.response.json<ErrorResponse>();
-        console.error("🚨 HTTP 에러 상세:", errorResponse);
         return Failure(errorResponse);
-      } catch (jsonError) {
-        console.error("🚨 HTTP 에러 응답 파싱 실패:", jsonError);
+      } catch {
         return Failure({
           message: `HTTP ${status} 에러가 발생했습니다.`,
           error: "HTTP Error",
@@ -373,7 +336,6 @@ const getTxs: (params?: GetTxsParams) => Promise<Result<TxResponse, ErrorRespons
     }
     
     // 네트워크 에러 또는 기타 에러
-    console.error("🚨 네트워크 또는 기타 에러:", e);
     return Failure({
       message: "네트워크 연결을 확인해주세요.",
       error: "Network Error",
@@ -381,7 +343,6 @@ const getTxs: (params?: GetTxsParams) => Promise<Result<TxResponse, ErrorRespons
     });
   } finally {
     isRequestInProgress = false;
-    console.log("🏁 API 요청 완료");
   }
 };
 
@@ -390,22 +351,12 @@ const getTxDetail: (
   h: string,
 ) => Promise<Result<TxDetail, ErrorResponse>> = async (txHash) => {
   try {
-    console.log("🔍 트랜잭션 상세 정보 요청:", { txHash });
-    
     const response = await api
       .get(`transactions/${txHash}`)
       .json<{data: DbTxDetailResponse}>();
 
-    console.log("✅ 트랜잭션 상세 응답:", response);
-
     // 실제 응답 데이터는 response.data에 있음
     const actualResponse = response.data;
-    
-    console.log("🔍 실제 트랜잭션 응답 데이터:", {
-      "실제 응답": actualResponse,
-      "success": actualResponse.success,
-      "데이터": actualResponse.data
-    });
 
     if (!actualResponse.success) {
       return Failure({
@@ -417,15 +368,14 @@ const getTxDetail: (
 
     return Success(actualResponse.data);
   } catch (e) {
-    console.error("🚨 트랜잭션 상세 API 에러:", e);
+    console.error("트랜잭션 상세 API 에러:", e);
     
     if (e instanceof HTTPError) {
       const status = e.response.status;
-      console.log(`🔍 트랜잭션 상세 HTTP 상태 코드: ${status}`);
       
       // 404 에러인 경우 목업 데이터 반환 (백엔드 엔드포인트 미구현)
       if (status === 404) {
-        console.log("🤔 트랜잭션 상세 백엔드 엔드포인트가 없습니다. 목업 데이터를 반환합니다.");
+        console.warn("트랜잭션 상세 백엔드 엔드포인트가 없어 목업 데이터를 반환합니다.");
         
         // 트랜잭션 해시를 기반으로 목업 데이터 생성
         const mockTxDetail: TxDetail = {
@@ -450,17 +400,17 @@ const getTxDetail: (
         return Success(mockTxDetail);
       }
       
-             // 다른 HTTP 에러인 경우
-       try {
-         const errorResponse = await e.response.json<ErrorResponse>();
-         return Failure(errorResponse);
-       } catch {
-         return Failure({
-           message: `HTTP ${status} 에러가 발생했습니다.`,
-           error: "HTTP Error",
-           statusCode: status,
-         });
-       }
+      // 다른 HTTP 에러인 경우
+      try {
+        const errorResponse = await e.response.json<ErrorResponse>();
+        return Failure(errorResponse);
+      } catch {
+        return Failure({
+          message: `HTTP ${status} 에러가 발생했습니다.`,
+          error: "HTTP Error",
+          statusCode: status,
+        });
+      }
     }
 
     return Failure({
@@ -476,22 +426,12 @@ const getBlockByNumber: (
   t: string,
 ) => Promise<Result<BlockDetail, ErrorResponse>> = async (blockNumber) => {
   try {
-    console.log("🔍 블록 정보 요청:", { blockNumber });
-    
     const response = await api
       .get(`blocks/${blockNumber}`)
       .json<{data: DbBlockDetailResponse}>();
 
-    console.log("✅ 블록 정보 응답:", response);
-
     // 실제 응답 데이터는 response.data에 있음
     const actualResponse = response.data;
-    
-    console.log("🔍 실제 블록 응답 데이터:", {
-      "실제 응답": actualResponse,
-      "success": actualResponse.success,
-      "데이터": actualResponse.data
-    });
 
     if (!actualResponse.success) {
       return Failure({
@@ -503,15 +443,14 @@ const getBlockByNumber: (
 
     return Success(actualResponse.data);
   } catch (e) {
-    console.error("🚨 블록 정보 API 에러:", e);
+    console.error("블록 정보 API 에러:", e);
     
     if (e instanceof HTTPError) {
       const status = e.response.status;
-      console.log(`🔍 블록 정보 HTTP 상태 코드: ${status}`);
       
       // 404 에러인 경우 목업 데이터 반환 (백엔드 엔드포인트 미구현)
       if (status === 404) {
-        console.log("🤔 블록 정보 백엔드 엔드포인트가 없습니다. 목업 데이터를 반환합니다.");
+        console.warn("블록 정보 백엔드 엔드포인트가 없어 목업 데이터를 반환합니다.");
         
         // 블록 번호를 기반으로 목업 데이터 생성
         const mockBlockDetail: BlockDetail = {

@@ -16,12 +16,12 @@ const ScanRootPage = () => {
           <span>0x671645FC21615fdcAA332422D5603f1eF9752E03</span>
         </div>
         <div className="px-4 text-sm text-gray-600">
-          💡 데이터베이스에서 트랜잭션 정보를 페이지별로 가져옵니다.
+          💡 Fetches transaction information from the database page by page.
         </div>
       </header>
       <section className="flex-1">
         <div className="flex w-full flex-col gap-4 rounded-3xl bg-white p-6">
-          <TxsTable columns={txsColumns} caption="트랜잭션 목록" />
+          <TxsTable columns={txsColumns} caption="Transaction List" />
         </div>
       </section>
     </main>
