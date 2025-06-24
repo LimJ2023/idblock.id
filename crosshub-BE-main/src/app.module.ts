@@ -35,6 +35,8 @@ import { ExternalController } from './api/external.controller';
 import { GcsModule } from './gcp/gcs.module';
 import { ApiKeyGuard } from './api/api-key.guard';
 import { ScanModule } from './scan/scan.module';
+import { BlockTxModule } from './block-tx/block-tx.module';
+import { BlockTxController } from './block-tx/block-tx.controller';
 
 @Module({
   imports: [
@@ -111,12 +113,18 @@ import { ScanModule } from './scan/scan.module';
         (env as unknown as TEnv).API_SCOPE === 'EXTERNAL_API',
     ),
     ScanModule,
+    ConditionalModule.registerWhen(
+      BlockTxModule,
+      (env: NodeJS.ProcessEnv) =>
+        (env as unknown as TEnv).API_SCOPE === 'TRANSACTION',
+    ),
   ],
   controllers:
     (process.env as unknown as TEnv).API_SCOPE === 'PUBLIC' ? [AppController]
     : (process.env as unknown as TEnv).API_SCOPE === 'ADMIN' ? [AdminAuthController]
     : (process.env as unknown as TEnv).API_SCOPE === 'MANAGER' ? [ManagerAuthController]
     : (process.env as unknown as TEnv).API_SCOPE === 'EXTERNAL_API' ? [ExternalController]
+    : (process.env as unknown as TEnv).API_SCOPE === 'TRANSACTION' ? [BlockTxController]
     : [],
 
   providers: [

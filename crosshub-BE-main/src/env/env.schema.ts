@@ -8,7 +8,7 @@ export const EnvSchema = v.object({
   ),
   DATABASE_URL: v.pipe(v.string(), v.url()),
   JWT_SECRET: v.string(),
-  API_SCOPE: v.picklist(['PUBLIC', 'ADMIN', 'MANAGER', 'EXTERNAL_API']),
+  API_SCOPE: v.picklist(['PUBLIC', 'ADMIN', 'MANAGER', 'EXTERNAL_API', 'TRANSACTION']),
   ACCESS_KEY: v.string(),
   SECRET_ACCESS_KEY: v.string(),
   S3_REGION: v.string(),
