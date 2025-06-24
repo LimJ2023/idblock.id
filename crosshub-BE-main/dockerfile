@@ -25,8 +25,7 @@ COPY package*.json ./
 # 애플리케이션 포트
 EXPOSE 8989
 
-# 헬스체크 비활성화
-HEALTHCHECK NONE
-
 # 실행 명령
 CMD ["node", "dist/main.js"]
+
+

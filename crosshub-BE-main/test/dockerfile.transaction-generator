@@ -34,8 +34,5 @@ ENV API_SCOPE=TRANSACTION
 ENV TZ=Asia/Seoul
 ENV NODE_ENV=production
 
-# Coolify를 위한 헬스체크 비활성화
-HEALTHCHECK NONE
-
 # npx tsx로 직접 실행
-CMD ["npx", "tsx", "scripts/auto-transaction-generator.ts"] 
+CMD ["npx", "tsx", "scripts/auto-transaction-generator.ts"]

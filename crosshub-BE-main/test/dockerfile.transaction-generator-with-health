@@ -32,8 +32,6 @@ ENV API_SCOPE=TRANSACTION
 ENV TZ=Asia/Seoul
 ENV NODE_ENV=production
 
-# 헬스체크 비활성화
-HEALTHCHECK NONE
 
 # tsx로 직접 실행
 CMD ["npx", "tsx", "scripts/auto-transaction-generator.ts"] 
