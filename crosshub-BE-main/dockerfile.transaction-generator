@@ -1,0 +1,40 @@
+# ---------- 트랜잭션 자동 생성기 컨테이너 ----------
+FROM node:20-alpine AS builder
+WORKDIR /app
+
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+# 종속성 캐시 최적화
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
+
+# 소스 복사 후 빌드
+COPY . .
+RUN pnpm run build
+RUN pnpm prune --prod && pnpm store prune && rm -rf /root/.cache
+
+# ---------- 프로덕션 단계 ----------
+FROM node:20-alpine
+WORKDIR /app
+
+# 필요한 런타임 패키지 설치
+RUN apk add --no-cache tzdata
+
+# 빌드 산출물 + prod 의존성만 복사
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/scripts ./scripts
+COPY --from=builder /app/src/database ./src/database
+COPY --from=builder /app/dist/database ./dist/database
+COPY package*.json ./
+
+# 환경변수 설정
+ENV API_SCOPE=TRANSACTION
+ENV TZ=Asia/Seoul
+ENV NODE_ENV=production
+
+# 헬스체크 추가
+HEALTHCHECK --interval=30m --timeout=10s --start-period=5s --retries=3 \
+  CMD pgrep -f "auto-transaction-generator" || exit 1
+
+# 실행 명령
+CMD ["pnpm", "run", "auto-transaction-generator"] 

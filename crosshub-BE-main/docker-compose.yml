@@ -7,3 +7,21 @@ services:
         - name=crosshub/idblock-public:2.8
     image: crosshub/idblock-public:2.8
     ports: ['8080:8080']
+
+  transaction-generator:
+    build:
+      context: .
+      dockerfile: dockerfile.transaction-generator
+    image: crosshub/transaction-generator:latest
+    environment:
+      - API_SCOPE=TRANSACTION
+      - NODE_ENV=production
+      - TZ=Asia/Seoul
+      - DATABASE_URL=${DATABASE_URL}
+    restart: unless-stopped
+    depends_on:
+      - api
+    volumes:
+      - ./logs:/app/logs:rw
+    labels:
+      - "traefik.enable=false"
