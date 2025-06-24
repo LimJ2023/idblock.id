@@ -17,11 +17,10 @@ RUN pnpm prune --prod && pnpm store prune && rm -rf /root/.cache
 FROM node:20-alpine
 WORKDIR /app
 
-# 필요한 런타임 패키지 설치 및 pnpm, tsx 활성화
+# 필요한 런타임 패키지 설치 및 pnpm 활성화
 RUN apk add --no-cache tzdata && \
     corepack enable && \
-    corepack prepare pnpm@latest --activate && \
-    pnpm add -g tsx
+    corepack prepare pnpm@latest --activate
 
 # 빌드 산출물 + prod 의존성만 복사
 COPY --from=builder /app/node_modules ./node_modules
@@ -38,5 +37,5 @@ ENV NODE_ENV=production
 # Coolify를 위한 헬스체크 비활성화
 HEALTHCHECK NONE
 
-# 실행 명령
-CMD ["pnpm", "run", "auto-transaction-generator"] 
+# npx tsx로 직접 실행
+CMD ["npx", "tsx", "scripts/auto-transaction-generator.ts"] 
