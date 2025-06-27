@@ -356,7 +356,14 @@ export class AuthService {
       });
 
     console.log('latestDocument >>>>>>.', latestDocument);
-
+      // 이메일만 적은 간편가입 사용자는 아이디와 이메일만 반환
+    if(user.approvalId === null && latestDocument === undefined) {
+      return {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+      }
+    }
     return {
       id: user.id,
       email: user.email,
