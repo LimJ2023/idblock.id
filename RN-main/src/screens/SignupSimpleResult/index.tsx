@@ -48,16 +48,16 @@ export const SignupSimpleResult = memo(function ({ route }: Params) {
                 </View>
                 <View style={style.nextButtonWrap}>
                     <Button
-                        style={style.nextButton}
+                        style={style.secondaryButton}
                         onPress={handleHome}>
-                        <Text style={[font.BODY3_SB, style.nextButtonText]}>
+                        <Text style={[font.BODY3_SB, style.secondaryButtonText]}>
                             Not now
                         </Text>
                     </Button>
                     <Button
-                        style={style.nextButton}
+                        style={style.primaryButton}
                         onPress={handleVerify}>
-                        <Text style={[font.BODY3_SB, style.nextButtonText]}>
+                        <Text style={[font.BODY3_SB, style.primaryButtonText]}>
                             Verify Passport
                         </Text>
                     </Button>

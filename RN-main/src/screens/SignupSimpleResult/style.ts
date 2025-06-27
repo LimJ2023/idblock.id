@@ -36,8 +36,41 @@ export default StyleSheet.create({
     color: COLOR.BLACK,
   },
   nextButtonWrap: {
-    marginBottom: 20,
+    marginBottom: 40,
     paddingHorizontal: 20,
+    gap: 20,
+  },
+  primaryButton: {
+    width: '100%',
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: COLOR.PRI_1_500,
+    shadowColor: COLOR.PRI_1_500,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  primaryButtonText: {
+    color: COLOR.WHITE,
+  },
+  secondaryButton: {
+    width: '100%',
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: COLOR.WHITE,
+    borderWidth: 2,
+    borderColor: COLOR.PRI_2_300,
+  },
+  secondaryButtonText: {
+    color: COLOR.PRI_2_500,
   },
   nextButton: {
     width: '100%',

@@ -95,8 +95,8 @@ android {
         applicationId "com.crosshub.idblock"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 25061901
-        versionName "1.3.3"
+        versionCode 25062401
+        versionName "1.3.4"
         ndk {
             abiFilters += ['armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64']
         }
