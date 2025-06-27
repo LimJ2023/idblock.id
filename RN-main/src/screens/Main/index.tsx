@@ -188,6 +188,7 @@ export const Main = memo(function () {
   const handlePassportConfirmOk = useCallback(() => {
     setIsVisiblePassportConfirm(false);
     // 여권 인증 시작 - SignupPassport 화면으로 이동
+    console.log('handlePassportConfirm profile : ', profile);
     navigation.push(MENU.STACK.SCREEN.SIGNUP_PASSPORT, {
       uuid: '',
       email: profile?.email || '',

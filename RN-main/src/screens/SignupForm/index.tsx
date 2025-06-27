@@ -91,7 +91,7 @@ export const SignupForm = memo(function ({ route }: Params) {
   const [cityMessage, setCityMessage] = useState<InputMessage>();
   const [birthMessage, setBirthMessage] = useState<InputMessage>();
   const [passportMessage, setPassportMessage] = useState<InputMessage>();
-
+  
   const { accessToken } = useAccessToken();
 
   const { apiPostVerifyPassport } = useApiPostVerifyPassport();
@@ -171,6 +171,11 @@ export const SignupForm = memo(function ({ route }: Params) {
 
   if (countryRef.current !== country) {
     countryRef.current = country;
+  }
+
+  const emailRef = useRef<string>();
+  if (emailRef.current !== email) {
+    emailRef.current = email;
   }
 
   const handlePw2 = useCallback((text: string) => {
@@ -344,7 +349,7 @@ export const SignupForm = memo(function ({ route }: Params) {
     }
 
     const verifyPassportResult = await apiPostVerifyPassport({
-      email: email,
+      email: emailRef.current,
       birthday: birthRef.current,
       passportNumber: passportRef.current,
     });
@@ -368,7 +373,7 @@ export const SignupForm = memo(function ({ route }: Params) {
     if (nextScreen) {
       navigation.push(nextScreen, {
         uuid,
-        email,
+        email: emailRef.current,
         pw: pwRef.current,
         name: nameRef.current,
         country: countryRef.current.code,

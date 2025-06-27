@@ -70,6 +70,7 @@ export const SignupPassport = memo(function ({ route }: Params) {
     const nextScreen = getNextScreenInFlow(SIGNUP_FLOW, MENU.STACK.SCREEN.SIGNUP_PASSPORT);
 
     if (nextScreen) {
+      console.log('passport nextScreen', email);
       navigation.push(nextScreen, {
         uuid,
         email,
