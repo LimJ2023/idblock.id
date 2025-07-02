@@ -1,4 +1,4 @@
-import { memo, useCallback, useRef } from "react"
+import { memo, useCallback } from "react"
 import {  View } from "react-native"
 import { font } from "~/style"
 import { Text } from "~/components/Text"

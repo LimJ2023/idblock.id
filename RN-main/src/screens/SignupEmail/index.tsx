@@ -13,6 +13,12 @@ import { Alert } from '~/components/Alert';
 import { Text } from '~/components/Text';
 
 import { useAppRootAction } from '~/zustands/app';
+import { 
+  useSignupEmailData, 
+  useSignupAction, 
+  useSignupErrorData,
+  SignupStep
+} from '~/zustands/signup';
 
 import { useApiPostMailConfirm } from '~/hooks/api.post.mail.confirm';
 import { useApiPostMailVerify } from '~/hooks/api.post.mail.verify';
@@ -29,62 +35,44 @@ import { getNextScreenInFlow, SIGNUP_FLOW } from '~/utils/screenFlow';
 export const SignupEmail = memo(function () {
   const navigation = useNavigation<StackNavigationProp<any>>();
 
-  const [alertMessage, setAlertMessage] = useState<string>('');
+  // Zustand store에서 데이터 가져오기
+  const emailData = useSignupEmailData();
+  const errorData = useSignupErrorData();
+  const signupAction = useSignupAction();
 
+  const [alertMessage, setAlertMessage] = useState<string>('');
   const [isVisibleVerifyButton, setIsVisibleVerifyButton] = useState<boolean>(false);
-  const [isVerified, setIsVerified] = useState<boolean>(false);
-  const [mail, setMail] = useState<string>('');
-  const [code, setCode] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
   const [passwordMessage, setPasswordMessage] = useState<InputMessage>();
   const [codeMessage, setCodeMessage] = useState<InputMessage>();
-  const [passwordConfirm, setPasswordConfirm] = useState<string>('');
   const [passwordConfirmMessage, setPasswordConfirmMessage] = useState<InputMessage>();
+  
   const { bottom } = useSafeAreaInsets();
   const { setIsVisibleLoading } = useAppRootAction();
 
   const { apiPostMailConfirm } = useApiPostMailConfirm();
   const { apiPostMailVerify } = useApiPostMailVerify();
   const { apiPostAuthSignupSimple} = useApiPostAuthSignup();
-  const mailRef = useRef<string>();
-  const passwordRef = useRef<string>();
-  const passwordConfirmRef = useRef<string>();
 
-  if (mailRef.current !== mail) {
-    mailRef.current = mail;
-  }
-
-  if (passwordRef.current !== password) {
-    passwordRef.current = password;
-  }
-
-  if (passwordConfirmRef.current !== passwordConfirm) {
-    passwordConfirmRef.current = passwordConfirm;
-  }
-
-  const codeRef = useRef<string>();
-
-  if (codeRef.current !== code) {
-    codeRef.current = code;
-  }
-
-  const uuidRef = useRef<string>('');
+  // 컴포넌트 마운트 시 현재 단계 설정
+  useEffect(() => {
+    signupAction.setCurrentStep(SignupStep.EMAIL);
+  }, []);
 
   const handleMail = useCallback((text: string) => {
     const value = text.trim();
 
     if (value) {
-      uuidRef.current = '';
-
+      signupAction.setUuid('');
       setIsVisibleVerifyButton(Util.regexEmail(value));
-      setIsVerified(false);
+      signupAction.setEmailVerified(false);
     }
 
-    setMail(value);
-  }, []);
+    signupAction.setEmail(value);
+  }, [signupAction]);
 
   const handleCode = useCallback((text: string) => {
     setCodeMessage(undefined);
+    signupAction.setError('emailError', undefined);
 
     const value = text.trim().replace(/\./g, '');
 
@@ -96,19 +84,18 @@ export const SignupEmail = memo(function () {
       Keyboard.dismiss();
     }
 
-    setCode(value);
-  }, []);
+    signupAction.setVerificationCode(value);
+  }, [signupAction]);
 
   const handleVerify = useCallback(async () => {
     try {
       setIsVisibleLoading(true);
 
-      uuidRef.current = '';
-
+      signupAction.setUuid('');
       Keyboard.dismiss();
 
       const verifyResult = await apiPostMailVerify({
-        email: mailRef.current,
+        email: emailData.email,
       });
 
       await Util.sleep(MODAL_ANIMATION_TIMING);
@@ -118,20 +105,22 @@ export const SignupEmail = memo(function () {
       await Util.sleep(MODAL_ANIMATION_TIMING + 500);
 
       if (verifyResult?.uuid) {
-        uuidRef.current = verifyResult.uuid;
-
+        signupAction.setUuid(verifyResult.uuid);
+        signupAction.setCodeSent(true);
         setIsVisibleVerifyButton(false);
         setAlertMessage(message.SEND_CODE);
-        setIsVerified(true);
+        signupAction.setEmailVerified(true);
       } else {
         setAlertMessage(message.ALREADY_EXIST);
       }
     } finally {
       setIsVisibleLoading(false);
     }
-  }, []);
+  }, [signupAction, emailData.email, apiPostMailVerify, setIsVisibleLoading]);
+
   const handlePassword = useCallback((text: string) => {
     setPasswordMessage(undefined);
+    signupAction.setError('passwordError', undefined);
 
     const value = text.trim();
 
@@ -143,13 +132,16 @@ export const SignupEmail = memo(function () {
     } else {
       setPasswordMessage(undefined);
     }
-    setPassword(value);
-  }, []);
+    signupAction.setPassword(value);
+  }, [signupAction]);
+
   const handlePasswordConfirm = useCallback((text: string) => {
     setPasswordConfirmMessage(undefined);
+    signupAction.setError('passwordError', undefined);
+    
     const value = text.trim();
 
-    if (value !== password) {
+    if (value !== emailData.password) {
       setPasswordConfirmMessage({
         text: message.PASSWORD_CONFIRM_MESSAGE,
         color: COLOR.ERROR,
@@ -157,8 +149,8 @@ export const SignupEmail = memo(function () {
     } else {
       setPasswordConfirmMessage(undefined);
     }
-    setPasswordConfirm(value);
-  }, [password])
+    signupAction.setPasswordConfirm(value);
+  }, [signupAction, emailData.password])
 
   // const handleNext = useCallback(async () => {
   //   try {
@@ -198,34 +190,37 @@ export const SignupEmail = memo(function () {
   // }, []);
 
   const handleSignUp = useCallback(async () => {
-
     //비밀번호 유효성 검사
-    if(!Util.regexPassword(passwordRef.current)){
+    if(!Util.regexPassword(emailData.password)){
       setPasswordMessage({
         text: 'Password must contain 8-15 characters with the combination of letters, numbers, and special characters (!@#$%^&*()).',
         color: COLOR.ERROR,
       });
+      signupAction.setError('passwordError', 'Invalid password format');
       return;
     }
-
 
     try {
       setIsVisibleLoading(true);
 
-      const isSignUp = await apiPostAuthSignupSimple( {
-        email: mailRef.current,
-        password: passwordRef.current
-      })
+      const isSignUp = await apiPostAuthSignupSimple({
+        email: emailData.email,
+        password: emailData.password
+      });
+      
       console.log('isSignUp : ', isSignUp);
       if (isSignUp) {
+        // 단계 완료 표시
+        signupAction.completeStep(SignupStep.EMAIL);
+        
         const nextScreen = getNextScreenInFlow(SIGNUP_FLOW, MENU.STACK.SCREEN.SIGNUP_EMAIL);
 
         if (nextScreen) {
-          console.log('email 전송직전 : ', mailRef.current);
+          console.log('email 전송직전 : ', emailData.email);
           navigation.push(nextScreen, {
-            uuid: uuidRef.current,
-            email: mailRef.current,
-            pw: passwordRef.current,
+            uuid: emailData.uuid,
+            email: emailData.email,
+            pw: emailData.password,
           });
         } else {
           console.warn('No next screen found in signup flow');
@@ -233,18 +228,13 @@ export const SignupEmail = memo(function () {
       }
     } catch (error) {
       console.log(error);
+      signupAction.setError('emailError', '회원가입 중 오류가 발생했습니다.');
     } finally {
       setIsVisibleLoading(false);
     }
-  }, []);
+  }, [emailData, signupAction, apiPostAuthSignupSimple, setIsVisibleLoading, navigation]);
 
-  useEffect(() => {
-    return () => {
-      uuidRef.current = '';
-    };
-  }, []);
-
-  const isVisibleNextButton = isVerified && code.length === 6;
+  const isVisibleNextButton = emailData.isEmailVerified && emailData.verificationCode.length === 6;
 
   return (
     <View style={[style.container, { paddingBottom: bottom }]}>
@@ -268,7 +258,7 @@ export const SignupEmail = memo(function () {
             <Text style={[font.BODY2_M, style.labelText]}>Email Verification</Text>
             <Input
               keyboardType="email-address"
-              value={mail}
+              value={emailData.email}
               placeholder="Email Address"
               wrapperStyle={style.inputWrapper}
               onChangeText={handleMail}
@@ -284,7 +274,7 @@ export const SignupEmail = memo(function () {
             <Text style={[font.BODY2_M, style.labelText]}>Enter Password</Text>
               <Input
               secureTextEntry={true}
-              value={password}
+              value={emailData.password}
               placeholder="Enter Password"
               wrapperStyle={style.inputWrapper}
               message={passwordMessage}
@@ -293,7 +283,7 @@ export const SignupEmail = memo(function () {
               <Text style={[font.BODY2_M, style.labelText]}>Password Confirmation</Text>
               <Input
                 secureTextEntry={true}
-                value={passwordConfirm}
+                value={emailData.passwordConfirm}
                 placeholder='Confirm Password'
                 wrapperStyle={style.inputWrapper}
                 message={passwordConfirmMessage}
@@ -303,7 +293,7 @@ export const SignupEmail = memo(function () {
             <Text style={[font.BODY2_M, style.labelText]}>Enter Verification Code</Text>
             <Input
               keyboardType="decimal-pad"
-              value={code}
+              value={emailData.verificationCode}
               placeholder="6-Digit Verification Code"
               wrapperStyle={style.inputWrapper}
               message={codeMessage}

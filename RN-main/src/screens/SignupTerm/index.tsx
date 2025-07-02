@@ -14,6 +14,12 @@ import { Check } from '~/components/Check';
 import { Text } from '~/components/Text';
 
 import { useGetTermList } from '~/hooks/get.term.list';
+import { 
+  useSignupTermsData, 
+  useSignupAction, 
+  useSignupEmailData,
+  SignupStep
+} from '~/zustands/signup';
 
 import { MENU, STATIC_IMAGE } from '~/utils/constant';
 import { CheckItem } from '~/types/check.item';
@@ -28,60 +34,74 @@ export const SignupTerm = memo(function ({ route }: Params) {
 
   const navigation = useNavigation<StackNavigationProp<any>>();
 
-  const [isAllChecked, setIsAllChecked] = useState<boolean>(false);
-  const [checkList, setCheckList] = useState<CheckItem[]>([]);
+  // Zustand store에서 데이터 가져오기
+  const termsData = useSignupTermsData();
+  const emailData = useSignupEmailData();
+  const signupAction = useSignupAction();
+
   const [termHtmlSource, setTermHtmlSource] = useState<string>('');
 
   const { getTermList } = useGetTermList();
   const { bottom } = useSafeAreaInsets();
 
+  // 컴포넌트 마운트 시 현재 단계 설정
+  useEffect(() => {
+    signupAction.setCurrentStep(SignupStep.TERMS);
+  }, [signupAction]);
+
   const handleAllChecked = useCallback((isChecked: boolean) => {
-    setCheckList((prevCheckList: CheckItem[]) => {
-      const copyCheckList = [...prevCheckList];
+    const updatedCheckList = termsData.checkList.map(item => ({
+      ...item,
+      isChecked
+    }));
 
-      for (const el of copyCheckList) {
-        el.isChecked = isChecked;
-      }
-
-      return copyCheckList;
-    });
-
-    setIsAllChecked(isChecked);
-  }, []);
+    signupAction.setCheckList(updatedCheckList);
+    signupAction.setAllChecked(isChecked);
+  }, [termsData.checkList, signupAction]);
 
   const handleChecked = useCallback((index: number) => {
-    setCheckList((prevCheckList: CheckItem[]) => {
-      const copyCheckList = [...prevCheckList];
-      copyCheckList[index].isChecked = !copyCheckList[index].isChecked;
+    const updatedCheckList = [...termsData.checkList];
+    updatedCheckList[index].isChecked = !updatedCheckList[index].isChecked;
 
-      return copyCheckList;
-    });
-  }, []);
+    signupAction.setCheckList(updatedCheckList);
+
+    // 모든 필수 약관이 체크되었는지 확인
+    const allRequiredChecked = updatedCheckList
+      .filter(item => item.isMandatory)
+      .every(item => item.isChecked);
+    
+    // 전체 동의 상태 업데이트
+    const allChecked = updatedCheckList.every(item => item.isChecked);
+    signupAction.setAllChecked(allChecked);
+  }, [termsData.checkList, signupAction]);
 
   const handlePdfViewer = useCallback((item: CheckItem) => {
     setTermHtmlSource(item.html);
   }, []);
 
   const handleNext = useCallback(() => {
+    // 단계 완료 표시
+    signupAction.completeStep(SignupStep.TERMS);
+    
     const nextScreen = getNextScreenInFlow(SIGNUP_FLOW, MENU.STACK.SCREEN.SIGNUP_TERM);
     
     if (nextScreen) {
       navigation.push(nextScreen, {
-        uuid,
-        mail,
+        uuid: emailData.uuid || uuid,
+        mail: emailData.email || mail,
       });
     } else {
       console.warn('No next screen found in signup flow');
     }
-  }, [uuid, mail]);
+  }, [signupAction, emailData, uuid, mail, navigation]);
 
   const MemoAllCheckLeftChild = useMemo(() => {
-    if (isAllChecked) {
+    if (termsData.isAllChecked) {
       return <FastImage source={STATIC_IMAGE.CHECK_CIRCLE_PRI} style={style.checkedImage} resizeMode="contain" />;
     }
 
     return <View style={style.allUnchecked} />;
-  }, [isAllChecked]);
+  }, [termsData.isAllChecked]);
 
   const MemoizedCheckLeftChild = useCallback(
     (item: CheckItem) => {
@@ -91,16 +111,16 @@ export const SignupTerm = memo(function ({ route }: Params) {
 
       return <FastImage source={STATIC_IMAGE.CHECK_GRAY} style={style.checkedImage} resizeMode="contain" />;
     },
-    [isAllChecked],
+    [termsData.isAllChecked],
   );
 
   useEffect(() => {
     getTermList().then((_checkList) => {
-      setCheckList(_checkList);
+      signupAction.setCheckList(_checkList);
     });
-  }, []);
+  }, [signupAction, getTermList]);
 
-  const isVisibleNextButton = !checkList.filter((el) => el.isMandatory && !el.isChecked).length;
+  const isVisibleNextButton = !termsData.checkList.filter((el) => el.isMandatory && !el.isChecked).length;
 
   return (
     <View style={[style.container, { paddingBottom: bottom }]}>
@@ -117,7 +137,7 @@ export const SignupTerm = memo(function ({ route }: Params) {
               onChecked={handleAllChecked}
             />
             <View style={style.termListWrap}>
-              {checkList.map((el, index) => (
+              {termsData.checkList.map((el, index) => (
                 <View key={index} style={style.checkWrap}>
                   <Check
                     leftChild={MemoizedCheckLeftChild(el)}

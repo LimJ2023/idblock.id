@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 
 import { Keyboard, Platform, View } from 'react-native';
 
@@ -16,6 +16,13 @@ import { Header } from '~/components/Header';
 import { Text } from '~/components/Text';
 
 import { useAccessToken } from '~/zustands/app';
+import { 
+  useSignupPersonalData,
+  useSignupPassportData, 
+  useSignupAction, 
+  useSignupEmailData,
+  SignupStep
+} from '~/zustands/signup';
 
 import { useApiPostVerifyPassport } from '~/hooks/api.post.verify.passport';
 import { useApiGetCountryList } from '~/hooks/api.get.country.list';
@@ -31,7 +38,6 @@ import Util from '~/utils/common';
 import style from './style';
 import { getNextScreenInFlow, SIGNUP_FLOW } from '~/utils/screenFlow';
 import { useApiGetUserCountry } from '~/hooks/api.get.user.country';
-import { useApiGetUserCity } from '~/hooks/api.get.user.city';
 
 export const SignupForm = memo(function ({ route }: Params) {
   const {
@@ -48,10 +54,13 @@ export const SignupForm = memo(function ({ route }: Params) {
     passportImage,
   } = route.params;
 
-  // 디버깅: 전달받은 값들 확인
-  // console.log('SignupForm params:', { email, pw, uuid });
-
   const navigation = useNavigation<StackNavigationProp<any>>();
+
+  // Zustand store에서 데이터 가져오기
+  const personalData = useSignupPersonalData();
+  const passportData = useSignupPassportData();
+  const emailData = useSignupEmailData();
+  const signupAction = useSignupAction();
 
   const [countryList, setCountryList] = useState<Country[]>([]);
   const [cityList, setCityList] = useState<City[]>([
@@ -76,14 +85,6 @@ export const SignupForm = memo(function ({ route }: Params) {
   const [isVisibleCountryPicker, setIsVisibleCountryPicker] = useState<boolean>(false);
   const [isVisibleCityPicker, setIsVisibleCityPicker] = useState<boolean>(false);
 
-  const [pw2, setPw2] = useState<string>('');
-  const [name, setName] = useState<string>('');
-  const [countryIndex, setCountryIndex] = useState<number>();
-  const [cityIndex, setCityIndex] = useState<number>();
-  const [birth, setBirth] = useState<string>('');
-  const [passport, setPassport] = useState<string>('');
-  const [country, setCountry] = useState<Country>();
-
   const [pwMessage, setPwMessage] = useState<InputMessage>();
   const [pw2Message, setPw2Message] = useState<InputMessage>();
   const [nameMessage, setNameMessage] = useState<InputMessage>();
@@ -101,91 +102,40 @@ export const SignupForm = memo(function ({ route }: Params) {
 
   const { bottom } = useSafeAreaInsets();
 
-  const accessTokenRef = useRef<string>();
+  // 컴포넌트 마운트 시 현재 단계 설정 및 OCR 데이터 설정
+  useEffect(() => {
+    signupAction.setCurrentStep(SignupStep.FORM);
+    
+    // OCR 데이터가 있으면 설정
+    if (ocr_fullName) signupAction.setName(ocr_fullName);
+    if (ocr_birthDate) signupAction.setBirth(ocr_birthDate);
+    if (ocr_number) signupAction.setPassportNumber(ocr_number);
+    
+    // 여권 OCR 데이터 저장
+    signupAction.setOcrData({
+      ocr_fullName,
+      ocr_gender,
+      ocr_birthDate,
+      ocr_nationality,
+      ocr_number,
+      ocr_issueDate,
+      ocr_expireDate,
+    });
+    
+    // 여권 이미지 저장
+    if (passportImage) {
+      signupAction.setPassportImage(passportImage);
+    }
+  }, [signupAction, ocr_fullName, ocr_gender, ocr_birthDate, ocr_nationality, ocr_number, ocr_issueDate, ocr_expireDate, passportImage]);
 
-  if (accessTokenRef.current !== accessToken) {
-    accessTokenRef.current = accessToken;
-  }
-
-  const countryListRef = useRef<Country[]>();
-
-  if (countryListRef.current !== countryList) {
-    countryListRef.current = countryList;
-  }
-
-  const cityListRef = useRef<City[]>();
-
-  if (cityListRef.current !== cityList) {
-    cityListRef.current = cityList;
-  }
-
-  const passportImageRef = useRef<string>();
-
-  if (passportImageRef.current !== passportImage) {
-    passportImageRef.current = passportImage;
-  }
-
-  const pwRef = useRef<string>();
-
-  if (pwRef.current !== pw) {
-    pwRef.current = pw;
-  }
-
-  const pw2Ref = useRef<string>();
-
-  if (pw2Ref.current !== pw2) {
-    pw2Ref.current = pw2;
-  }
-
-  const nameRef = useRef<string>();
-
-  if (nameRef.current !== name) {
-    nameRef.current = name;
-  }
-
-  const countryIndexRef = useRef<number>();
-
-  if (countryIndexRef.current !== countryIndex) {
-    countryIndexRef.current = countryIndex;
-  }
-
-  const cityIndexRef = useRef<number>();
-
-  if (cityIndexRef.current !== cityIndex) {
-    cityIndexRef.current = cityIndex;
-  }
-
-  const birthRef = useRef<string>();
-
-  if (birthRef.current !== birth) {
-    birthRef.current = birth;
-  }
-
-  const passportRef = useRef<string>();
-
-  if (passportRef.current !== passport) {
-    passportRef.current = passport;
-  }
-
-  const countryRef = useRef<Country>();
-
-  if (countryRef.current !== country) {
-    countryRef.current = country;
-  }
-
-  const emailRef = useRef<string>();
-  if (emailRef.current !== email) {
-    emailRef.current = email;
-  }
+  // Refs는 Zustand store로 대체되었으므로 제거
 
   const handlePw2 = useCallback((text: string) => {
-    setPw2Message(undefined);
-    setPw2(text);
+    signupAction.setPasswordConfirm(text);
   }, []);
 
   const handleName = useCallback((text: string) => {
-    setNameMessage(undefined);
-    setName(text);
+    signupAction.setName(text);
   }, []);
 
   const handleCountry = useCallback(() => {
@@ -195,13 +145,7 @@ export const SignupForm = memo(function ({ route }: Params) {
   }, []);
 
   const handleCountryPicker = useCallback((index) => {
-    setCountryMessage(undefined);
-    setCountryIndex(index);
-
-    // 선택된 인덱스에 해당하는 country 객체도 설정
-    if (countryListRef.current && countryListRef.current[index]) {
-      setCountry(countryListRef.current[index]);
-    }
+    signupAction.setCountry(countryList[index]);
   }, []);
 
   const handleCity = useCallback(() => {
@@ -211,12 +155,12 @@ export const SignupForm = memo(function ({ route }: Params) {
   }, []);
 
   const handleCityPicker = useCallback((index) => {
-    setCityMessage(undefined);
-    setCityIndex(index);
+    signupAction.setCity(cityList[index]);
+    signupAction.setCityIndex(index);
   }, []);
 
   const handleBirth = useCallback((text: string) => {
-    setBirthMessage(undefined);
+    
 
     const value = text.trim().replace(/\./g, '');
 
@@ -247,13 +191,11 @@ export const SignupForm = memo(function ({ route }: Params) {
     if (value.length === 8) {
       Keyboard.dismiss();
     }
-
-    setBirth(value);
+    signupAction.setBirth(text);
   }, []);
 
   const handlePassport = useCallback((text: string) => {
-    setPassportMessage(undefined);
-    setPassport(text);
+    signupAction.setPassportNumber(text);
   }, []);
 
   const handleNext = useCallback(async () => {
@@ -261,19 +203,16 @@ export const SignupForm = memo(function ({ route }: Params) {
 
     let isValid = true;
 
-    if (!accessTokenRef.current) {
-      console.log('pwRef.current : ', pwRef.current);
-      console.log('birthRef : ', birthRef.current);
-      console.log('passportNumber : ', passportRef.current);
+    if (!accessToken) {
 
-      if (!pwRef.current) {
+      if (!emailData.password) {
         isValid = false;
 
         setPwMessage({
           text: 'Please enter password.',
           color: COLOR.ERROR,
         });
-      } else if (!Util.regexPassword(pwRef.current)) {
+      } else if (!Util.regexPassword(emailData.password)) {
         isValid = false;
 
         setPwMessage({
@@ -281,27 +220,9 @@ export const SignupForm = memo(function ({ route }: Params) {
           color: COLOR.ERROR,
         });
       }
-
-      // if (!pw2Ref.current) {
-      //   isValid = false;
-
-      //   setPw2Message({
-      //     text: 'Please enter password again.',
-      //     color: COLOR.ERROR,
-      //   });
-      // }
-
-      // if (pwRef.current && pw2Ref.current && pwRef.current !== pw2Ref.current) {
-      //   isValid = false;
-
-      //   setPw2Message({
-      //     text: 'Password does not match.',
-      //     color: COLOR.ERROR,
-      //   });
-      // }
     }
 
-    if (!nameRef.current) {
+    if (!personalData.name) {
       isValid = false;
 
       setNameMessage({
@@ -310,7 +231,7 @@ export const SignupForm = memo(function ({ route }: Params) {
       });
     }
 
-    if (countryIndexRef.current === undefined && countryRef.current === undefined) {
+    if (!personalData.country) {
       isValid = false;
 
       setCountryMessage({
@@ -319,7 +240,7 @@ export const SignupForm = memo(function ({ route }: Params) {
       });
     }
 
-    if (cityIndexRef.current === undefined) {
+    if (!personalData.city) {
       isValid = false;
 
       setCityMessage({
@@ -328,8 +249,7 @@ export const SignupForm = memo(function ({ route }: Params) {
       });
     }
 
-    console.log('birthRef.current : ', birthRef.current);
-    if (birthRef.current?.length < 8) {
+    if (personalData.birth?.length < 8) {
       isValid = false;
 
       setBirthMessage({
@@ -338,8 +258,7 @@ export const SignupForm = memo(function ({ route }: Params) {
       });
     }
 
-    console.log('passportRef.current : ', passportRef.current);
-    if (!passportRef.current) {
+    if (!personalData.passportNumber) {
       isValid = false;
 
       setPassportMessage({
@@ -349,9 +268,9 @@ export const SignupForm = memo(function ({ route }: Params) {
     }
 
     const verifyPassportResult = await apiPostVerifyPassport({
-      email: emailRef.current,
-      birthday: birthRef.current,
-      passportNumber: passportRef.current,
+      email: emailData.email,
+      birthday: personalData.birth,
+      passportNumber: personalData.passportNumber,
     });
     console.log('verifyPassportResult : ', verifyPassportResult);
     if (!verifyPassportResult) {
@@ -371,17 +290,8 @@ export const SignupForm = memo(function ({ route }: Params) {
 
     const nextScreen = getNextScreenInFlow(SIGNUP_FLOW, MENU.STACK.SCREEN.SIGNUP_FORM);
     if (nextScreen) {
-      navigation.push(nextScreen, {
-        uuid,
-        email: emailRef.current,
-        pw: pwRef.current,
-        name: nameRef.current,
-        country: countryRef.current.code,
-        honorary: cityListRef.current?.[cityIndexRef.current]?.id || undefined,
-        birth: birthRef.current,
-        passport: passportRef.current,
-        passportImage: passportImageRef.current,
-      });
+      signupAction.goToNextStep();
+      navigation.push(nextScreen);
     } else {
       console.warn('No next screen found in signup flow');
     }
@@ -398,11 +308,11 @@ export const SignupForm = memo(function ({ route }: Params) {
           apiGetUserCountry({ code3: ocr_nationality })
             .then((country) => {
               if (country) {
-                setCountry(country);
+                signupAction.setCountry(country);
                 // 국가 목록에서 해당 국가의 인덱스 찾아서 설정
                 const foundIndex = list.findIndex((c) => c.code3 === ocr_nationality);
                 if (foundIndex !== -1) {
-                  setCountryIndex(foundIndex);
+                  signupAction.setCountry(country, foundIndex);
                 }
               }
             })
@@ -419,13 +329,13 @@ export const SignupForm = memo(function ({ route }: Params) {
   // OCR 데이터를 초기값으로 설정
   useEffect(() => {
     if (ocr_fullName) {
-      setName(ocr_fullName);
+      signupAction.setName(ocr_fullName);
     }
     if (ocr_birthDate) {
-      setBirth(ocr_birthDate);
+      signupAction.setBirth(ocr_birthDate);
     }
     if (ocr_number) {
-      setPassport(ocr_number);
+      signupAction.setPassportNumber(ocr_number);
     }
   }, [ocr_fullName, ocr_birthDate, ocr_number]);
 
@@ -434,7 +344,7 @@ export const SignupForm = memo(function ({ route }: Params) {
       <ModalWheelPicker
         isVisible={isVisibleCountryPicker}
         title="Country"
-        initIndex={countryIndex}
+        initIndex={personalData.countryIndex}
         data={countryList.map((el) => el.name)}
         onClose={() => setIsVisibleCountryPicker(false)}
         onSubmit={handleCountryPicker}
@@ -442,7 +352,7 @@ export const SignupForm = memo(function ({ route }: Params) {
       <ModalWheelPicker
         isVisible={isVisibleCityPicker}
         title="Honorary"
-        initIndex={cityIndex}
+        initIndex={personalData.cityIndex}
         data={cityList.map((el) => el.name)}
         onClose={() => setIsVisibleCityPicker(false)}
         onSubmit={handleCityPicker}
@@ -495,13 +405,13 @@ export const SignupForm = memo(function ({ route }: Params) {
               </>
             )}
             <Text style={[font.BODY2_M, style.labelText]}>Name</Text>
-            <Input value={name} placeholder="Name" wrapperStyle={style.inputWrapper} message={nameMessage} onChangeText={handleName} />
+            <Input value={personalData.name} placeholder="Name" wrapperStyle={style.inputWrapper} message={nameMessage} onChangeText={handleName} />
             <Text style={[font.BODY2_M, style.labelText]}>Country</Text>
             <Button
               style={[style.selectButton, { borderColor: countryMessage ? COLOR.ERROR : style.selectButton.borderColor }]}
               onPress={handleCountry}>
               <Text style={[font.BODY1_R, style.selectButtonText]}>
-                {countryIndex !== undefined ? countryList[countryIndex]?.name : country?.name || 'Country'}
+                {personalData.countryIndex !== undefined ? countryList[personalData.countryIndex]?.name : personalData.country?.name || 'Country'}
               </Text>
               <FastImage source={STATIC_IMAGE.ARROW_DOWN_BLACK} style={style.selectButtonImage} resizeMode="contain" />
             </Button>
@@ -510,14 +420,14 @@ export const SignupForm = memo(function ({ route }: Params) {
             <Button
               style={[style.selectButton, { borderColor: cityMessage ? COLOR.ERROR : style.selectButton.borderColor }]}
               onPress={handleCity}>
-              <Text style={[font.BODY1_R, style.selectButtonText]}>{cityList[cityIndex]?.name || 'Honorary Citizen'}</Text>
+              <Text style={[font.BODY1_R, style.selectButtonText]}>{cityList[personalData.cityIndex]?.name || 'Honorary Citizen'}</Text>
               <FastImage source={STATIC_IMAGE.ARROW_DOWN_BLACK} style={style.selectButtonImage} resizeMode="contain" />
             </Button>
             {cityMessage?.text && <Text style={[font.CAPTION1_M, style.messageText]}>{cityMessage.text}</Text>}
             <Text style={[font.BODY2_M, style.labelText]}>Date Of Birth</Text>
             <Input
               keyboardType="decimal-pad"
-              value={birth}
+              value={personalData.birth}
               placeholder="Date of Birth (YYYYMMDD)"
               wrapperStyle={style.inputWrapper}
               message={birthMessage}
@@ -525,7 +435,7 @@ export const SignupForm = memo(function ({ route }: Params) {
             />
             <Text style={[font.BODY2_M, style.labelText]}>Passport Number</Text>
             <Input
-              value={passport}
+              value={personalData.passportNumber}
               placeholder="Passport Number"
               wrapperStyle={style.inputWrapper}
               message={passportMessage}
