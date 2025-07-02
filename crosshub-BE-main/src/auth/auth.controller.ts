@@ -245,22 +245,9 @@ export class AuthController {
   async signup(@Body() body: SignUpDto) {
     console.log('body : ', body);
 
-    const userId = await this.authService.getUserId(body.data.email);
-    console.log('userid : ', userId);
-
-    // 항상 먼저 UserVerificationDocument 생성
-    const [document] = await this.authService.createUserVerificationDocument(
-      userId!,
-      body.data.passportImageKey,
-      body.data.profileImageKey,
-    );
-    console.log('document 생성됨 : ', document);
-    // 자동 인증 처리 (얼굴 비교 및 승인 처리 포함)
-    const isAutoApproved = await this.authService.autoApproveUser(document.id);
-    console.log('자동인증 결과 : ', isAutoApproved);
-
-    // 유저 테이블 업데이트
-    await this.authService.updateUser(userId!, {
+    // 트랜잭션으로 묶인 회원가입 처리
+    const result = await this.authService.signupWithTransaction({
+      email: body.data.email,
       name: body.data.name,
       birthday: body.data.birthday,
       passportNumber: body.data.passportNumber,
@@ -270,7 +257,8 @@ export class AuthController {
       countryCode: body.data.countryCode,
     });
 
-    return { userId, isAutoApproved };
+    console.log('회원가입 결과:', result);
+    return result;
   }
 
   @Public()

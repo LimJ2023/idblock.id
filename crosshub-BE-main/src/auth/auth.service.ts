@@ -30,18 +30,170 @@ import { EnvService } from 'src/env/env.service';
 import { ThirdwebService } from 'src/thirdweb/thirdweb.service';
 import { NotificationService } from 'src/notification/notification.service';
 import { ArgosService } from 'src/argos/argos.service';
+import { BaseAuthService } from './base-auth.service';
+
 @Injectable()
-export class AuthService {
+export class AuthService extends BaseAuthService<
+  typeof User.$inferSelect,
+  typeof UserSession.$inferSelect,
+  TLoginDto
+> {
   constructor(
-    @Inject(INJECT_DRIZZLE) private db: DrizzleDB,
-    private readonly jwtService: JwtService,
+    @Inject(INJECT_DRIZZLE) db: DrizzleDB,
+    jwtService: JwtService,
     private readonly emailService: EmailService,
     private readonly s3Service: S3Service,
     private readonly envService: EnvService,
     private readonly thirdwebService: ThirdwebService,
     private readonly notificationService: NotificationService,
     private readonly argosService: ArgosService,
-  ) {}
+  ) {
+    super(
+      db,
+      jwtService,
+      'User',
+      'UserSession', 
+      User,
+      UserSession,
+      'userId',
+      '1d', // accessToken 만료시간
+      '1y', // refreshToken 만료시간
+    );
+  }
+
+  protected convertUserId(userId: string | number | bigint): bigint {
+    return BigInt(userId);
+  }
+
+  async signupWithTransaction(signupData: {
+    email: string;
+    name: string;
+    birthday: string;
+    passportNumber: string;
+    passportImageKey: string;
+    profileImageKey: string;
+    cityId: string;
+    countryCode: string;
+  }) {
+    return this.db.transaction(async (trx) => {
+      // 1. 유저 ID 조회
+      const user = await trx.query.User.findFirst({
+        where: (table, { eq }) => eq(table.email, signupData.email),
+      });
+      
+      if (!user) {
+        throw new BadRequestException(ERROR_CODE.USER_NOT_FOUND);
+      }
+
+      // 2. UserVerificationDocument 생성
+      const existingDocument = await trx.query.UserVerificationDocument.findFirst({
+        where: (table, { eq }) => eq(table.userId, user.id),
+      });
+
+      if (existingDocument) {
+        await trx.delete(UserVerificationDocument).where(eq(UserVerificationDocument.userId, user.id));
+      }
+
+      const [document] = await trx
+        .insert(UserVerificationDocument)
+        .values({
+          userId: user.id,
+          passportImageKey: signupData.passportImageKey,
+          profileImageKey: signupData.profileImageKey,
+        })
+        .returning({ id: UserVerificationDocument.id });
+
+      // 3. 사용자 정보 업데이트
+      await trx
+        .update(User)
+        .set({
+          name: signupData.name,
+          birthday: signupData.birthday,
+          passportNumber: signupData.passportNumber,
+          cityId: signupData.cityId,
+          countryCode: signupData.countryCode,
+        })
+        .where(eq(User.id, user.id));
+
+      // 4. 자동 승인 처리 (트랜잭션 내에서)
+      let isAutoApproved = false;
+      try {
+        isAutoApproved = await this.autoApproveUserInTransaction(document.id, trx);
+      } catch (error) {
+        console.error('자동 승인 처리 중 오류 발생:', error);
+        // 자동 승인 실패해도 signup 자체는 성공으로 처리
+        isAutoApproved = false;
+      }
+
+      return { userId: user.id, isAutoApproved, documentId: document.id };
+    });
+  }
+
+  private async autoApproveUserInTransaction(documentId: bigint, trx: any): Promise<boolean> {
+    console.log(`autoApproveUser documentId: ${documentId}`);
+
+    try {
+      // 얼굴 비교 수행
+      const verificationData = await this.argosService.argosProcessPipeline(documentId);
+      
+      if (verificationData.matchSimilarity === null || verificationData.matchConfidence === null || 
+        Number(verificationData.matchSimilarity) < 95 || Number(verificationData.matchConfidence) < 95) {
+        console.log('얼굴 비교 실패 - 자동 승인하지 않음');
+        return false;
+      }
+
+      console.log('얼굴 비교 성공 - 자동 승인 처리 시작');
+
+      const userId = verificationData.userId;
+
+      // approvalStatus 업데이트
+      await trx
+        .update(UserVerificationDocument)
+        .set({ approvalStatus: 1 })
+        .where(eq(UserVerificationDocument.id, documentId));
+
+      const [{ id: approvalId }] = await trx
+        .insert(UserApproval)
+        .values({
+          documentId,
+          userId,
+          approvedBy: 1,
+        })
+        .returning();
+
+      const txHash = await this.thirdwebService.generateNFT([
+        {
+          trait_trpe: 'userId',
+          value: userId.toString(),
+        },
+        {
+          trait_trpe: 'approvalId',
+          value: approvalId,
+        },
+      ]);
+
+      await trx.update(User).set({ approvalId }).where(eq(User.id, userId));
+
+      await this.notificationService.sendNotification({
+        userId,
+        title: 'The Mobile ID registration was successful',
+        content: 'Confirm your Mobile ID now',
+      });
+
+      await trx
+        .update(UserApproval)
+        .set({
+          txHash,
+        })
+        .where(eq(UserApproval.id, approvalId));
+
+      console.log('자동 승인 처리 완료');
+      return true;
+    } catch (error) {
+      console.error('자동 승인 처리 중 오류 발생:', error);
+      throw error;
+    }
+  }
 
   private validateBirthday(dateString: string) {
     let year: number, month: number, day: number;
@@ -189,45 +341,7 @@ export class AuthService {
       .where(eq(EmailVerification.email, email));
   }
 
-  async login(body: TLoginDto) {
-    const target = await this.db.query.User.findFirst({
-      where: (users, { eq }) => eq(users.email, body.email),
-    });
 
-    if (!target) {
-      throw new BadRequestException(ERROR_CODE.INVALID_LOGIN_DATA);
-    }
-
-    const isPasswordValid = await verify(
-      target.password as string,
-      body.password,
-    );
-    if (!isPasswordValid) {
-      throw new BadRequestException(ERROR_CODE.INVALID_LOGIN_DATA);
-    }
-
-    const userId = (target as typeof User.$inferSelect).id;
-
-    return {
-      ...this.createAccessToken(target.email, userId),
-      userId,
-    };
-  }
-
-  async createSession(userId: bigint, refreshToken: string) {
-    return this.db
-      .insert(UserSession)
-      .values({ userId, refreshToken })
-      .onConflictDoUpdate({
-        target: UserSession.userId,
-        set: { refreshToken, updatedAt: new Date() },
-      })
-      .returning({ id: UserSession.id });
-  }
-
-  async deleteSession(userId: string) {
-    this.db.delete(UserSession).where(eq(UserSession.userId, BigInt(userId)));
-  }
 
   async emailVerificationCheck(uuid: string, email: string) {
     const found = await this.db.query.EmailVerification.findFirst({
@@ -245,7 +359,7 @@ export class AuthService {
     return true;
   }
 
-  async createUser(data: typeof User.$inferInsert) {
+  async createUserWithValidation(data: typeof User.$inferInsert) {
     const isAlreadyUsedEmail = await this.db.query.User.findFirst({
       where: (table, { eq }) => eq(table.email, data.email),
     });
@@ -434,69 +548,7 @@ export class AuthService {
     return updated;
   }
 
-  async refeshAccessToken(refreshToken: string) {
-    const target = await this.db.query.UserSession.findFirst({
-      where: (table, { eq }) => eq(table.refreshToken, refreshToken),
-    });
 
-    const verified = await this.validateRefreshToken(refreshToken);
-
-    if (!target || !verified) {
-      throw new UnauthorizedException(ERROR_CODE.INVALID_REFRESH_TOKEN);
-    }
-
-    const userId = (target as typeof UserSession.$inferSelect).userId;
-
-    return {
-      ...this.createAccessToken(
-        (
-          await this.db.query.User.findFirst({
-            where: (users, { eq }) => eq(users.id, userId),
-          })
-        )?.email as string,
-        userId,
-      ),
-      userId,
-    };
-  }
-
-  private async validateRefreshToken(refreshToken: string) {
-    if (!refreshToken) {
-      throw new BadRequestException(ERROR_CODE.INVALID_REFRESH_TOKEN);
-    }
-    try {
-      const verified = await this.jwtService.verifyAsync(refreshToken);
-      console.log(verified);
-
-      return true;
-    } catch (error) {
-      console.log(error);
-      return false;
-    }
-  }
-
-  private hashPassword(password: string) {
-    return hash(password, {
-      // recommended minimum parameters
-      memoryCost: 19456,
-      timeCost: 2,
-      outputLen: 32,
-      parallelism: 1,
-    });
-  }
-
-  private createAccessToken(email: string, userId: bigint) {
-    return {
-      accessToken: this.jwtService.sign(
-        { sub: email, user_id: userId.toString() },
-        { expiresIn: '1d' },
-      ),
-      refreshToken: this.jwtService.sign(
-        { sub: email, user_id: userId.toString() },
-        { expiresIn: '1y' },
-      ),
-    };
-  }
 
   private async checkIsUser(email: string) {
     return Boolean(

@@ -8,62 +8,43 @@ import { AdminUserSession } from 'src/database/schema/admin-user-session';
 import { eq } from 'drizzle-orm';
 import { ERROR_CODE } from 'src/common/error-code';
 import { AuthService } from 'src/auth/auth.service';
+import { BaseAuthService } from 'src/auth/base-auth.service';
 
 @Injectable()
-export class AdminAuthService {
+export class AdminAuthService extends BaseAuthService<
+  typeof AdminUser.$inferSelect,
+  typeof AdminUserSession.$inferSelect,
+  TAdminLoginDto
+> {
   constructor(
-    @Inject(INJECT_DRIZZLE) private db: DrizzleDB,
-    private readonly jwtService: JwtService,
+    @Inject(INJECT_DRIZZLE) db: DrizzleDB,
+    jwtService: JwtService,
     private readonly authService: AuthService,
-  ) {}
-
-  async login(body: TAdminLoginDto) {
-    const target = await this.db.query.AdminUser.findFirst({
-      where: (users, { eq }) => eq(users.email, body.email),
-    });
-
-    if (!target) {
-      throw new BadRequestException(ERROR_CODE.INVALID_LOGIN_DATA);
-    }
-
-    const isPasswordValid = await verify(
-      target.password as string,
-      body.password,
+  ) {
+    super(
+      db,
+      jwtService,
+      'AdminUser',
+      'AdminUserSession',
+      AdminUser,
+      AdminUserSession,
+      'adminUserId',
+      '1h', // accessToken 만료시간
+      '1d', // refreshToken 만료시간
     );
-    if (!isPasswordValid) {
-      throw new BadRequestException(ERROR_CODE.INVALID_LOGIN_DATA);
-    }
+  }
 
+  protected convertUserId(userId: string | number | bigint): number {
+    return Number(userId);
+  }
+
+  protected getAdditionalLoginData(user: any): object {
     return {
-      ...this.createAccessToken(target.email, target.id),
-      userId: target.id,
-      permission: target.permission,
+      permission: user.permission,
     };
   }
 
-  async createSession(adminUserId: number, refreshToken: string) {
-    return this.db
-      .insert(AdminUserSession)
-      .values({ adminUserId, refreshToken })
-      .onConflictDoUpdate({
-        target: AdminUserSession.adminUserId,
-        set: { refreshToken, updatedAt: new Date() },
-      })
-      .returning({ id: AdminUserSession.id });
-  }
 
-  async deleteSession(adminUserId: string) {
-    this.db
-      .delete(AdminUserSession)
-      .where(eq(AdminUserSession.adminUserId, parseInt(adminUserId)));
-  }
-
-  async createUser(data: typeof AdminUser.$inferInsert) {
-    return this.db.insert(AdminUser).values({
-      ...data,
-      password: await this.hashPassword(data.password as string),
-    });
-  }
 
   // 관리자 관리 메서드들
   async getAdminList() {
@@ -197,27 +178,7 @@ export class AdminAuthService {
     }
   }
 
-  private hashPassword(password: string) {
-    return hash(password, {
-      // recommended minimum parameters
-      memoryCost: 19456,
-      timeCost: 2,
-      outputLen: 32,
-      parallelism: 1,
-    });
-  }
-  private createAccessToken(email: string, userId: number) {
-    return {
-      accessToken: this.jwtService.sign(
-        { sub: email, user_id: userId.toString() },
-        { expiresIn: '1h' },
-      ),
-      refreshToken: this.jwtService.sign(
-        { sub: email, user_id: userId.toString() },
-        { expiresIn: '1d' },
-      ),
-    };
-  }
+
 
   async argosRecognition(file: Express.Multer.File) {
     return this.authService.argosRecognition(file);

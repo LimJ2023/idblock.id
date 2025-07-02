@@ -36,8 +36,9 @@ export class AdminAuthController {
     @Body() body: AdminLoginDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const { accessToken, refreshToken, userId, permission } =
-      await this.authService.login(body.data);
+    const loginResult = await this.authService.login(body.data);
+    const { accessToken, refreshToken, userId } = loginResult;
+    const permission = (loginResult as any).permission;
     await this.authService.createSession(userId, refreshToken);
 
     const cookieDomain = this.envService.get('COOKIE_DOMAIN');
