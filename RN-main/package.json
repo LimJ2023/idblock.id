@@ -34,7 +34,7 @@
     "react-native-device-info": "^13.1.0",
     "react-native-exit-app": "^2.0.0",
     "react-native-fast-image": "^8.6.3",
-    "react-native-gesture-handler": "^2.20.1",
+    "react-native-gesture-handler": "2.24.0",
     "react-native-image-picker": "^8.2.1",
     "react-native-iphone-screen-helper": "^2.1.2",
     "react-native-keyboard-aware-scroll-view": "^0.9.5",

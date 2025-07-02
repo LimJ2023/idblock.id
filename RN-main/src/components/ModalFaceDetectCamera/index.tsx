@@ -50,6 +50,14 @@ export const ModalFaceDetectCamera = memo(function ({ isVisible, onSubmit, onClo
     if (!isSubmitRef.current) {
       isSubmitRef.current = true;
 
+      // 개발 모드에서는 더미 이미지 사용
+      if (__DEV__) {
+        console.log('📷 개발 모드: 더미 얼굴 이미지 자동 제출');
+        handleClose();
+        onSubmit?.('file:///android_asset/public/pexels-justin-shaifer-501272-1222271.jpg');
+        return;
+      }
+
       const file = await cameraRef.current?.takePhoto?.({
         enableShutterSound: true,
       });
@@ -64,6 +72,19 @@ export const ModalFaceDetectCamera = memo(function ({ isVisible, onSubmit, onClo
           }),
         );
       }
+    }
+  }, []);
+
+  // 개발 모드에서 자동으로 더미 얼굴 감지 시뮬레이션
+  const handleMockFaceDetection = useCallback(() => {
+    if (__DEV__) {
+      console.log('🎭 개발 모드: 더미 얼굴 감지 시뮬레이션');
+      setFaceBorder({
+        width: 200,
+        height: 250,
+        x: 100,
+        y: 150,
+      });
     }
   }, []);
 
@@ -104,7 +125,16 @@ export const ModalFaceDetectCamera = memo(function ({ isVisible, onSubmit, onClo
     }
 
     isSubmitRef.current = false;
-  }, [isVisible]);
+
+    // 개발 모드에서 자동으로 얼굴 감지 시뮬레이션
+    if (__DEV__ && isVisible) {
+      const timer = setTimeout(() => {
+        handleMockFaceDetection();
+      }, 1500); // 1.5초 후 자동으로 얼굴 감지
+
+      return () => clearTimeout(timer);
+    }
+  }, [isVisible, handleMockFaceDetection]);
 
   return (
     <Modal

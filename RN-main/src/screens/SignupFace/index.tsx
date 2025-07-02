@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useRef, useState } from 'react';
+import React, { memo, useCallback, useRef, useState, useEffect } from 'react';
 
 import { ScrollView, View, Image } from 'react-native';
 
@@ -68,6 +68,21 @@ export const SignupFace = memo(function ({ route }: Params) {
   if (accessTokenRef.current !== accessToken) {
     accessTokenRef.current = accessToken;
   }
+
+  // 개발 모드에서 자동으로 더미 이미지 설정
+  useEffect(() => {
+    if (__DEV__ && !image) {
+      console.log('🎭 개발 모드: 더미 얼굴 이미지 자동 설정');
+      // public 폴더의 더미 이미지를 사용
+      setImage('file:///android_asset/public/pexels-justin-shaifer-501272-1222271.jpg');
+    }
+  }, [image]);
+
+  const handleMockImage = useCallback(() => {
+    // public 폴더의 더미 이미지를 사용
+    setImage('file:///android_asset/public/pexels-justin-shaifer-501272-1222271.jpg');
+    console.log('🎭 개발 모드: Mock 이미지 설정 완료');
+  }, []);
 
   const handleFaceDetectCamera = useCallback(() => {
     cameraPermissionCheck().then((result) => {
@@ -319,12 +334,12 @@ export const SignupFace = memo(function ({ route }: Params) {
               <FastImage source={STATIC_IMAGE.CAMERA_WHITE} style={style.cameraButtonImage} resizeMode="contain" />
               <Text style={[font.BODY3_SB, style.cameraButtonText]}>{image ? 'Retake a photo' : 'Take a photo'}</Text>
             </Button>
-            {/* {__DEV__ && (
+            {__DEV__ && (
               <Button style={[style.cameraButton, { marginTop: 10, backgroundColor: COLOR.PRI_2_500 }]} onPress={handleMockImage}>
                 <FastImage source={STATIC_IMAGE.CAMERA_WHITE} style={style.cameraButtonImage} resizeMode="contain" />
                 <Text style={[font.BODY3_SB, style.cameraButtonText]}>Set Mock Image (Dev)</Text>
               </Button>
-            )} */}
+            )}
 
             <Button
               style={[style.nextButton, { backgroundColor: image ? COLOR.PRI_1_500 : COLOR.DISABLED }]}

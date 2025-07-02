@@ -8,6 +8,10 @@ const biometrics = new ReactNativeBiometrics({
 
 export function useBiometricsAuth() {
   const isAbleBiometrics = useCallback(async (): Promise<BiometicsResultType> => {
+    if (__DEV__) {
+      return 'FaceID';
+    }
+
     try {
       const { available, biometryType, error } = await biometrics.isSensorAvailable();
 
@@ -30,6 +34,11 @@ export function useBiometricsAuth() {
   }, []);
 
   const reqBiometricsLogin = useCallback(async (message: string = 'Verification is required to proceed') => {
+    if (__DEV__) {
+      console.log('🔓 개발 모드: 생체 인증 건너뛰기');
+      return true;
+    }
+
     try {
       const { success, error } = await biometrics.simplePrompt({
         promptMessage: message,

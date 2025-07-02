@@ -47,6 +47,37 @@ export const SignupPassport = memo(function ({ route }: Params) {
     imageRef.current = image;
   }
 
+  // 개발 모드에서 자동으로 더미 데이터 설정
+  useEffect(() => {
+    if (__DEV__ && !image) {
+      console.log('📔 개발 모드: 더미 여권 이미지 및 OCR 데이터 자동 설정');
+      setImage('file:///android_asset/public/passport01.jpg');
+      setPassportData({
+        ocr_fullName: 'JOHN DOE',
+        ocr_gender: 'MALE',
+        ocr_birthDate: '1990-01-01',
+        ocr_nationality: 'USA',
+        ocr_number: 'A12345678',
+        ocr_issueDate: '2020-01-01',
+        ocr_expireDate: '2030-01-01',
+      });
+    }
+  }, [image]);
+
+  const handleMockPassport = useCallback(() => {
+    console.log('📔 개발 모드: Mock 여권 데이터 설정 완료');
+    setImage('file:///android_asset/public/passport01.jpg');
+    setPassportData({
+      ocr_fullName: 'JANE SMITH',
+      ocr_gender: 'FEMALE',
+      ocr_birthDate: '1985-05-15',
+      ocr_nationality: 'CANADA',
+      ocr_number: 'B87654321',
+      ocr_issueDate: '2019-05-15',
+      ocr_expireDate: '2029-05-15',
+    });
+  }, []);
+
   const handleScanner = useCallback(() => {
     cameraPermissionCheck().then((result) => {
       if (result === 'granted') {
@@ -297,6 +328,11 @@ export const SignupPassport = memo(function ({ route }: Params) {
             <Button style={[style.passportCameraButton, { backgroundColor: COLOR.PRI_1_400 }]} onPress={openGallery}>
               <Text style={[font.BODY3_SB, { color: COLOR.WHITE }]}>Select from Gallery</Text>
             </Button>
+            {__DEV__ && (
+              <Button style={[style.passportCameraButton, { backgroundColor: COLOR.PRI_2_500, marginTop: 10 }]} onPress={handleMockPassport}>
+                <Text style={[font.BODY3_SB, { color: COLOR.WHITE }]}>Set Mock Passport Data (Dev)</Text>
+              </Button>
+            )}
           </View>
         </View>
       </ScrollView>
