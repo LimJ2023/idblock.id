@@ -82,6 +82,7 @@ export class AuthService extends BaseAuthService<
       });
       
       if (!user) {
+        console.log('user not found');
         throw new BadRequestException(ERROR_CODE.USER_NOT_FOUND);
       }
 

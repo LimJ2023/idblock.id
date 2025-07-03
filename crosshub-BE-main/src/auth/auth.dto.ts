@@ -103,7 +103,6 @@ const VSignupSimpleDto = v.object({
 })
 const VSignUpDto = v.pipe(
   v.object({
-    uuid: v.pipe(v.string(), v.uuid()),
     email: VEmail,
     password: VPassword,
     passwordCheck: v.string(),
@@ -194,7 +193,7 @@ export class SignUpDto extends TypeschemaDto(VSignUpDto) {
     description: '도시 id',
     example: '1835848',
   })
-  cityId: string;
+  cityId: string | null;
 
   @ApiProperty({
     title: '여권 번호',
