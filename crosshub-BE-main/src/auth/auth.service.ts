@@ -85,15 +85,28 @@ export class AuthService extends BaseAuthService<
         throw new BadRequestException(ERROR_CODE.USER_NOT_FOUND);
       }
 
-      // 2. UserVerificationDocument 생성
+      console.log(`간편가입 사용자 전체가입 시작 - userId: ${user.id}, email: ${user.email}`);
+
+      // 2. 기존 UserVerificationDocument 확인 및 정리
       const existingDocument = await trx.query.UserVerificationDocument.findFirst({
         where: (table, { eq }) => eq(table.userId, user.id),
       });
 
       if (existingDocument) {
+        console.log(`기존 UserVerificationDocument 발견 - documentId: ${existingDocument.id}, status: ${existingDocument.approvalStatus}`);
+        
+        // 기존 문서가 이미 승인된 경우 처리
+        if (existingDocument.approvalStatus === 1) {
+          console.log('이미 승인된 문서가 존재합니다');
+          return { userId: user.id, isAutoApproved: true, documentId: existingDocument.id };
+        }
+        
+        // 기존 문서 삭제
         await trx.delete(UserVerificationDocument).where(eq(UserVerificationDocument.userId, user.id));
+        console.log('기존 UserVerificationDocument 삭제 완료');
       }
 
+      // 3. 새로운 UserVerificationDocument 생성
       const [document] = await trx
         .insert(UserVerificationDocument)
         .values({
@@ -103,7 +116,9 @@ export class AuthService extends BaseAuthService<
         })
         .returning({ id: UserVerificationDocument.id });
 
-      // 3. 사용자 정보 업데이트
+      console.log(`새로운 UserVerificationDocument 생성 - documentId: ${document.id}`);
+
+      // 4. 사용자 정보 업데이트
       await trx
         .update(User)
         .set({
@@ -115,12 +130,19 @@ export class AuthService extends BaseAuthService<
         })
         .where(eq(User.id, user.id));
 
-      // 4. 자동 승인 처리 (트랜잭션 내에서)
+      console.log('사용자 정보 업데이트 완료');
+
+      // 5. 자동 승인 처리 (트랜잭션 내에서)
       let isAutoApproved = false;
       try {
+        console.log('자동 승인 프로세스 시작...');
         isAutoApproved = await this.autoApproveUserInTransaction(document.id, trx);
+        console.log(`자동 승인 프로세스 완료 - 결과: ${isAutoApproved}`);
       } catch (error) {
         console.error('자동 승인 처리 중 오류 발생:', error);
+        if (error instanceof Error) {
+          console.error('오류 스택:', error.stack);
+        }
         // 자동 승인 실패해도 signup 자체는 성공으로 처리
         isAutoApproved = false;
       }
@@ -134,15 +156,27 @@ export class AuthService extends BaseAuthService<
 
     try {
       // 얼굴 비교 수행
+      console.log('얼굴 비교 프로세스 시작...');
       const verificationData = await this.argosService.argosProcessPipeline(documentId);
+      console.log('얼굴 비교 프로세스 완료:', {
+        matchSimilarity: verificationData.matchSimilarity,
+        matchConfidence: verificationData.matchConfidence,
+      });
       
-      if (verificationData.matchSimilarity === null || verificationData.matchConfidence === null || 
-        Number(verificationData.matchSimilarity) < 95 || Number(verificationData.matchConfidence) < 95) {
-        console.log('얼굴 비교 실패 - 자동 승인하지 않음');
+      if (verificationData.matchSimilarity === null || verificationData.matchConfidence === null) {
+        console.log('얼굴 비교 데이터가 null - Argos API 호출 실패 가능성');
         return false;
       }
 
-      console.log('얼굴 비교 성공 - 자동 승인 처리 시작');
+      const similarity = Number(verificationData.matchSimilarity);
+      const confidence = Number(verificationData.matchConfidence);
+      
+      if (similarity < 95 || confidence < 95) {
+        console.log(`얼굴 비교 실패 - similarity: ${similarity}, confidence: ${confidence} (임계값: 95)`);
+        return false;
+      }
+
+      console.log(`얼굴 비교 성공 - similarity: ${similarity}, confidence: ${confidence} - 자동 승인 처리 시작`);
 
       const userId = verificationData.userId;
 
@@ -161,6 +195,8 @@ export class AuthService extends BaseAuthService<
         })
         .returning();
 
+      console.log(`UserApproval 생성 완료 - approvalId: ${approvalId}`);
+
       const txHash = await this.thirdwebService.generateNFT([
         {
           trait_trpe: 'userId',
@@ -171,6 +207,8 @@ export class AuthService extends BaseAuthService<
           value: approvalId,
         },
       ]);
+
+      console.log(`NFT 생성 완료 - txHash: ${txHash}`);
 
       await trx.update(User).set({ approvalId }).where(eq(User.id, userId));
 
@@ -191,6 +229,9 @@ export class AuthService extends BaseAuthService<
       return true;
     } catch (error) {
       console.error('자동 승인 처리 중 오류 발생:', error);
+      if (error instanceof Error) {
+        console.error('오류 스택:', error.stack);
+      }
       throw error;
     }
   }
@@ -478,6 +519,20 @@ export class AuthService extends BaseAuthService<
         name: user.name,
       }
     }
+
+    // S3 키가 null인 경우 처리
+    const getProfileImageUrl = async (imageKey: string | null | undefined) => {
+      if (!imageKey) {
+        return null;
+      }
+      try {
+        return await this.s3Service.createPresignedUrlWithClient(imageKey);
+      } catch (error) {
+        console.error('S3 presigned URL 생성 실패:', error);
+        return null;
+      }
+    };
+
     return {
       id: user.id,
       email: user.email,
@@ -491,23 +546,17 @@ export class AuthService extends BaseAuthService<
       ...(user.approvalId !== null ?
         {
           status: 'APPROVED',
-          profileImage: await this.s3Service.createPresignedUrlWithClient(
-            user.approval.document?.profileImageKey as string,
-          ),
+          profileImage: await getProfileImageUrl(user.approval?.document?.profileImageKey),
         }
       : latestDocument?.approvalStatus === 2 ?
         {
           status: 'REJECTED',
           reason: latestDocument?.rejectReason,
-          profileImage: await this.s3Service.createPresignedUrlWithClient(
-            latestDocument?.profileImageKey as string,
-          ),
+          profileImage: await getProfileImageUrl(latestDocument?.profileImageKey),
         }
       : {
           status: 'PENDING',
-          profileImage: await this.s3Service.createPresignedUrlWithClient(
-            latestDocument?.profileImageKey as string,
-          ),
+          profileImage: await getProfileImageUrl(latestDocument?.profileImageKey),
         }),
     };
   }

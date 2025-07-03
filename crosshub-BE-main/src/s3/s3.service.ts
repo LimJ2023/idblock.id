@@ -71,6 +71,9 @@ export class S3Service {
   }
 
   createPresignedUrlWithClient(key: string) {
+    if (!key || key.trim() === '') {
+      throw new Error('S3 key cannot be null or empty');
+    }
     const command = new GetObjectCommand({ Bucket: this.bucketName, Key: key });
     return getSignedUrl(this.s3Client, command, { expiresIn: 3600 });
   }

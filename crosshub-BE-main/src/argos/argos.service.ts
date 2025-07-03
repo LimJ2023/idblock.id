@@ -236,53 +236,73 @@ export class ArgosService {
       const idImageBase64 = await this.prepareImageFromUrl(idImageUrl);
       const faceImageBase64 = await this.prepareImageFromUrl(faceImageUrl);
   
-      let data: any;
-      let faceData: any;
-      let compareData: any;
+      let data: any = null;
+      let faceData: any = null;
+      let compareData: any = null;
+      let errors: string[] = [];
 
+      // ID 라이브니스 검사
       try {
+        console.log('ID 라이브니스 검사 시작...');
         data = await this.idLiveness(idImageBase64);
-        console.log('id >>>>>>.', data);
-      } catch (error) {}
+        console.log('ID 라이브니스 검사 성공:', data);
+      } catch (error) {
+        console.error('ID 라이브니스 검사 실패:', error);
+        errors.push('ID 라이브니스 검사 실패');
+      }
   
+      // 얼굴 라이브니스 검사
       try {
-        faceData = await this.faceLiveness(
-          faceImageBase64,
-        );
-        console.log('face >>>>>>.', faceData);
-      } catch (error) {}
+        console.log('얼굴 라이브니스 검사 시작...');
+        faceData = await this.faceLiveness(faceImageBase64);
+        console.log('얼굴 라이브니스 검사 성공:', faceData);
+      } catch (error) {
+        console.error('얼굴 라이브니스 검사 실패:', error);
+        errors.push('얼굴 라이브니스 검사 실패');
+      }
   
+      // 얼굴 비교 검사
       try {
+        console.log('얼굴 비교 검사 시작...');
         compareData = await this.faceCompare(
           target.passportImageKey,
           target.profileImageKey,
         );
-        console.log('compare >>>>>>.', compareData);
-      } catch (error) {}
+        console.log('얼굴 비교 검사 성공:', compareData);
+      } catch (error) {
+        console.error('얼굴 비교 검사 실패:', error);
+        errors.push('얼굴 비교 검사 실패');
+      }
+
+      // 오류 요약 로그
+      if (errors.length > 0) {
+        console.error(`총 ${errors.length}개의 Argos API 호출 실패:`, errors);
+      }
 
       //유저의 document에 데이터 저장
-
       try {
-      await this.db.update(UserVerificationDocument).set({
-        screenReplay: data?.result?.screenReplay?.liveness_score,
-        paperPrinted: data?.result?.paperPrinted?.liveness_score,
-        replacePortraits: data?.result?.replacePortraits?.liveness_score,
-        faceLiveness: faceData?.result?.liveness_score,
-        matchSimilarity: compareData?.similarity,
-        matchConfidence: compareData?.confidence,
-      }).where(eq(UserVerificationDocument.id, documentId));
+        await this.db.update(UserVerificationDocument).set({
+          screenReplay: data?.result?.screenReplay?.liveness_score || null,
+          paperPrinted: data?.result?.paperPrinted?.liveness_score || null,
+          replacePortraits: data?.result?.replacePortraits?.liveness_score || null,
+          faceLiveness: faceData?.result?.liveness_score || null,
+          matchSimilarity: compareData?.similarity || null,
+          matchConfidence: compareData?.confidence || null,
+        }).where(eq(UserVerificationDocument.id, documentId));
+        
+        console.log('UserVerificationDocument 업데이트 완료');
       } catch (error) {
         console.error('Error updating UserVerificationDocument:', error);
         throw new BadRequestException('Failed to update UserVerificationDocument');
       }
 
       //target 데이터 업데이트
-      target.screenReplay = data?.result?.screenReplay?.liveness_score;
-      target.paperPrinted = data?.result?.paperPrinted?.liveness_score;
-      target.replacePortraits = data?.result?.replacePortraits?.liveness_score;
-      target.faceLiveness = faceData?.result?.liveness_score;
-      target.matchSimilarity = compareData?.similarity;
-      target.matchConfidence = compareData?.confidence;
+      target.screenReplay = data?.result?.screenReplay?.liveness_score || null;
+      target.paperPrinted = data?.result?.paperPrinted?.liveness_score || null;
+      target.replacePortraits = data?.result?.replacePortraits?.liveness_score || null;
+      target.faceLiveness = faceData?.result?.liveness_score || null;
+      target.matchSimilarity = compareData?.similarity || null;
+      target.matchConfidence = compareData?.confidence || null;
 
       return target;
   }
