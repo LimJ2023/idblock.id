@@ -141,12 +141,12 @@ export class SignupSimpleDto extends TypeschemaDto(VSignupSimpleDto) {
   password: string;
 }
 export class SignUpDto extends TypeschemaDto(VSignUpDto) {
-  @ApiProperty({
-    title: 'UUID',
-    description: '이메일 인증시 사용한 UUID',
-    example: '812204a0-2432-40e0-90cb-b1ad8019b9c1',
-  })
-  uuid: string;
+  // @ApiProperty({
+  //   title: 'UUID',
+  //   description: '이메일 인증시 사용한 UUID',
+  //   example: '812204a0-2432-40e0-90cb-b1ad8019b9c1',
+  // })
+  // uuid: string;
 
   @ApiProperty({
     title: '이메일',
