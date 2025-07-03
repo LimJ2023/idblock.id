@@ -31,6 +31,7 @@ import {
   SignupSimpleDto,
   GetQrCodeDto,
   GetUserCountryDto,
+  AdditionalVerificationDto,
 } from './auth.dto';
 import { Request, Response } from 'express';
 import * as v from 'valibot';
@@ -475,5 +476,36 @@ export class AuthController {
   @ApiBearerAuth()
   async protected() {
     return 'This is a protected route';
+  }
+
+  @Post('additional-verification')
+  @ApiOperation({ summary: '추가 인증 (이미 로그인한 회원)' })
+  @ApiBearerAuth()
+  @ApiBadRequestResponse({
+    example: {
+      message: ERROR_CODE.USER_NOT_FOUND,
+    },
+  })
+  async additionalVerification(
+    @Body() body: AdditionalVerificationDto,
+    @CurrentUser() userId: bigint,
+  ) {
+    console.log('추가 인증 요청 - userId:', userId, 'body:', body);
+    
+    const result = await this.authService.additionalVerificationWithTransaction(
+      userId,
+      {
+        name: body.data.name,
+        birthday: body.data.birthday,
+        passportNumber: body.data.passportNumber,
+        passportImageKey: body.data.passportImageKey,
+        profileImageKey: body.data.profileImageKey,
+        cityId: body.data.cityId,
+        countryCode: body.data.countryCode,
+      }
+    );
+
+    console.log('추가 인증 결과:', result);
+    return result;
   }
 }

@@ -699,5 +699,94 @@ export class AuthService extends BaseAuthService<
       where: eq(City.countryCode, countryCode),
     })
   }
+
+  async additionalVerificationWithTransaction(
+    userId: bigint,
+    verificationData: {
+      name: string;
+      birthday: string;
+      passportNumber: string;
+      passportImageKey: string;
+      profileImageKey: string;
+      cityId: string;
+      countryCode: string;
+    }
+  ) {
+    return this.db.transaction(async (trx) => {
+      // 1. 유저 ID로 사용자 조회
+      const user = await trx.query.User.findFirst({
+        where: (table, { eq }) => eq(table.id, userId),
+      });
+      
+      if (!user) {
+        console.log('user not found');
+        throw new BadRequestException(ERROR_CODE.USER_NOT_FOUND);
+      }
+
+      console.log(`로그인 사용자 추가 인증 시작 - userId: ${user.id}, email: ${user.email}`);
+
+      // 2. 기존 UserVerificationDocument 확인 및 정리
+      const existingDocument = await trx.query.UserVerificationDocument.findFirst({
+        where: (table, { eq }) => eq(table.userId, user.id),
+      });
+
+      if (existingDocument) {
+        console.log(`기존 UserVerificationDocument 발견 - documentId: ${existingDocument.id}, status: ${existingDocument.approvalStatus}`);
+        
+        // 기존 문서가 이미 승인된 경우 처리
+        if (existingDocument.approvalStatus === 1) {
+          console.log('이미 승인된 문서가 존재합니다');
+          return { userId: user.id, isAutoApproved: true, documentId: existingDocument.id };
+        }
+        
+        // 기존 문서 삭제
+        await trx.delete(UserVerificationDocument).where(eq(UserVerificationDocument.userId, user.id));
+        console.log('기존 UserVerificationDocument 삭제 완료');
+      }
+
+      // 3. 새로운 UserVerificationDocument 생성
+      const [document] = await trx
+        .insert(UserVerificationDocument)
+        .values({
+          userId: user.id,
+          passportImageKey: verificationData.passportImageKey,
+          profileImageKey: verificationData.profileImageKey,
+        })
+        .returning({ id: UserVerificationDocument.id });
+
+      console.log(`새로운 UserVerificationDocument 생성 - documentId: ${document.id}`);
+
+      // 4. 사용자 정보 업데이트
+      await trx
+        .update(User)
+        .set({
+          name: verificationData.name,
+          birthday: verificationData.birthday,
+          passportNumber: verificationData.passportNumber,
+          cityId: verificationData.cityId,
+          countryCode: verificationData.countryCode,
+        })
+        .where(eq(User.id, user.id));
+
+      console.log('사용자 정보 업데이트 완료');
+
+      // 5. 자동 승인 처리 (트랜잭션 내에서)
+      let isAutoApproved = false;
+      try {
+        console.log('자동 승인 프로세스 시작...');
+        isAutoApproved = await this.autoApproveUserInTransaction(document.id, trx);
+        console.log(`자동 승인 프로세스 완료 - 결과: ${isAutoApproved}`);
+      } catch (error) {
+        console.error('자동 승인 처리 중 오류 발생:', error);
+        if (error instanceof Error) {
+          console.error('오류 스택:', error.stack);
+        }
+        // 자동 승인 실패해도 verification 자체는 성공으로 처리
+        isAutoApproved = false;
+      }
+
+      return { userId: user.id, isAutoApproved, documentId: document.id };
+    });
+  }
 }
 

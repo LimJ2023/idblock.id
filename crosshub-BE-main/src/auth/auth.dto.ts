@@ -154,18 +154,18 @@ export class SignUpDto extends TypeschemaDto(VSignUpDto) {
   })
   email: string;
 
-  @ApiProperty({
-    title: '비밀번호',
-    description: '비밀번호',
-    example: '12345678',
-  })
-  password: string;
-  @ApiProperty({
-    title: '비밀번호 확인',
-    description: '비밀번호 확인',
-    example: '12345678',
-  })
-  passwordCheck: string;
+  // @ApiProperty({
+  //   title: '비밀번호',
+  //   description: '비밀번호',
+  //   example: '12345678',
+  // })
+  // password: string;
+  // @ApiProperty({
+  //   title: '비밀번호 확인',
+  //   description: '비밀번호 확인',
+  //   example: '12345678',
+  // })
+  // passwordCheck: string;
 
   @ApiProperty({
     title: '이름',
@@ -384,4 +384,65 @@ export class GetUserCountryDto {
     example: 'KOR',
   })
   code3: string
+}
+
+const VAdditionalVerificationDto = v.object({
+  name: VName,
+  birthday: VBirthday,
+  countryCode: v.string(),
+  cityId: v.string(),
+  passportNumber: v.string(),
+  passportImageKey: v.string(),
+  profileImageKey: v.string(),
+});
+
+export class AdditionalVerificationDto extends TypeschemaDto(VAdditionalVerificationDto) {
+  @ApiProperty({
+    title: '이름',
+    description: '이름',
+    example: '임요한',
+  })
+  name: string;
+
+  @ApiProperty({
+    title: '생년월일',
+    description: '생년월일',
+    example: '19940501',
+  })
+  birthday: string;
+
+  @ApiProperty({
+    title: '국가',
+    description: '국가',
+    example: 'KR',
+  })
+  countryCode: string;
+
+  @ApiProperty({
+    title: '도시 id',
+    description: '도시 id',
+    example: '1835848',
+  })
+  cityId: string;
+
+  @ApiProperty({
+    title: '여권 번호',
+    description: '여권 번호',
+    example: '12345678',
+  })
+  passportNumber: string;
+
+  @ApiProperty({
+    title: '여권 이미지 키',
+    description: '여권 이미지 키',
+    example: 'private/passport/9cfd74bb7e8280e15139d1e142c0f96ccf23e9bb684f20ea62d084f505fa140f',
+  })
+  passportImageKey: string;
+
+  @ApiProperty({
+    title: '프로필 이미지 키',
+    description: '프로필 이미지 키',
+    example: 'private/profile/1005aa23b5e4f2ca0e448345741cefc35aaa0eed639673ec134de5898ddf18a5',
+  })
+  profileImageKey: string;
 }
