@@ -75,7 +75,8 @@ export class AuthService extends BaseAuthService<
     cityId: string;
     countryCode: string;
   }) {
-    return this.db.transaction(async (trx) => {
+    // 먼저 트랜잭션 내에서 UserVerificationDocument 생성
+    const result = await this.db.transaction(async (trx) => {
       // 1. 유저 ID 조회
       const user = await trx.query.User.findFirst({
         where: (table, { eq }) => eq(table.email, signupData.email),
@@ -133,109 +134,28 @@ export class AuthService extends BaseAuthService<
 
       console.log('사용자 정보 업데이트 완료');
 
-      // 5. 자동 승인 처리 (트랜잭션 내에서)
-      let isAutoApproved = false;
-      try {
-        console.log('자동 승인 프로세스 시작...');
-        isAutoApproved = await this.autoApproveUserInTransaction(document.id, trx);
-        console.log(`자동 승인 프로세스 완료 - 결과: ${isAutoApproved}`);
-      } catch (error) {
-        console.error('자동 승인 처리 중 오류 발생:', error);
-        if (error instanceof Error) {
-          console.error('오류 스택:', error.stack);
-        }
-        // 자동 승인 실패해도 signup 자체는 성공으로 처리
-        isAutoApproved = false;
-      }
-
-      return { userId: user.id, isAutoApproved, documentId: document.id };
+      return { userId: user.id, documentId: document.id };
     });
-  }
 
-  private async autoApproveUserInTransaction(documentId: bigint, trx: any): Promise<boolean> {
-    console.log(`autoApproveUser documentId: ${documentId}`);
-
+    // 트랜잭션 커밋 후 자동 승인 처리
+    let isAutoApproved = false;
     try {
-      // 얼굴 비교 수행
-      console.log('얼굴 비교 프로세스 시작...');
-      const verificationData = await this.argosService.argosProcessPipeline(documentId);
-      console.log('얼굴 비교 프로세스 완료:', {
-        matchSimilarity: verificationData.matchSimilarity,
-        matchConfidence: verificationData.matchConfidence,
-      });
-      
-      if (verificationData.matchSimilarity === null || verificationData.matchConfidence === null) {
-        console.log('얼굴 비교 데이터가 null - Argos API 호출 실패 가능성');
-        return false;
-      }
-
-      const similarity = Number(verificationData.matchSimilarity);
-      const confidence = Number(verificationData.matchConfidence);
-      
-      if (similarity < 95 || confidence < 95) {
-        console.log(`얼굴 비교 실패 - similarity: ${similarity}, confidence: ${confidence} (임계값: 95)`);
-        return false;
-      }
-
-      console.log(`얼굴 비교 성공 - similarity: ${similarity}, confidence: ${confidence} - 자동 승인 처리 시작`);
-
-      const userId = verificationData.userId;
-
-      // approvalStatus 업데이트
-      await trx
-        .update(UserVerificationDocument)
-        .set({ approvalStatus: 1 })
-        .where(eq(UserVerificationDocument.id, documentId));
-
-      const [{ id: approvalId }] = await trx
-        .insert(UserApproval)
-        .values({
-          documentId,
-          userId,
-          approvedBy: 1,
-        })
-        .returning();
-
-      console.log(`UserApproval 생성 완료 - approvalId: ${approvalId}`);
-
-      const txHash = await this.thirdwebService.generateNFT([
-        {
-          trait_trpe: 'userId',
-          value: userId.toString(),
-        },
-        {
-          trait_trpe: 'approvalId',
-          value: approvalId,
-        },
-      ]);
-
-      console.log(`NFT 생성 완료 - txHash: ${txHash}`);
-
-      await trx.update(User).set({ approvalId }).where(eq(User.id, userId));
-
-      await this.notificationService.sendNotification({
-        userId,
-        title: 'The Mobile ID registration was successful',
-        content: 'Confirm your Mobile ID now',
-      });
-
-      await trx
-        .update(UserApproval)
-        .set({
-          txHash,
-        })
-        .where(eq(UserApproval.id, approvalId));
-
-      console.log('자동 승인 처리 완료');
-      return true;
+      console.log('자동 승인 프로세스 시작...');
+      isAutoApproved = await this.autoApproveUser(result.documentId);
+      console.log(`자동 승인 프로세스 완료 - 결과: ${isAutoApproved}`);
     } catch (error) {
       console.error('자동 승인 처리 중 오류 발생:', error);
       if (error instanceof Error) {
         console.error('오류 스택:', error.stack);
       }
-      throw error;
+      // 자동 승인 실패해도 signup 자체는 성공으로 처리
+      isAutoApproved = false;
     }
+
+    return { userId: result.userId, isAutoApproved, documentId: result.documentId };
   }
+
+
 
   private validateBirthday(dateString: string) {
     let year: number, month: number, day: number;
@@ -712,7 +632,8 @@ export class AuthService extends BaseAuthService<
       countryCode: string;
     }
   ) {
-    return this.db.transaction(async (trx) => {
+    // 먼저 트랜잭션 내에서 UserVerificationDocument 생성
+    const result = await this.db.transaction(async (trx) => {
       // 1. 유저 ID로 사용자 조회
       const user = await trx.query.User.findFirst({
         where: (table, { eq }) => eq(table.id, userId),
@@ -770,23 +691,25 @@ export class AuthService extends BaseAuthService<
 
       console.log('사용자 정보 업데이트 완료');
 
-      // 5. 자동 승인 처리 (트랜잭션 내에서)
-      let isAutoApproved = false;
-      try {
-        console.log('자동 승인 프로세스 시작...');
-        isAutoApproved = await this.autoApproveUserInTransaction(document.id, trx);
-        console.log(`자동 승인 프로세스 완료 - 결과: ${isAutoApproved}`);
-      } catch (error) {
-        console.error('자동 승인 처리 중 오류 발생:', error);
-        if (error instanceof Error) {
-          console.error('오류 스택:', error.stack);
-        }
-        // 자동 승인 실패해도 verification 자체는 성공으로 처리
-        isAutoApproved = false;
-      }
-
-      return { userId: user.id, isAutoApproved, documentId: document.id };
+      return { userId: user.id, documentId: document.id };
     });
+
+    // 트랜잭션 커밋 후 자동 승인 처리
+    let isAutoApproved = false;
+    try {
+      console.log('자동 승인 프로세스 시작...');
+      isAutoApproved = await this.autoApproveUser(result.documentId);
+      console.log(`자동 승인 프로세스 완료 - 결과: ${isAutoApproved}`);
+    } catch (error) {
+      console.error('자동 승인 처리 중 오류 발생:', error);
+      if (error instanceof Error) {
+        console.error('오류 스택:', error.stack);
+      }
+      // 자동 승인 실패해도 verification 자체는 성공으로 처리
+      isAutoApproved = false;
+    }
+
+    return { userId: result.userId, isAutoApproved, documentId: result.documentId };
   }
 }
 
