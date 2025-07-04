@@ -29,7 +29,7 @@ export default StyleSheet.create({
     minWidth: '45%',
     flexGrow: 1,
     // paddingVertical: 5,
-    marginBottom: 12,
+    // marginBottom: 12,
     borderRadius: 12,
     backgroundColor: '#F5F5F6',
     alignItems: 'center',
@@ -56,8 +56,8 @@ export default StyleSheet.create({
     backgroundColor: '#F5F6F8',
     borderRadius: 10,
     paddingHorizontal: 16,
-    paddingVertical: 18,
-    marginTop: 8,
+    paddingVertical: 14,
+    // marginTop: 8,
     marginBottom: 8,
   },
   installmentLabel: {
@@ -86,6 +86,11 @@ export default StyleSheet.create({
     fontSize: 16,
     color: COLOR.GRAY_800,
   },
+  installmentArrow: {
+    width: 24,
+    height: 24,
+    tintColor: COLOR.GRAY_800,
+  },
   creditCardButton: {
     width: '100%',
     paddingVertical: 12,
@@ -94,7 +99,7 @@ export default StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: COLOR.WHITE,
     borderRadius: 12,
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: '#E5E5E5', // GRAY_200 대신 실제 회색 사용
     color: COLOR.BLACK,
   },
@@ -107,7 +112,22 @@ export default StyleSheet.create({
     width: '100%',
     height: 60,
     resizeMode: 'center',
-    marginBottom: 8,
-    marginTop: 8,
-  }
+
+  },
+  nextButtonWrap: {
+    marginBottom: 60,
+    paddingHorizontal: 20,
+  },
+  nextButton: {
+    width: '100%',
+    height: 56,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: COLOR.PRI_1_500,
+  },
+  nextButtonText: {
+    color: COLOR.WHITE,
+  },
+
 }); 

@@ -7,6 +7,7 @@ import style from './style';
 import { useNavigation } from '@react-navigation/native';
 import { Gesture, GestureDetector} from "react-native-gesture-handler"
 import { runOnJS } from 'react-native-reanimated';
+import { font } from '~/style';
 
 const PAYMENT_METHODS = [
   { key: 'credit', label: 'Credit Card' },
@@ -72,8 +73,8 @@ export default function PaymentMethodSelection() {
           onPress={() => setInstallmentOpen((v) => !v)}
           activeOpacity={0.8}
         >
-          <Text style={style.installmentLabel}>Installments</Text>
           <Text style={style.installmentValue}>{selectedInstallment}</Text>
+          <Image style={style.installmentArrow} source={require('~/assets/images/arrow.down.black.png')}/>
         </TouchableOpacity>
         {installmentOpen && (
           <View style={style.installmentListWrap}>
@@ -95,6 +96,11 @@ export default function PaymentMethodSelection() {
           </View>
         )}
       </View>
+      <View style={style.nextButtonWrap}>
+          <Button style={style.nextButton} >
+            <Text style={[font.BODY3_SB, style.nextButtonText]}>Proeed to Payment</Text>
+          </Button>
+        </View>
     </View>
     </GestureDetector>
   );
