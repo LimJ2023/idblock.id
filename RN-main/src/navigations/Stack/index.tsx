@@ -26,6 +26,7 @@ import { Qr } from '~/screens/Qr';
 import { useAccessToken } from '~/zustands/app';
 
 import { MENU } from '~/utils/constant';
+import { StampList } from '~/screens/StampList';
 
 const Stack = createStackNavigator();
 
@@ -100,6 +101,11 @@ export const StackNavigator = memo(function () {
         name={MENU.STACK.SCREEN.SIGNUP_AUTO_APPROVAL}
         component={SignupAutoApproval}
         options={{ headerShown: false, gestureEnabled: false }}
+      />
+      <Stack.Screen 
+        name={MENU.STACK.SCREEN.STAMP_LIST}
+        component={StampList}
+        options={{ headerShown: false, gestureEnabled: false}}
       />
     </Stack.Navigator>
   );

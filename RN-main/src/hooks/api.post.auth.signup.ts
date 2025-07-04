@@ -29,6 +29,20 @@ export function useApiPostAuthSignup() {
     }
   }, []);
 
+  const apiPostAuthAdditionalVerification = useCallback(async (params: Params) => {
+    try {
+      const response: HttpResponse<HttpResponseSignup> = await post('/v1/auth/additional-verification', params);
+      console.log('/v1/auth/sign-up/additional-verification response : ', response);
+      const isSuccess = !!response?.data?.isAutoApproved;
+      console.log('자동인증 요청 성공 여부:', isSuccess);
+      
+      return isSuccess;
+    } catch (error) {
+      throw error;
+    }
+  }, []);
+
+
   const apiPostAuthSignupSimple = useCallback(async (params: ParamsSimple) => {
 
     try{
@@ -48,11 +62,11 @@ export function useApiPostAuthSignup() {
   return {
     apiPostAuthSignup,
     apiPostAuthSignupSimple,
+    apiPostAuthAdditionalVerification,
   };
 }
 
 interface Params {
-  uuid: string;
   email: string;
   password: string;
   passwordCheck: string;

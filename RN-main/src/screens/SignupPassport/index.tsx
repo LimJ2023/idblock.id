@@ -24,10 +24,10 @@ import { launchImageLibrary, Asset, ImageLibraryOptions } from 'react-native-ima
 
 import style from './style';
 import { useApiPostRecogPassport } from '~/hooks/api.post.recog.passport';
-import { getNextScreenInFlow, SIGNUP_FLOW } from '~/utils/screenFlow';
+import { getNextScreenInFlow, SIGNUP_FLOW, AFTER_SIMPLE_SIGNUP_VERIFICATION_FLOW } from '~/utils/screenFlow';
 
 export const SignupPassport = memo(function ({ route }: Params) {
-  const { uuid, email, pw, name, country, honorary, birth, passport } = route.params;
+  const { uuid, email, pw, name, country, honorary, birth, passport, isFromMainScreen, flowType } = route.params;
 
   const navigation = useNavigation<StackNavigationProp<any>>();
   const { apiPostRecogPassport } = useApiPostRecogPassport();
@@ -97,8 +97,18 @@ export const SignupPassport = memo(function ({ route }: Params) {
   }, []);
 
   const handleNext = useCallback(() => {
+    // 중도 가입일 때는 다른 플로우 사용
+    let selectedFlow = SIGNUP_FLOW;
+    
+    if (isFromMainScreen && flowType === 'AFTER_SIMPLE_SIGNUP_VERIFICATION') {
+      selectedFlow = AFTER_SIMPLE_SIGNUP_VERIFICATION_FLOW;
+      console.log('중도 가입: AFTER_SIMPLE_SIGNUP_VERIFICATION_FLOW 사용');
+    } else {
+      console.log('일반 가입: SIGNUP_FLOW 사용');
+    }
+
     // 동적으로 다음 화면 결정
-    const nextScreen = getNextScreenInFlow(SIGNUP_FLOW, MENU.STACK.SCREEN.SIGNUP_PASSPORT);
+    const nextScreen = getNextScreenInFlow(selectedFlow, MENU.STACK.SCREEN.SIGNUP_PASSPORT);
 
     if (nextScreen) {
       console.log('passport nextScreen', email);
@@ -120,12 +130,20 @@ export const SignupPassport = memo(function ({ route }: Params) {
         ocr_number: passportData?.ocr_number,
         ocr_issueDate: passportData?.ocr_issueDate,
         ocr_expireDate: passportData?.ocr_expireDate,
+        // 중도 가입 플래그들도 전달
+        isFromMainScreen,
+        flowType,
       });
     } else {
       // 플로우 마지막이면 메인 화면이나 결과 화면으로
-      console.warn('No next screen found in signup flow');
+      if (isFromMainScreen) {
+        console.log('중도 가입 완료: 메인 화면으로 이동');
+        navigation.popToTop(); // 메인 화면으로 돌아가기
+      } else {
+        console.warn('No next screen found in signup flow');
+      }
     }
-  }, [uuid, email, pw, name, country, honorary, birth, passport, passportData]);
+  }, [uuid, email, pw, name, country, honorary, birth, passport, passportData, isFromMainScreen, flowType]);
 
   const openGallery = () => {
     const options: ImageLibraryOptions = {
@@ -353,4 +371,6 @@ interface NavigationParams {
   passport: string;
   country: string;
   honorary: string;
+  isFromMainScreen?: boolean;
+  flowType?: string;
 }

@@ -187,17 +187,19 @@ export const Main = memo(function () {
 
   const handlePassportConfirmOk = useCallback(() => {
     setIsVisiblePassportConfirm(false);
-    // 여권 인증 시작 - SignupPassport 화면으로 이동
+    // 중도 가입 여권 인증 시작 - 메인 화면에서 시작됨을 표시
     console.log('handlePassportConfirm profile : ', profile);
     navigation.push(MENU.STACK.SCREEN.SIGNUP_PASSPORT, {
       uuid: '',
       email: profile?.email || '',
-      pw: '',
+      pw: '', // 중도 가입 시 비밀번호는 빈 문자열 (보안상 저장하지 않음)
       name: profile?.name || '',
       country: '',
       honorary: '',
       birth: profile?.birthday || '',
       passport: '',
+      isFromMainScreen: true, // 메인 화면에서 시작한 중도 가입임을 표시
+      flowType: 'AFTER_SIMPLE_SIGNUP_VERIFICATION', // 사용할 플로우 타입 지정
     });
   }, [profile]);
 

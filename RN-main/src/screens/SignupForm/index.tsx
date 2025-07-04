@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useCallback, useEffect, useState, useRef } from 'react';
 
 import { Keyboard, Platform, View } from 'react-native';
 
@@ -36,12 +36,11 @@ import { font } from '~/style';
 import Util from '~/utils/common';
 
 import style from './style';
-import { getNextScreenInFlow, SIGNUP_FLOW } from '~/utils/screenFlow';
+import { getNextScreenInFlow, SIGNUP_FLOW, AFTER_SIMPLE_SIGNUP_VERIFICATION_FLOW } from '~/utils/screenFlow';
 import { useApiGetUserCountry } from '~/hooks/api.get.user.country';
 
 export const SignupForm = memo(function ({ route }: Params) {
   const {
-    uuid,
     email,
     pw,
     ocr_fullName,
@@ -52,6 +51,8 @@ export const SignupForm = memo(function ({ route }: Params) {
     ocr_issueDate,
     ocr_expireDate,
     passportImage,
+    isFromMainScreen,
+    flowType,
   } = route.params;
 
   const navigation = useNavigation<StackNavigationProp<any>>();
@@ -63,6 +64,8 @@ export const SignupForm = memo(function ({ route }: Params) {
   const signupAction = useSignupAction();
 
   const [countryList, setCountryList] = useState<Country[]>([]);
+  const [isLoadingCountries, setIsLoadingCountries] = useState<boolean>(false);
+  const countryListRef = useRef<Country[]>([]);
   const [cityList, setCityList] = useState<City[]>([
     { id: '1835848', country: 'South Korea', name: 'Seoul' },
     { id: '1838524', country: 'South Korea', name: 'Busan' }, // 부산
@@ -105,7 +108,7 @@ export const SignupForm = memo(function ({ route }: Params) {
   // 컴포넌트 마운트 시 현재 단계 설정 및 OCR 데이터 설정
   useEffect(() => {
     signupAction.setCurrentStep(SignupStep.FORM);
-    
+    signupAction.setEmail(email);
     // OCR 데이터가 있으면 설정
     if (ocr_fullName) signupAction.setName(ocr_fullName);
     if (ocr_birthDate) signupAction.setBirth(ocr_birthDate);
@@ -132,21 +135,66 @@ export const SignupForm = memo(function ({ route }: Params) {
 
   const handlePw2 = useCallback((text: string) => {
     signupAction.setPasswordConfirm(text);
-  }, []);
+  }, [signupAction]);
 
   const handleName = useCallback((text: string) => {
     signupAction.setName(text);
-  }, []);
+  }, [signupAction]);
 
   const handleCountry = useCallback(() => {
     Keyboard.dismiss();
 
-    setIsVisibleCountryPicker(true);
-  }, []);
+    console.log('=== handleCountry Debug ===');
+    console.log('Current countryList length:', countryList.length);
+    console.log('isLoadingCountries:', isLoadingCountries);
+
+    // 이미 로딩 중이면 중복 호출 방지
+    if (isLoadingCountries) {
+      console.log('Already loading countries, skipping...');
+      return;
+    }
+
+    // 국가 목록이 비어있으면 로드
+    if (countryList.length === 0) {
+      console.log('Loading country list...');
+      setIsLoadingCountries(true);
+              apiGetCountryList()
+          .then((list) => {
+            console.log('API response - Country list loaded:', list?.length, 'countries');
+            console.log('Setting countryList and opening picker...');
+            setCountryList(list);
+            countryListRef.current = list; // ref도 업데이트
+            setIsLoadingCountries(false);
+            // API 응답 후 바로 picker 열기
+            setIsVisibleCountryPicker(true);
+          })
+        .catch((error) => {
+          console.warn('Failed to get country list:', error);
+          setIsLoadingCountries(false);
+        });
+    } else {
+      console.log('Country list already loaded, opening picker...');
+      setIsVisibleCountryPicker(true);
+    }
+    console.log('===========================');
+  }, [countryList, apiGetCountryList, isLoadingCountries]);
 
   const handleCountryPicker = useCallback((index) => {
-    signupAction.setCountry(countryList[index]);
-  }, []);
+    console.log('=== handleCountryPicker Debug ===');
+    console.log('index : ', index);
+    console.log('countryList (state) length : ', countryList.length);
+    console.log('countryListRef (ref) length : ', countryListRef.current.length);
+    console.log('countryListRef[index] : ', countryListRef.current[index]);
+    console.log('================================');
+    
+    const currentCountryList = countryListRef.current;
+    if (currentCountryList.length > 0 && currentCountryList[index]) {
+      signupAction.setCountry(currentCountryList[index], index);
+      signupAction.setCountryIndex(index);
+    } else {
+      console.warn('Country not found at index:', index, 'ref length:', currentCountryList.length);
+    }
+  }, [signupAction]);
 
   const handleCity = useCallback(() => {
     Keyboard.dismiss();
@@ -155,9 +203,9 @@ export const SignupForm = memo(function ({ route }: Params) {
   }, []);
 
   const handleCityPicker = useCallback((index) => {
-    signupAction.setCity(cityList[index]);
+    signupAction.setCity(cityList[index], index);
     signupAction.setCityIndex(index);
-  }, []);
+  }, [cityList, signupAction]);
 
   const handleBirth = useCallback((text: string) => {
     
@@ -192,13 +240,24 @@ export const SignupForm = memo(function ({ route }: Params) {
       Keyboard.dismiss();
     }
     signupAction.setBirth(text);
-  }, []);
+  }, [signupAction]);
 
   const handlePassport = useCallback((text: string) => {
     signupAction.setPassportNumber(text);
-  }, []);
+  }, [signupAction]);
 
   const handleNext = useCallback(async () => {
+    console.log('handleNext called');
+    
+    // 입력 유효성 검사와 모든 초기화 코드들 유지
+    setPwMessage(undefined);
+    setPw2Message(undefined);
+    setNameMessage(undefined);
+    setCountryMessage(undefined);
+    setCityMessage(undefined);
+    setBirthMessage(undefined);
+    setPassportMessage(undefined);
+
     Keyboard.dismiss();
 
     let isValid = true;
@@ -267,6 +326,7 @@ export const SignupForm = memo(function ({ route }: Params) {
       });
     }
 
+
     const verifyPassportResult = await apiPostVerifyPassport({
       email: emailData.email,
       birthday: personalData.birth,
@@ -288,43 +348,80 @@ export const SignupForm = memo(function ({ route }: Params) {
       return;
     }
 
-    const nextScreen = getNextScreenInFlow(SIGNUP_FLOW, MENU.STACK.SCREEN.SIGNUP_FORM);
+    // 중도 가입일 때는 다른 플로우 사용
+    let selectedFlow = SIGNUP_FLOW;
+    
+    if (isFromMainScreen && flowType === 'AFTER_SIMPLE_SIGNUP_VERIFICATION') {
+      selectedFlow = AFTER_SIMPLE_SIGNUP_VERIFICATION_FLOW;
+      console.log('중도 가입: AFTER_SIMPLE_SIGNUP_VERIFICATION_FLOW 사용');
+    } else {
+      console.log('일반 가입: SIGNUP_FLOW 사용');
+    }
+
+    const nextScreen = getNextScreenInFlow(selectedFlow, MENU.STACK.SCREEN.SIGNUP_FORM);
     if (nextScreen) {
       signupAction.goToNextStep();
-      navigation.push(nextScreen);
-    } else {
-      console.warn('No next screen found in signup flow');
-    }
-  }, []);
-
-  useEffect(() => {
-    // 국가 목록 가져오기
-    apiGetCountryList()
-      .then((list) => {
-        setCountryList(list);
-
-        // OCR 국가 정보가 있고, 국가 목록이 로드된 후에 처리
-        if (ocr_nationality && list.length > 0) {
-          apiGetUserCountry({ code3: ocr_nationality })
-            .then((country) => {
-              if (country) {
-                signupAction.setCountry(country);
-                // 국가 목록에서 해당 국가의 인덱스 찾아서 설정
-                const foundIndex = list.findIndex((c) => c.code3 === ocr_nationality);
-                if (foundIndex !== -1) {
-                  signupAction.setCountry(country, foundIndex);
-                }
-              }
-            })
-            .catch((error) => {
-              console.warn('Failed to get user country:', error);
-            });
-        }
-      })
-      .catch((error) => {
-        console.warn('Failed to get country list:', error);
+      navigation.push(nextScreen, {
+        // 기존 파라미터들
+        uuid: route.params.uuid,
+        email: emailData.email,
+        pw: emailData.password,
+        name: personalData.name,
+        country: personalData.country?.name || '',
+        honorary: personalData.city?.name || '',
+        birth: personalData.birth,
+        passport: personalData.passportNumber,
+        // OCR 데이터
+        ocr_fullName,
+        ocr_gender,
+        ocr_birthDate,
+        ocr_nationality,
+        ocr_number,
+        ocr_issueDate,
+        ocr_expireDate,
+        passportImage,
+        // 중도 가입 플래그들
+        isFromMainScreen,
+        flowType,
       });
-  }, [ocr_nationality]);
+    } else {
+      // 플로우 마지막이면 메인 화면이나 결과 화면으로
+      if (isFromMainScreen) {
+        console.log('중도 가입 완료: 메인 화면으로 이동');
+        navigation.popToTop(); // 메인 화면으로 돌아가기
+      } else {
+        console.warn('No next screen found in signup flow');
+      }
+    }
+  }, [accessToken, emailData, personalData, apiPostVerifyPassport, signupAction, navigation, isFromMainScreen, flowType, route.params]);
+
+  // countryList가 변경될 때마다 ref 동기화
+  useEffect(() => {
+    countryListRef.current = countryList;
+  }, [countryList]);
+
+  // OCR 국가 정보 처리
+  useEffect(() => {
+    if (ocr_nationality && countryList.length > 0) {
+      apiGetUserCountry({ code3: ocr_nationality })
+        .then((country) => {
+          if (country) {
+            // 국가 목록에서 해당 국가의 인덱스 찾아서 설정
+            const foundIndex = countryList.findIndex((c) => c.code3 === ocr_nationality);
+            if (foundIndex !== -1) {
+              signupAction.setCountry(country, foundIndex);
+              signupAction.setCountryIndex(foundIndex);
+            } else {
+              // 인덱스를 찾지 못한 경우에도 국가 데이터는 설정
+              signupAction.setCountry(country);
+            }
+          }
+        })
+        .catch((error) => {
+          console.warn('Failed to get user country:', error);
+        });
+    }
+  }, [ocr_nationality, countryList, signupAction]);
 
   // OCR 데이터를 초기값으로 설정
   useEffect(() => {
@@ -339,13 +436,26 @@ export const SignupForm = memo(function ({ route }: Params) {
     }
   }, [ocr_fullName, ocr_birthDate, ocr_number]);
 
+  // ModalWheelPicker 렌더링 시 데이터 확인
+  const countryPickerData = countryList.map((el) => el.name);
+  
+  React.useEffect(() => {
+    if (isVisibleCountryPicker) {
+      console.log('=== ModalWheelPicker Render Debug ===');
+      console.log('countryList length:', countryList.length);
+      console.log('countryPickerData length:', countryPickerData.length);
+      console.log('countryPickerData:', countryPickerData);
+      console.log('====================================');
+    }
+  }, [isVisibleCountryPicker, countryList, countryPickerData]);
+
   return (
     <View style={[style.container, { paddingBottom: bottom }]}>
       <ModalWheelPicker
         isVisible={isVisibleCountryPicker}
         title="Country"
         initIndex={personalData.countryIndex}
-        data={countryList.map((el) => el.name)}
+        data={countryPickerData}
         onClose={() => setIsVisibleCountryPicker(false)}
         onSubmit={handleCountryPicker}
       />
@@ -476,4 +586,6 @@ interface NavigationParams {
   ocr_issueDate?: string;
   ocr_expireDate?: string;
   passportImage?: string;
+  isFromMainScreen?: boolean;
+  flowType?: string;
 }

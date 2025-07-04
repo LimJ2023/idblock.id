@@ -31,10 +31,10 @@ import Util from '~/utils/common';
 
 import style from './style';
 import { getNextScreenInFlow, SIGNUP_FLOW } from '~/utils/screenFlow';
+import { useSignupEmailData, useSignupPassportData, useSignupPersonalData } from '~/zustands/signup';
 
 export const SignupFace = memo(function ({ route }: Params) {
-  const { uuid, email, pw, name, country, honorary, birth, passport, passportImage } = route.params;
-
+  const { email, pw, isFromMainScreen } = route.params;
   const navigation = useNavigation<StackNavigationProp<any>>();
 
   const [isVisiblePermission, setIsVisiblePermission] = useState<boolean>(false);
@@ -46,28 +46,32 @@ export const SignupFace = memo(function ({ route }: Params) {
 
   const { setIsVisibleLoading } = useAppRootAction();
   const { accessToken } = useAccessToken();
+  
 
   const { apiPutAuthInformation } = useApiPutAuthInformation();
   const { apiPostAuthPassport } = useApiPostAuthPassport();
   const { cameraPermissionCheck } = usePermissionCheck();
-  const { apiPostAuthSignup } = useApiPostAuthSignup();
+  const { apiPostAuthSignup, apiPostAuthAdditionalVerification } = useApiPostAuthSignup();
   const { apiPostAuthFace } = useApiPostAuthFace();
   const { galleryPermissionCheck } = usePermissionCheck();
   const { bottom } = useSafeAreaInsets();
 
   const permissionRequestCount = useRef<number>(0);
 
-  const imageRef = useRef<string>();
+  // Hook을 컴포넌트 최상위 레벨에서 호출하여 값들을 미리 가져오기
+  const signupEmailData = useSignupEmailData();
+  const signupPersonalData = useSignupPersonalData();
+  const passportImage = useSignupPassportData().passportImage;
 
-  if (imageRef.current !== image) {
-    imageRef.current = image;
-  }
-
-  const accessTokenRef = useRef<string>();
-
-  if (accessTokenRef.current !== accessToken) {
-    accessTokenRef.current = accessToken;
-  }
+  // 디버깅: signupEmailData 값 확인
+  useEffect(() => {
+    console.log('🔍 SignupFace - signupEmailData:', signupEmailData);
+    console.log('🔍 SignupFace - email:', signupEmailData.email);
+    console.log('🔍 SignupFace - password:', signupEmailData.password);
+    console.log('🔍 SignupFace - passwordConfirm:', signupEmailData.passwordConfirm);
+    console.log('🔍 SignupFace - route params email:', email);
+    console.log('🔍 SignupFace - route params pw:', pw);
+  }, [signupEmailData, email, pw]);
 
   // 개발 모드에서 자동으로 더미 이미지 설정
   useEffect(() => {
@@ -134,7 +138,7 @@ export const SignupFace = memo(function ({ route }: Params) {
         return;
       }
 
-      if (!imageRef.current) {
+      if (!image) {
         Toast.show('Face image is required', Toast.SHORT);
         return;
       }
@@ -164,7 +168,7 @@ export const SignupFace = memo(function ({ route }: Params) {
       let faceUploadResult: any;
       try {
         faceUploadResult = await apiPostAuthFace({
-          formData: Util.getFileAppendedFormData(imageRef.current),
+          formData: Util.getFileAppendedFormData(image),
         });
       } catch (error) {
         if (error?.code === 'ECONNABORTED') {
@@ -178,32 +182,37 @@ export const SignupFace = memo(function ({ route }: Params) {
       }
 
       if (passportUploadResult?.key && faceUploadResult?.key) {
+
+
         // 3단계: 회원가입 처리
         setCurrentStep(3);
         setCurrentStepText('Processing registration...');
         let isAutoApproval = false;
         try {
-          if (accessTokenRef.current) {
-            isAutoApproval = await apiPutAuthInformation({
-              name,
-              birthday: birth,
-              countryCode: country,
-              cityId: honorary,
-              passportNumber: passport,
+
+          if(route.params.isFromMainScreen) {
+            isAutoApproval = await apiPostAuthAdditionalVerification({
+              email: email || signupEmailData.email,
+              password: pw || signupEmailData.password,
+              passwordCheck: pw || signupEmailData.passwordConfirm,
+              name: signupPersonalData.name,
+              birthday: signupPersonalData.birth,
+              countryCode: signupPersonalData.country?.code,
+              cityId: signupPersonalData.city?.id,
+              passportNumber: signupPersonalData.passportNumber,
               passportImageKey: passportUploadResult.key,
               profileImageKey: faceUploadResult.key,
             });
           } else {
             isAutoApproval = await apiPostAuthSignup({
-              uuid,
-              email: email,
-              password: pw,
-              passwordCheck: pw,
-              name,
-              birthday: birth,
-              countryCode: country,
-              cityId: honorary,
-              passportNumber: passport,
+              email: email || signupEmailData.email,
+              password: pw || signupEmailData.password,
+              passwordCheck: pw || signupEmailData.passwordConfirm,
+              name: signupPersonalData.name,
+              birthday: signupPersonalData.birth,
+              countryCode: signupPersonalData.country?.code,
+              cityId: signupPersonalData.city?.id,
+              passportNumber: signupPersonalData.passportNumber,
               passportImageKey: passportUploadResult.key,
               profileImageKey: faceUploadResult.key,
             });
@@ -214,6 +223,7 @@ export const SignupFace = memo(function ({ route }: Params) {
           } else if (error?.code === 'ERR_NETWORK') {
             Toast.show('Network connection error. Unable to connect to server.', Toast.SHORT);
           } else {
+            console.log('error : ', error);
             Toast.show('Server processing error occurred. Please try again.', Toast.SHORT);
           }
           return;
@@ -261,7 +271,7 @@ export const SignupFace = memo(function ({ route }: Params) {
       setCurrentStep(0);
       setCurrentStepText('');
     }
-  }, [uuid, email, pw, name, birth, country, honorary, passport, passportImage, navigation]);
+  }, [signupEmailData, signupPersonalData, accessToken, passportImage, image, apiPostAuthPassport, apiPostAuthFace, apiPutAuthInformation, apiPostAuthSignup, navigation]);
 
   return (
     <View style={[style.container, { paddingBottom: bottom }]}>
@@ -363,13 +373,8 @@ interface Params {
 }
 
 interface NavigationParams {
-  uuid: string;
-  email: string;
-  pw: string;
-  name: string;
-  birth: string;
-  passport: string;
-  country: string;
-  honorary: string;
-  passportImage: string;
+  uuid?: string;
+  email?: string;
+  pw?: string;
+  isFromMainScreen?: boolean;
 }

@@ -118,4 +118,5 @@ export const FLOW_METADATA = {
     description: 'Passport verification flow after simple registration',
     estimatedTime: '3-5 minutes',
   },
+
 }; 

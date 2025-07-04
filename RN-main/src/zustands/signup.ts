@@ -111,7 +111,8 @@ interface SignupAction {
   setCountry: (country: Country, index?: number) => void;
   setCity: (city: City, index?: number) => void;
   setCityIndex: (index: number) => void;
-
+  setCountryIndex: (index: number) => void;
+  
   // 여권 관련 액션
   setPassportData: (data: Partial<PassportData>) => void;
   setPassportImage: (image: string) => void;
