@@ -42,7 +42,10 @@ async function bootstrap() {
     isDevelopment,
   );
 
-  app.enableCors(corsConfig);
+  app.enableCors({
+    origin: process.env.NODE_ENV === 'development' ? 'http://localhost:8989' : true,
+    credentials: true,
+  });
 
   app.use(cookieParser());
   app.setGlobalPrefix('api', {
