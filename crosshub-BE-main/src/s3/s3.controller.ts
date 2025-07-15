@@ -16,15 +16,15 @@ import { S3Service } from './s3.service';
 export class S3Controller {
   constructor(private readonly s3Service: S3Service) {}
 
-  @Public()
-  @Post('test')
-  @UseInterceptors(FileInterceptor('file'))
-  @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    description: '파일 업로드',
-    type: FileUploadDto,
-  })
-  async uploadFile(@UploadedFile() file: Express.Multer.File) {
-    return await this.s3Service.uploadFile(file);
-  }
+  // @Public()
+  // @Post('test')
+  // @UseInterceptors(FileInterceptor('file'))
+  // @ApiConsumes('multipart/form-data')
+  // @ApiBody({
+  //   description: '파일 업로드',
+  //   type: FileUploadDto,
+  // })
+  // async uploadFile(@UploadedFile() file: Express.Multer.File) {
+  //   return await this.s3Service.uploadFile(file);
+  // }
 }

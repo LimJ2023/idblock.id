@@ -17,6 +17,16 @@ export const EnvSchema = v.object({
   COOKIE_DOMAIN: v.string(),
   PUBLIC_S3_DOMAIN: v.string(),
 
+  // CORS 보안 설정
+  CORS_ORIGINS: v.pipe(
+    v.string(),
+    v.transform((input) => input.split(',').map(origin => origin.trim())),
+  ),
+  CORS_CREDENTIALS: v.pipe(
+    v.string(),
+    v.transform((input) => input.toLowerCase() === 'true'),
+  ),
+
   THIRDWEB_CLIENT: v.string(),
   THIRDWEB_SECRET: v.string(),
   ADMIN_WALLET: v.string(),

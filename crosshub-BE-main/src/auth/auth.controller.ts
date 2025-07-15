@@ -459,16 +459,6 @@ export class AuthController {
       secure: !isDevelopment,
       path: '/',
     });
-    // res.cookie('refresh_token', newRefreshToken, {
-    //   httpOnly: true,
-    //   expires: addYears(new Date(), 1),
-    //   sameSite: 'none',
-    //   domain:
-    //     req.hostname === 'localhost' ?
-    //       undefined
-    //     : this.envService.get('COOKIE_DOMAIN'),
-    //   secure: true,
-    // });
     return { accessToken };
   }
 

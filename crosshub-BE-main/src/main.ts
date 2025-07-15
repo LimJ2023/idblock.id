@@ -8,6 +8,8 @@ import { ValidationPipe } from './lib/typeschema';
 import cookieParser from 'cookie-parser';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
+import { EnvService } from './env/env.service';
+import { CorsUtil } from './common/cors.util';
 
 (BigInt.prototype as any).toJSON = function () {
   return this.toString();
@@ -17,6 +19,10 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: ['error', 'warn', 'debug', 'log', 'verbose', 'fatal'],
   });
+
+  // 환경 변수 서비스 가져오기
+  const envService = app.get(EnvService);
+  
   const config = new DocumentBuilder()
     .setTitle('Crosshub API')
     .setDescription('Crosshub API')
@@ -25,11 +31,18 @@ async function bootstrap() {
     .addBearerAuth()
     .build();
 
-  app.enableCors({
-    origin:
-      process.env.NODE_ENV === 'development' ? 'http://localhost:8989' : true,
-    credentials: true,
-  });
+  // 안전한 CORS 설정
+  const corsOrigins = envService.get('CORS_ORIGINS');
+  const corsCredentials = envService.get('CORS_CREDENTIALS');
+  const isDevelopment = process.env.NODE_ENV === 'development';
+
+  const corsConfig = CorsUtil.createSafeCorsConfig(
+    corsOrigins,
+    corsCredentials,
+    isDevelopment,
+  );
+
+  app.enableCors(corsConfig);
 
   app.use(cookieParser());
   app.setGlobalPrefix('api', {
