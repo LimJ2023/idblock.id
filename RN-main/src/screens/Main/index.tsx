@@ -88,6 +88,10 @@ export const Main = memo(function () {
     setIsVisibleMenu(true);
   }, []);
 
+  const handleMyProfile = useCallback(() => {
+    navigation.push(MENU.STACK.SCREEN.MY_PROFILE);
+  }, []);
+
   const handleSignout = useCallback(async () => {
     setIsVisibleMenu(false);
 
@@ -427,7 +431,7 @@ export const Main = memo(function () {
               profile.status !== PROFILE_STATUS.APPROVED ? { backgroundColor: COLOR.UI_COLOR_100 } : {},
               profile.status !== PROFILE_STATUS.APPROVED ? { color: '#777777' } : {},
             )}
-            {}
+            {MemoizedMainButton(STATIC_IMAGE.MAIN_BUTTON_4, 'My Profile', handleMyProfile)}
             {MemoizedMainButton(STATIC_IMAGE.MAIN_BUTTON_4, 'Passport Authentication', handlePassportStart)}
           </View>
           {/* <View style={style.footer}>

@@ -26,8 +26,9 @@ import { Qr } from '~/screens/Qr';
 import { useAccessToken } from '~/zustands/app';
 
 import { MENU } from '~/utils/constant';
-import { StampList } from '~/screens/StampList';
+import { BadgeList } from '~/screens/BadgeList';
 import PaymentMethodSelection from '~/screens/PaymentMethodSelection';
+import MyProfile from '~/screens/MyProfile';
 
 const Stack = createStackNavigator();
 
@@ -104,8 +105,8 @@ export const StackNavigator = memo(function () {
         options={{ headerShown: false, gestureEnabled: false }}
       />
       <Stack.Screen 
-        name={MENU.STACK.SCREEN.STAMP_LIST}
-        component={StampList}
+        name={MENU.STACK.SCREEN.BADGE_LIST}
+        component={BadgeList}
         options={{ headerShown: false, gestureEnabled: false}}
       />
       <Stack.Screen
@@ -113,6 +114,11 @@ export const StackNavigator = memo(function () {
         component={PaymentMethodSelection}
         options={{ headerShown: false, gestureEnabled: false}}
         />
+      <Stack.Screen
+        name={MENU.STACK.SCREEN.MY_PROFILE}
+        component={MyProfile}
+        options={{ headerShown: false, gestureEnabled: false }}
+      />
     </Stack.Navigator>
   );
 });

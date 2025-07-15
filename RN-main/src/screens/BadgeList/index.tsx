@@ -11,8 +11,9 @@ import { runOnJS } from 'react-native-reanimated';
 import { useNavigation } from '@react-navigation/native';
 import { MENU } from '~/utils/constant';
 import { StackNavigationProp } from '@react-navigation/stack';
+import Badge from '~/components/Badge';
 
-export const StampList = memo(function () {
+export const BadgeList = memo(function () {
     const { bottom } = useSafeAreaInsets();
     const navigation = useNavigation<StackNavigationProp<any>>();
 
@@ -33,7 +34,7 @@ export const StampList = memo(function () {
     return (
         <GestureDetector gesture={gesture}>
         <View style={{ flex: 1, backgroundColor: COLOR.WHITE }}>
-            <Header title="스탬프 리스트" />
+            <Header title="배지 리스트" />
             <ScrollView 
                 style={{ flex: 1 }}
                 contentContainerStyle={{ 
@@ -48,12 +49,17 @@ export const StampList = memo(function () {
                     paddingVertical: 50
                 }}>
                     <Text style={[font.SUBTITLE1_SB, { color: COLOR.BLACK, marginBottom: 10 }]}>
-                        스탬프 리스트
+                        배지 리스트
                     </Text>
                     <Text style={[font.BODY2_R, { color: COLOR.UI_COLOR_400 }]}>
-                        여기에 스탬프 목록이 표시됩니다.
+                        여기에 배지 목록이 표시됩니다.
                     </Text>
+                    
                 </View>
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, justifyContent: 'flex-start' }}>
+                        <Badge />
+                        <Badge />
+                    </View>
             </ScrollView>
         </View>
         </GestureDetector>

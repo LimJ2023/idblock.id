@@ -94,9 +94,9 @@ export const IdCard = memo(function () {
     navigation.goBack();
   }, [navigation]);
 
-  const navigateToStampList = useCallback(() => {
+  const navigateToBadgeList = useCallback(() => {
     Vibration.vibrate(50); // 햅틱 피드백
-    navigation.push(MENU.STACK.SCREEN.STAMP_LIST);
+    navigation.push(MENU.STACK.SCREEN.BADGE_LIST);
   }, [navigation]);
 
   // 스와이프 제스처 설정
@@ -125,7 +125,7 @@ export const IdCard = memo(function () {
         runOnJS(navigateBack)();
       } else if (deltaX < -swipeThreshold || velocityX < -velocityThreshold) {
         // 왼쪽 스와이프 - 스탬프 리스트 화면으로
-        runOnJS(navigateToStampList)();
+        runOnJS(navigateToBadgeList)();
       }
     })
     .activeOffsetX([-20, 20])  // 가로 스와이프만 감지
