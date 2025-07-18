@@ -127,6 +127,30 @@ export class ScanController {
   }
 
   @Public()
+  @Throttle({ default: { limit: 100, ttl: 400000 } })
+  @Get('transactions/stats')
+  @ApiOperation({ 
+    summary: '단일 컨트랙트 트랜잭션 통계 조회',
+    description: '특정 컨트랙트 주소의 트랜잭션 통계를 조회합니다.',
+  })
+  @ApiQuery({
+    name: 'contractAddress',
+    required: true,
+    description: '컨트랙트 주소',
+    example: '0x671645FC21615fdcAA332422D5603f1eF9752E03',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '트랜잭션 통계 조회 성공',
+  })
+  async getContractStats(@Query() query: { contractAddress: string }) {
+    if (!query.contractAddress) {
+      throw new Error('contractAddress는 필수 파라미터입니다.');
+    }
+    return this.scanService.getTransactionCount(query.contractAddress);
+  }
+
+  @Public()
   @Throttle({ default: { limit: 50, ttl: 60000 } })
   @Post('contracts/stats')
   @ApiOperation({ 
@@ -173,7 +197,7 @@ export class ScanController {
       threeContracts: {
         summary: '3개 컨트랙트 초고속 조회',
         value: [
-          '0x671645FC21615fdcAA332422D5603f1eF9752E03',
+            '0x671645FC21615fdcAA332422D5603f1eF9752E03',
             '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063',
             '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174'
         ]
