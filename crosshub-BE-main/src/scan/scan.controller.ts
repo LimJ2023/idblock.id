@@ -272,6 +272,83 @@ export class ScanController {
   }
 
   @Public()
+  @Throttle({ default: { limit: 100, ttl: 60000 } })
+  @Get('contracts/:contractAddress/stats')
+  @ApiOperation({ 
+    summary: '특정 컨트랙트 트랜잭션 통계 조회',
+    description: '특정 컨트랙트 주소의 트랜잭션 개수를 조회합니다.',
+  })
+  @ApiParam({
+    name: 'contractAddress',
+    description: '컨트랙트 주소',
+    example: '0x671645FC21615fdcAA332422D5603f1eF9752E03',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '컨트랙트 트랜잭션 통계 조회 성공',
+    schema: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean' },
+        data: {
+          type: 'object',
+          properties: {
+            transactionCount: { type: 'number' },
+            contractAddress: { type: 'string' },
+            timestamp: { type: 'string' }
+          }
+        }
+      }
+    }
+  })
+  async getContractTransactionStats(@Param('contractAddress') contractAddress: string) {
+    const result = await this.scanService.getTransactionCount(contractAddress);
+    return {
+      success: result.success,
+      data: {
+        transactionCount: result.totalTransactions,
+        contractAddress: contractAddress,
+        timestamp: result.timestamp
+      }
+    };
+  }
+
+  @Public()
+  @Throttle({ default: { limit: 100, ttl: 60000 } })
+  @Get('contracts/stats/all')
+  @ApiOperation({ 
+    summary: '전체 컨트랙트 트랜잭션 통계 조회',
+    description: '모든 컨트랙트의 총 트랜잭션 개수를 조회합니다.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '전체 컨트랙트 트랜잭션 통계 조회 성공',
+    schema: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean' },
+        data: {
+          type: 'object',
+          properties: {
+            totalTransactionCount: { type: 'number' },
+            timestamp: { type: 'string' }
+          }
+        }
+      }
+    }
+  })
+  async getAllContractsStats() {
+    const result = await this.scanService.getTransactionCount();
+    return {
+      success: result.success,
+      data: {
+        totalTransactionCount: result.totalTransactions,
+        timestamp: result.timestamp
+      }
+    };
+  }
+
+  @Public()
   @Get('transactions/:hash')
   @ApiOperation({
     summary: '트랜잭션 상세 조회',
