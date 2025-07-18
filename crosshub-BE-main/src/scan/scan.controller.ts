@@ -142,8 +142,8 @@ export class ScanController {
         value: {
           contractAddresses: [
             '0x671645FC21615fdcAA332422D5603f1eF9752E03',
-            '0x123456789abcdef123456789abcdef1234567890',
-            '0xabcdef123456789abcdef123456789abcdef1234'
+            '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063',
+            '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174'
           ],
           useCache: true
         }
@@ -174,8 +174,8 @@ export class ScanController {
         summary: '3개 컨트랙트 초고속 조회',
         value: [
           '0x671645FC21615fdcAA332422D5603f1eF9752E03',
-          '0x123456789abcdef123456789abcdef1234567890',
-          '0xabcdef123456789abcdef123456789abcdef1234'
+            '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063',
+            '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174'
         ]
       }
     }
