@@ -1,5 +1,5 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Controller, Get, Param, Query, Post, Body } from '@nestjs/common';
+import { ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags, ApiBody } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { ScanService } from './scan.service';
 import {
@@ -9,6 +9,8 @@ import {
   TransactionDetailResponseDto,
   BlockListResponseDto,
   BlockDetailResponseDto,
+  GetMultiContractStatsQueryDto,
+  MultiContractStatsResponseDto,
 } from './scan.dto';
 import { Public } from 'src/auth/auth.guard';
 
@@ -18,7 +20,7 @@ export class ScanController {
   constructor(private readonly scanService: ScanService) {}
   
   @Public()
-  @Throttle({ default: { limit: 100, ttl: 60000 } })
+  @Throttle({ default: { limit: 100, ttl: 400000 } })
   @Get('transactions')
   @ApiOperation({ 
     summary: '트랜잭션 목록 조회',
@@ -73,7 +75,7 @@ export class ScanController {
   @Public()
   @Throttle({ default: { limit: 100, ttl: 400000 } })
   @Get('transactions/latest')
-  @ApiOperation({
+  @ApiOperation({ 
     summary: '최신 트랜잭션 조회 (빠른 조회)',
     description: '최신 트랜잭션을 빠르게 조회합니다. count 쿼리 없이 빠른 응답을 제공합니다.',
   })
@@ -106,6 +108,127 @@ export class ScanController {
     sort?: 'desc' | 'asc' 
   }) {
     return this.scanService.getLatestTransactions(query);
+  }
+
+  @Public()
+  @Throttle({ default: { limit: 50, ttl: 60000 } })
+  @Post('contracts/stats')
+  @ApiOperation({ 
+    summary: '다중 컨트랙트 트랜잭션 통계 조회',
+    description: '여러 컨트랙트 주소의 트랜잭션 개수를 한 번에 조회합니다. 캐싱을 통해 빠른 응답을 제공합니다.',
+  })
+  @ApiBody({
+    type: GetMultiContractStatsQueryDto,
+    description: '조회할 컨트랙트 주소 목록',
+    examples: {
+      threeContracts: {
+        summary: '3개 컨트랙트 조회',
+        value: {
+          contractAddresses: [
+            '0x671645FC21615fdcAA332422D5603f1eF9752E03',
+            '0x123456789abcdef123456789abcdef1234567890',
+            '0xabcdef123456789abcdef123456789abcdef1234'
+          ],
+          useCache: true
+        }
+      }
+    }
+  })
+  @ApiResponse({
+    status: 200,
+    description: '다중 컨트랙트 통계 조회 성공',
+    type: MultiContractStatsResponseDto,
+  })
+  async getMultiContractStats(@Body() body: GetMultiContractStatsQueryDto) {
+    return this.scanService.getMultiContractStats(body);
+  }
+
+  @Public()
+  @Throttle({ default: { limit: 100, ttl: 60000 } })
+  @Post('contracts/stats/fast')
+  @ApiOperation({ 
+    summary: '다중 컨트랙트 통계 조회 (초고속)',
+    description: '통계 테이블을 사용하여 초고속으로 컨트랙트 통계를 조회합니다. 실시간 데이터가 아닐 수 있습니다.',
+  })
+  @ApiBody({
+    type: [String],
+    description: '조회할 컨트랙트 주소 배열',
+    examples: {
+      threeContracts: {
+        summary: '3개 컨트랙트 초고속 조회',
+        value: [
+          '0x671645FC21615fdcAA332422D5603f1eF9752E03',
+          '0x123456789abcdef123456789abcdef1234567890',
+          '0xabcdef123456789abcdef123456789abcdef1234'
+        ]
+      }
+    }
+  })
+  @ApiResponse({
+    status: 200,
+    description: '초고속 통계 조회 성공',
+  })
+  async getFastContractStats(@Body() contractAddresses: string[]) {
+    return this.scanService.getMultiContractStatsFromTable(contractAddresses);
+  }
+
+  @Public()
+  @Throttle({ default: { limit: 30, ttl: 60000 } })
+  @Post('contracts/stats/approximate')
+  @ApiOperation({ 
+    summary: '다중 컨트랙트 근사 통계 조회 (초고속)',
+    description: '매우 큰 테이블에서 근사치를 사용해 초고속으로 통계를 조회합니다.',
+  })
+  @ApiBody({
+    type: [String],
+    description: '조회할 컨트랙트 주소 배열',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '근사 통계 조회 성공',
+  })
+  async getApproximateStats(@Body() contractAddresses: string[]) {
+    return this.scanService.getApproximateMultiContractStats(contractAddresses);
+  }
+
+  @Public()
+  @Post('contracts/stats/update')
+  @ApiOperation({ 
+    summary: '컨트랙트 통계 업데이트',
+    description: '특정 컨트랙트들의 통계를 수동으로 업데이트합니다.',
+  })
+  @ApiBody({
+    type: [String],
+    required: false,
+    description: '업데이트할 컨트랙트 주소 배열 (빈 배열이면 전체 업데이트)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '통계 업데이트 성공',
+  })
+  async updateContractStats(@Body() contractAddresses?: string[]) {
+    return this.scanService.updateContractStats(contractAddresses);
+  }
+
+  @Public()
+  @Get('cache/status')
+  @ApiOperation({ 
+    summary: '캐시 상태 조회',
+    description: '통계 캐시의 현재 상태를 조회합니다.',
+  })
+  async getCacheStatus() {
+    return this.scanService.getCacheStatus();
+  }
+
+  @Public()
+  @Post('cache/clear')
+  @ApiOperation({ 
+    summary: '캐시 초기화',
+    description: '통계 캐시를 수동으로 초기화합니다.',
+  })
+  async clearCache() {
+    this.scanService.clearStatsCache();
+    return { success: true, message: '캐시가 초기화되었습니다.' };
   }
 
   @Public()

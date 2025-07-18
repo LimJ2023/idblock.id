@@ -43,6 +43,54 @@ export class GetTransactionsQueryDto {
   skipCount?: boolean = false;
 }
 
+export class GetMultiContractStatsQueryDto {
+  @ApiProperty({
+    description: '컨트랙트 주소 배열 (최대 10개)',
+    example: ['0x671645FC21615fdcAA332422D5603f1eF9752E03', '0x123...', '0x456...'],
+    type: [String],
+  })
+  contractAddresses: string[];
+
+  @ApiPropertyOptional({
+    description: '캐시 사용 여부',
+    example: true,
+    default: true,
+  })
+  useCache?: boolean = true;
+}
+
+export class ContractStatsResponseDto {
+  @ApiProperty()
+  contractAddress: string;
+
+  @ApiProperty()
+  transactionCount: number;
+
+  @ApiProperty({ required: false })
+  error?: string;
+}
+
+export class MultiContractStatsResponseDto {
+  @ApiProperty()
+  success: boolean;
+
+  @ApiProperty({ type: [ContractStatsResponseDto] })
+  data: ContractStatsResponseDto[];
+
+  @ApiProperty()
+  totalTransactions: number;
+
+  @ApiProperty({
+    description: '캐시에서 가져온 결과 여부',
+  })
+  fromCache: boolean;
+
+  @ApiProperty({
+    description: '응답 시간 (ms)',
+  })
+  responseTime: number;
+}
+
 export class TransactionResponseDto {
   @ApiProperty()
   id: bigint;

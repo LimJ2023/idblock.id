@@ -17,3 +17,4 @@ export * from './user-fcm-token';
 export * from './external-api-key';
 export * from './transaction';
 export * from './block';
+export * from './contract-stats';
