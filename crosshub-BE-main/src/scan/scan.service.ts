@@ -494,7 +494,6 @@ export class ScanService {
   async getMultiContractStats(query: GetMultiContractStatsQueryDto) {
     const startTime = Date.now();
     const { contractAddresses, useCache = true } = query;
-    
     if (!contractAddresses || contractAddresses.length === 0) {
       return {
         success: false,

@@ -48,6 +48,11 @@ export class GetMultiContractStatsQueryDto {
     description: '컨트랙트 주소 배열 (최대 10개)',
     example: ['0x671645FC21615fdcAA332422D5603f1eF9752E03', '0x123...', '0x456...'],
     type: [String],
+    default: [
+      "0x671645FC21615fdcAA332422D5603f1eF9752E03",
+      "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
+      "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"
+    ]
   })
   contractAddresses: string[];
 
