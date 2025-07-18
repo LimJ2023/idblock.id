@@ -111,7 +111,7 @@ export class ScanService {
       sort = 'desc',
       // 커서 기반 페이지네이션을 위한 파라미터
       cursor,
-      skipCount = true // 성능 최적화: 기본적으로 COUNT 스킵
+      skipCount = false // 성능 최적화: 기본적으로 COUNT 스킵
     } = query;
     
     const pageNum = parseInt(page, 10);
