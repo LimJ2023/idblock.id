@@ -22,17 +22,26 @@ import type { DataTableProps } from "@/components/tables/common";
 import { BackofficePagination } from "../pagination";
 import { queries } from "@/queries";
 
+interface TxsTableProps<TData, TValue> extends Omit<DataTableProps<TData, TValue>, 'result'> {
+  contractAddress?: string;
+}
+
 const TxsTable = <TData, TValue>({
   columns,
   caption,
   captionSide = "top",
-}: Omit<DataTableProps<TData, TValue>, 'result'>) => {
+  contractAddress,
+}: TxsTableProps<TData, TValue>) => {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
 
   // Server-side pagination query
   const { data: result } = useQuery({
-    ...queries.txs.all({ page: currentPage, limit: pageSize }),
+    ...queries.txs.all({ 
+      page: currentPage, 
+      limit: pageSize,
+      contractAddress: contractAddress 
+    }),
     // Reload only on page change
     staleTime: 30 * 1000, // 30 seconds
     gcTime: 5 * 60 * 1000, // 5 minutes

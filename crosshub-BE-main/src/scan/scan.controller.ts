@@ -16,6 +16,7 @@ import { Public } from 'src/auth/auth.guard';
 @Controller('scan')
 export class ScanController {
   constructor(private readonly scanService: ScanService) {}
+  
   @Public()
   @Throttle({ default: { limit: 100, ttl: 60000 } })
   @Get('transactions')
@@ -48,6 +49,18 @@ export class ScanController {
     enum: ['desc', 'asc'],
     example: 'desc',
   })
+  @ApiQuery({
+    name: 'cursor',
+    required: false,
+    description: '커서 기반 페이지네이션을 위한 타임스탬프',
+    example: '1640995200',
+  })
+  @ApiQuery({
+    name: 'skipCount',
+    required: false,
+    description: '전체 카운트 조회 생략 (성능 최적화)',
+    example: 'false',
+  })
   @ApiResponse({
     status: 200,
     description: '트랜잭션 목록 조회 성공',
@@ -56,6 +69,45 @@ export class ScanController {
   async getTransactions(@Query() query: GetTransactionsQueryDto) {
     return this.scanService.getTransactions(query);
   }
+
+  @Public()
+  @Throttle({ default: { limit: 100, ttl: 400000 } })
+  @Get('transactions/latest')
+  @ApiOperation({
+    summary: '최신 트랜잭션 조회 (빠른 조회)',
+    description: '최신 트랜잭션을 빠르게 조회합니다. count 쿼리 없이 빠른 응답을 제공합니다.',
+  })
+  @ApiQuery({
+    name: 'contractAddress',
+    required: false,
+    description: '컨트랙트 주소',
+    example: '0x671645FC21615fdcAA332422D5603f1eF9752E03',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    description: '조회할 항목 수',
+    example: '10',
+  })
+  @ApiQuery({
+    name: 'sort',
+    required: false,
+    description: '정렬 순서',
+    enum: ['desc', 'asc'],
+    example: 'desc',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '최신 트랜잭션 조회 성공',
+  })
+  async getLatestTransactions(@Query() query: { 
+    contractAddress?: string; 
+    limit?: string; 
+    sort?: 'desc' | 'asc' 
+  }) {
+    return this.scanService.getLatestTransactions(query);
+  }
+
   @Public()
   @Get('transactions/:hash')
   @ApiOperation({
@@ -105,6 +157,12 @@ export class ScanController {
     description: '정렬 순서',
     enum: ['desc', 'asc'],
     example: 'desc',
+  })
+  @ApiQuery({
+    name: 'skipCount',
+    required: false,
+    description: '전체 카운트 조회 생략 (성능 최적화)',
+    example: 'false',
   })
   @ApiResponse({
     status: 200,

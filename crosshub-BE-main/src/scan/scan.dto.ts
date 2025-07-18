@@ -28,6 +28,19 @@ export class GetTransactionsQueryDto {
     enum: ['desc', 'asc'],
   })
   sort?: 'desc' | 'asc' = 'desc';
+
+  @ApiPropertyOptional({
+    description: '커서 기반 페이지네이션을 위한 타임스탬프 커서',
+    example: '1640995200',
+  })
+  cursor?: string;
+
+  @ApiPropertyOptional({
+    description: '전체 카운트 조회 생략 여부 (성능 최적화)',
+    example: 'false',
+    default: 'false',
+  })
+  skipCount?: boolean = false;
 }
 
 export class TransactionResponseDto {
@@ -195,6 +208,13 @@ export class GetBlocksQueryDto {
     enum: ['desc', 'asc'],
   })
   sort?: 'desc' | 'asc' = 'desc';
+
+  @ApiPropertyOptional({
+    description: '전체 카운트 조회 생략 여부 (성능 최적화)',
+    example: 'false',
+    default: 'false',
+  })
+  skipCount?: boolean = false;
 }
 
 export class BlockListResponseDto {

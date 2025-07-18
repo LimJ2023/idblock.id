@@ -19,7 +19,7 @@ const db = drizzle(client);
 // 가중치가 적용된 날짜 생성 함수 (2025년 1월에 피크)
 function generateWeightedDate(): Date {
   const startDate = new Date('2024-11-01T00:00:00Z');
-  const endDate = new Date('2025-06-30T23:59:59Z');
+  const endDate = new Date('2025-07-17T23:59:59Z');
   const peakDate = new Date('2025-01-15T12:00:00Z'); // 2025년 1월 중순 피크
   
   // 전체 기간을 밀리초로 계산
@@ -69,11 +69,44 @@ function generateRandomValue(): string {
   return weiAmount.toString();
 }
 
-// 가스 값 생성
-function generateGasValues() {
-  const gasLimit = Math.floor(Math.random() * 8000000) + 21000; // 21k ~ 8M
-  const gasUsed = Math.floor(gasLimit * (0.3 + Math.random() * 0.7)); // 30% ~ 100% 사용
-  const gasPrice = Math.floor(Math.random() * 200) + 10; // 10 ~ 210 Gwei
+// 함수별 가스 사용량 정의
+const GAS_USAGE_BY_FUNCTION = {
+  // 신원인증 관련 함수들 (중간 정도의 가스 사용)
+  'verifyIdentity': { min: 80000, max: 180000 },
+  'updateIdentity': { min: 90000, max: 200000 },
+  'submitVerification': { min: 70000, max: 150000 },
+  'approveVerification': { min: 85000, max: 170000 },
+  'getIdentityStatus': { min: 25000, max: 40000 }, // 읽기 함수
+  'revokeIdentity': { min: 60000, max: 120000 },
+  
+  // 배지 발급 관련 함수들 (높은 가스 사용)
+  'mintBadge': { min: 150000, max: 350000 },
+  'awardBadge': { min: 180000, max: 400000 },
+  'transferBadge': { min: 120000, max: 250000 },
+  'updateBadgeMetadata': { min: 100000, max: 200000 },
+  'getBadgeInfo': { min: 30000, max: 50000 }, // 읽기 함수
+  'revokeBadge': { min: 80000, max: 160000 },
+  'burnBadge': { min: 70000, max: 140000 },
+};
+
+// 가스 값 생성 (함수명에 따른 적절한 가스 사용량)
+function generateGasValues(functionName?: string) {
+  let gasUsed: number;
+  
+  if (functionName && GAS_USAGE_BY_FUNCTION[functionName]) {
+    // 함수별 맞춤 가스 사용량
+    const range = GAS_USAGE_BY_FUNCTION[functionName];
+    gasUsed = Math.floor(Math.random() * (range.max - range.min + 1)) + range.min;
+  } else {
+    // 일반 ETH 전송 또는 기타 함수
+    gasUsed = Math.floor(Math.random() * 40000) + 21000; // 21k ~ 61k
+  }
+  
+  // gasLimit은 gasUsed보다 10-30% 높게 설정
+  const gasLimit = Math.floor(gasUsed * (1.1 + Math.random() * 0.2));
+  
+  // 현실적인 가스 가격 범위 (15-80 Gwei, 2024-2025년 기준)
+  const gasPrice = Math.floor(Math.random() * 65) + 15; // 15 ~ 80 Gwei
   
   return {
     gas: gasLimit.toString(),
@@ -82,41 +115,38 @@ function generateGasValues() {
   };
 }
 
-// 컨트랙트 주소 풀 (실제 유명한 컨트랙트들 + 랜덤)
+// 컨트랙트 주소 풀
 const CONTRACT_ADDRESSES = [
-  '0x671645FC21615fdcAA332422D5603f1eF9752E03', // 요청에서 언급된 주소
-  '0xA0b86a33E6441E8F2C2b4A4E5a9e24B4b6e2A5F4', // USDC
-  '0x6B175474E89094C44Da98b954EedeAC495271d0F', // DAI
-  '0xdAC17F958D2ee523a2206206994597C13D831ec7', // USDT
-  '0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0', // MATIC
-  '0x514910771AF9Ca656af840dff83E8264EcF986CA', // LINK
-  '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599', // WBTC
-  '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // WETH
+  '0x671645FC21615fdcAA332422D5603f1eF9752E03', // 메인 컨트랙트
+  '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063', // 신원인증 컨트랙트
+  '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174', // 배지발급 컨트랙트
 ];
 
 // 함수 이름 풀
 const FUNCTION_NAMES = [
-  'transfer',
-  'approve',
-  'transferFrom',
-  'mint',
-  'burn',
-  'swap',
-  'addLiquidity',
-  'removeLiquidity',
-  'stake',
-  'unstake',
-  'claim',
-  'deposit',
-  'withdraw',
-  'vote',
-  'delegate',
+  'verifyIdentity',
+  'updateIdentity',
+  'submitVerification',
+  'approveVerification',
+  'getIdentityStatus',
+  'revokeIdentity',
+  'mintBadge',
+  'awardBadge',
+  'transferBadge',
+  'updateBadgeMetadata',
+  'getBadgeInfo',
+  'revokeBadge',
+  'burnBadge',
 ];
 
 // 블록 데이터 생성
 function generateBlockData(blockNumber: number, timestamp: Date): typeof Block.$inferInsert {
-  const gasUsed = Math.floor(Math.random() * 15000000) + 5000000; // 5M ~ 20M
-  const gasLimit = gasUsed + Math.floor(Math.random() * 5000000); // gasUsed보다 조금 더 큰 값
+  // 신원인증/배지발급 컨트랙트가 포함된 블록의 특성을 고려한 가스 사용량
+  // 블록당 평균 50개 트랜잭션, 각각 80k~400k 가스 사용 시 4M~20M 정도
+  const gasUsed = Math.floor(Math.random() * 16000000) + 4000000; // 4M ~ 20M
+  
+  // gasLimit은 gasUsed보다 5-15% 높게 설정 (블록 생성자가 여유분 확보)
+  const gasLimit = Math.floor(gasUsed * (1.05 + Math.random() * 0.1));
   
   return {
     number: blockNumber.toString(),
@@ -126,7 +156,7 @@ function generateBlockData(blockNumber: number, timestamp: Date): typeof Block.$
     timestamp: Math.floor(timestamp.getTime() / 1000).toString(),
     gasLimit: gasLimit.toString(),
     gasUsed: gasUsed.toString(),
-    size: (Math.floor(Math.random() * 100000) + 10000).toString(), // 10KB ~ 110KB
+    size: (Math.floor(Math.random() * 80000) + 20000).toString(), // 20KB ~ 100KB (컨트랙트 호출로 인해 더 큰 사이즈)
   };
 }
 
@@ -137,7 +167,6 @@ function generateTransactionData(
   transactionIndex: number,
   timestamp: Date
 ): typeof Transaction.$inferInsert {
-  const gasValues = generateGasValues();
   const isContractInteraction = Math.random() < 0.3; // 30% 확률로 컨트랙트 상호작용
   const isError = Math.random() < 0.02; // 2% 확률로 에러
   
@@ -148,6 +177,9 @@ function generateTransactionData(
   const functionName = isContractInteraction ? 
     FUNCTION_NAMES[Math.floor(Math.random() * FUNCTION_NAMES.length)] : 
     null;
+    
+  // 함수명을 기반으로 적절한 가스 값 생성
+  const gasValues = generateGasValues(functionName || undefined);
   
   return {
     blockNumber: blockNumber.toString(),
@@ -202,11 +234,11 @@ async function insertBulkBlockchainData() {
   console.log('  - 피크: 2025년 1월');
   console.log('  - 총 데이터: 480,000개 트랜잭션');
   
-  const TOTAL_TRANSACTIONS = 480000;
+  const TOTAL_TRANSACTIONS = 400000;
   const BATCH_SIZE = 1000;
   const TRANSACTIONS_PER_BLOCK = 50; // 블록당 평균 트랜잭션 수
   
-  let currentBlockNumber = 18500000; // 시작 블록 번호
+  let currentBlockNumber = 19000000; // 시작 블록 번호
   let insertedTransactions = 0;
   
   // 진행률 표시용

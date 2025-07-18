@@ -24,6 +24,8 @@ export const Block = pgTable(
   (table) => {
     return {
       idxBlocksNumber: index('idx_blocks_number').on(table.number),
+      // timestamp 정렬 성능 개선을 위한 인덱스 추가
+      idxBlocksTimestamp: index('idx_blocks_timestamp').on(table.timestamp),
     };
   },
 );

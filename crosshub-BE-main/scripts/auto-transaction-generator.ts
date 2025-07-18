@@ -52,31 +52,59 @@ const MIN_TRANSACTIONS_PER_DAY = 100;
 const MAX_TRANSACTIONS_PER_DAY = 200;
 const TRANSACTIONS_PER_BLOCK = 20; // 블록당 평균 트랜잭션 수
 
-// 컨트랙트 주소 풀
-const CONTRACT_ADDRESSES = [
-  '0x671645FC21615fdcAA332422D5603f1eF9752E03',
-  '0xA0b86a33E6441E8F2C2b4A4E5a9e24B4b6e2A5F4', // USDC
-  '0x6B175474E89094C44Da98b954EedeAC495271d0F', // DAI
-  '0xdAC17F958D2ee523a2206206994597C13D831ec7', // USDT
-  '0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0', // MATIC
-  '0x514910771AF9Ca656af840dff83E8264EcF986CA', // LINK
-];
+// 컨트랙트별 가중치 및 함수 매핑 (zkEVM 기반)
+const CONTRACT_CONFIG = {
+  '0x671645FC21615fdcAA332422D5603f1eF9752E03': {
+    name: '메인 컨트랙트',
+    weight: 50, // 50% - 가장 빈번한 토큰 거래
+    functions: ['transfer', 'approve', 'transferFrom', 'mint', 'burn']
+  },
+  '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063': {
+    name: '신원인증 컨트랙트', 
+    weight: 30, // 30% - 가입/인증 갱신 시
+    functions: ['verifyIdentity', 'updateIdentity', 'submitVerification', 'approveVerification', 'getIdentityStatus', 'revokeIdentity']
+  },
+  '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174': {
+    name: '배지발급 컨트랙트',
+    weight: 20, // 20% - 특정 이벤트/성취 시
+    functions: ['mintBadge', 'awardBadge', 'transferBadge', 'updateBadgeMetadata', 'getBadgeInfo', 'revokeBadge', 'burnBadge']
+  }
+};
 
-const FUNCTION_NAMES = [
-  'transfer',
-  'approve',
-  'transferFrom',
-  'mint',
-  'burn',
-  'swap',
-  'stake',
-  'unstake',
-  'claim',
-];
+// 가중치 기반 컨트랙트 선택을 위한 배열 생성
+const CONTRACT_ADDRESSES = Object.keys(CONTRACT_CONFIG);
+const FUNCTION_NAMES = Object.values(CONTRACT_CONFIG).flatMap(config => config.functions);
 
 // 유틸리티 함수들
 function generateRandomHash(): string {
   return '0x' + crypto.randomBytes(32).toString('hex');
+}
+
+// 가중치 기반 컨트랙트 선택 함수
+function selectContractByWeight(): { address: string; functionName: string } | null {
+  const isContractInteraction = Math.random() < 0.7; // 70% 확률로 컨트랙트 상호작용
+  
+  if (!isContractInteraction) {
+    return null;
+  }
+  
+  // 가중치 기반 선택
+  const totalWeight = Object.values(CONTRACT_CONFIG).reduce((sum, config) => sum + config.weight, 0);
+  let randomWeight = Math.random() * totalWeight;
+  
+  for (const [address, config] of Object.entries(CONTRACT_CONFIG)) {
+    randomWeight -= config.weight;
+    if (randomWeight <= 0) {
+      // 선택된 컨트랙트의 함수 중 랜덤 선택
+      const functionName = config.functions[Math.floor(Math.random() * config.functions.length)];
+      return { address, functionName };
+    }
+  }
+  
+  // 기본값 (도달하지 않아야 함)
+  const firstContract = Object.entries(CONTRACT_CONFIG)[0];
+  const functionName = firstContract[1].functions[0];
+  return { address: firstContract[0], functionName };
 }
 
 function generateRandomAddress(): string {
@@ -146,16 +174,12 @@ function generateTransactionData(
   timestamp: Date
 ): typeof Transaction.$inferInsert {
   const gasValues = generateGasValues();
-  const isContractInteraction = Math.random() < 0.4; // 40% 확률로 컨트랙트 상호작용
   const isError = Math.random() < 0.01; // 1% 확률로 에러
   
-  const contractAddress = isContractInteraction ? 
-    CONTRACT_ADDRESSES[Math.floor(Math.random() * CONTRACT_ADDRESSES.length)] : 
-    null;
-    
-  const functionName = isContractInteraction ? 
-    FUNCTION_NAMES[Math.floor(Math.random() * FUNCTION_NAMES.length)] : 
-    null;
+  // 가중치 기반 컨트랙트 및 함수 선택
+  const contractSelection = selectContractByWeight();
+  const contractAddress = contractSelection?.address || null;
+  const functionName = contractSelection?.functionName || null;
   
   return {
     blockNumber: blockNumber.toString(),
@@ -171,12 +195,12 @@ function generateTransactionData(
     gasPrice: gasValues.gasPrice,
     isError: isError ? '1' : '0',
     txreceiptStatus: isError ? '0' : '1',
-    input: isContractInteraction ? '0x' + crypto.randomBytes(25).toString('hex') : '0x',
+    input: contractAddress ? '0x' + crypto.randomBytes(25).toString('hex') : '0x',
     contractAddress: contractAddress,
     cumulativeGasUsed: gasValues.gasUsed,
     gasUsed: gasValues.gasUsed,
     confirmations: Math.floor(Math.random() * 100).toString(),
-    methodId: isContractInteraction ? '0x' + crypto.randomBytes(4).toString('hex') : null,
+    methodId: contractAddress ? '0x' + crypto.randomBytes(4).toString('hex') : null,
     functionName: functionName,
   };
 }

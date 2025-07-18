@@ -42,6 +42,15 @@ export const Transaction = pgTable(
       idxTransactionsBlockNumber: index('idx_transactions_block_number').on(
         table.blockNumber,
       ),
+      // timeStamp 정렬 성능 개선을 위한 인덱스 추가
+      idxTransactionsTimeStamp: index('idx_transactions_time_stamp').on(
+        table.timeStamp,
+      ),
+      // contractAddress와 timeStamp 복합 인덱스 (필터링 + 정렬)
+      idxTransactionsContractAddressTimeStamp: index('idx_transactions_contract_address_time_stamp').on(
+        table.contractAddress,
+        table.timeStamp,
+      ),
     };
   },
 );

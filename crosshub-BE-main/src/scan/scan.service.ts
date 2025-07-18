@@ -1,5 +1,5 @@
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
-import { and, count, desc, asc, eq, SQL, sql } from 'drizzle-orm';
+import { and, count, desc, asc, eq, SQL, sql, gt, lt } from 'drizzle-orm';
 import { DrizzleDB, INJECT_DRIZZLE } from 'src/database/drizzle.provider';
 import { Block, Transaction } from 'src/database/schema';
 import { GetTransactionsQueryDto, GetBlocksQueryDto } from './scan.dto';
@@ -35,10 +35,18 @@ export class ScanService {
   }
 
   async getTransactions(query: GetTransactionsQueryDto) {
-    const { contractAddress, page = '1', limit = '10', sort = 'desc' } = query;
+    const { 
+      contractAddress, 
+      page = '1', 
+      limit = '10', 
+      sort = 'desc',
+      // 커서 기반 페이지네이션을 위한 파라미터
+      cursor,
+      skipCount = false // 첫 번째 페이지에서는 count를 스킵할 수 있는 옵션
+    } = query;
     
     const pageNum = parseInt(page, 10);
-    const limitNum = parseInt(limit, 10); // 최대 제한 제거
+    const limitNum = parseInt(limit, 10);
     const offset = (pageNum - 1) * limitNum;
 
     // 조건 구성
@@ -47,28 +55,58 @@ export class ScanService {
       conditions.push(eq(Transaction.contractAddress, contractAddress));
     }
 
+    // 커서 기반 페이지네이션 조건
+    if (cursor) {
+      if (sort === 'desc') {
+        conditions.push(lt(Transaction.timeStamp, cursor));
+      } else {
+        conditions.push(gt(Transaction.timeStamp, cursor));
+      }
+    }
+
     const whereCondition = conditions.length > 0 ? and(...conditions) : undefined;
 
-    // 총 개수 조회
-    const [totalResult] = await this.db
-      .select({ count: count() })
-      .from(Transaction)
-      .where(whereCondition);
+    // 총 개수 조회 최적화 - 첫 번째 페이지이고 skipCount가 true이면 생략
+    let total: number | null = null;
+    if (!skipCount || pageNum > 1) {
+      const [totalResult] = await this.db
+        .select({ count: count() })
+        .from(Transaction)
+        .where(whereCondition);
+      total = Number(totalResult.count);
+    }
 
-    const total = Number(totalResult.count);
-
-    // 데이터 조회 (timeStamp를 숫자로 변환하여 정렬 - 최근 날짜가 먼저 보이도록)
+    // 데이터 조회 - timeStamp 문자열을 직접 정렬 (인덱스 활용)
+    // PostgreSQL에서 숫자 문자열을 정렬하려면 lpad를 사용하거나
+    // 또는 timeStamp가 일정한 길이라면 문자열 정렬도 가능
     const orderBy = sort === 'desc' ? 
-      desc(sql`CAST(${Transaction.timeStamp} AS BIGINT)`) : 
-      asc(sql`CAST(${Transaction.timeStamp} AS BIGINT)`);
-    
-    const transactions = await this.db
-      .select()
-      .from(Transaction)
-      .where(whereCondition)
-      .orderBy(orderBy)
-      .limit(limitNum)
-      .offset(offset);
+      desc(sql`${Transaction.timeStamp}::bigint`) : 
+      asc(sql`${Transaction.timeStamp}::bigint`);
+
+    // 쿼리 실행
+    let transactions;
+    if (cursor) {
+      // 커서 기반 페이지네이션
+      transactions = await this.db
+        .select()
+        .from(Transaction)
+        .where(whereCondition)
+        .orderBy(orderBy)
+        .limit(limitNum);
+    } else {
+      // 일반 offset 기반 페이지네이션
+      transactions = await this.db
+        .select()
+        .from(Transaction)
+        .where(whereCondition)
+        .orderBy(orderBy)
+        .limit(limitNum)
+        .offset(offset);
+    }
+
+    // 다음 커서 계산 (마지막 항목의 timeStamp)
+    const nextCursor = transactions.length > 0 ? 
+      transactions[transactions.length - 1].timeStamp : null;
 
     return {
       success: true,
@@ -76,6 +114,46 @@ export class ScanService {
       total,
       page: pageNum,
       limit: limitNum,
+      nextCursor,
+      hasMore: transactions.length === limitNum
+    };
+  }
+
+  // 빠른 최신 트랜잭션 조회 (count 없이)
+  async getLatestTransactions(query: { 
+    contractAddress?: string; 
+    limit?: string; 
+    sort?: 'desc' | 'asc' 
+  }) {
+    const { contractAddress, limit = '10', sort = 'desc' } = query;
+    const limitNum = parseInt(limit, 10);
+
+    const conditions: SQL[] = [];
+    if (contractAddress) {
+      conditions.push(eq(Transaction.contractAddress, contractAddress));
+    }
+
+    const whereCondition = conditions.length > 0 ? and(...conditions) : undefined;
+
+    const orderBy = sort === 'desc' ? 
+      desc(sql`${Transaction.timeStamp}::bigint`) : 
+      asc(sql`${Transaction.timeStamp}::bigint`);
+    
+    const transactions = await this.db
+      .select()
+      .from(Transaction)
+      .where(whereCondition)
+      .orderBy(orderBy)
+      .limit(limitNum);
+
+    const nextCursor = transactions.length > 0 ? 
+      transactions[transactions.length - 1].timeStamp : null;
+
+    return {
+      success: true,
+      data: this.transformDates(transactions),
+      nextCursor,
+      hasMore: transactions.length === limitNum
     };
   }
 
@@ -97,23 +175,25 @@ export class ScanService {
   }
 
   async getBlocks(query: GetBlocksQueryDto) {
-    const { page = '1', limit = '10', sort = 'desc' } = query;
+    const { page = '1', limit = '10', sort = 'desc', skipCount = false } = query;
     
     const pageNum = parseInt(page, 10);
     const limitNum = parseInt(limit, 10);
     const offset = (pageNum - 1) * limitNum;
 
-    // 총 개수 조회
-    const [totalResult] = await this.db
-      .select({ count: count() })
-      .from(Block);
+    // 총 개수 조회 최적화
+    let total: number | null = null;
+    if (!skipCount || pageNum > 1) {
+      const [totalResult] = await this.db
+        .select({ count: count() })
+        .from(Block);
+      total = Number(totalResult.count);
+    }
 
-    const total = Number(totalResult.count);
-
-    // 데이터 조회 (timestamp를 숫자로 변환하여 정렬 - 최근 날짜가 먼저 보이도록)
+    // 데이터 조회 - timestamp 직접 정렬
     const orderBy = sort === 'desc' ? 
-      desc(sql`CAST(${Block.timestamp} AS BIGINT)`) : 
-      asc(sql`CAST(${Block.timestamp} AS BIGINT)`);
+      desc(sql`${Block.timestamp}::bigint`) : 
+      asc(sql`${Block.timestamp}::bigint`);
     
     const blocks = await this.db
       .select()
