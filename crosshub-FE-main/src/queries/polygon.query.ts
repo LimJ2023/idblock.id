@@ -8,10 +8,14 @@ interface TxsQueryParams {
 }
 
 const txs = createQueryKeys("txs", {
-  all: (params: TxsQueryParams = {}) => ({
-    queryKey: [params.page || 1, params.limit || 10, params.contractAddress],
-    queryFn: () => getTxs(params),
-  }),
+  all: (params: TxsQueryParams = {}) => {
+    // API에서 사용하는 기본 컨트랙트 주소와 동일하게 설정
+    const contractAddress = params.contractAddress || "0x671645FC21615fdcAA332422D5603f1eF9752E03";
+    return {
+      queryKey: [params.page || 1, params.limit || 10, contractAddress],
+      queryFn: () => getTxs(params),
+    };
+  },
   detail: (hash: string) => ({
     queryKey: [hash],
     queryFn: () => getTxDetail(hash),

@@ -26,24 +26,24 @@ function transformDbTxToTx(dbTx: DbTx): Tx {
   
   const transformed = {
     id: dbTx.id,
-    blockNumber: dbTx.blockNumber,
-    timeStamp: dbTx.timeStamp,
-    hash: dbTx.hash,
-    nonce: dbTx.nonce,
-    blockHash: dbTx.blockHash,
-    transactionIndex: dbTx.transactionIndex,
-    from: dbTx.fromAddress,
-    to: dbTx.toAddress,
-    value: dbTx.value,
-    gas: dbTx.gas,
-    gasPrice: dbTx.gasPrice,
-    isError: dbTx.isError,
-    txreceipt_status: dbTx.txreceiptStatus,
-    input: dbTx.input,
-    contractAddress: dbTx.contractAddress,
-    cumulativeGasUsed: dbTx.cumulativeGasUsed,
-    gasUsed: dbTx.gasUsed,
-    confirmations: dbTx.confirmations,
+    blockNumber: dbTx.blockNumber || "0",
+    timeStamp: dbTx.timeStamp || Math.floor(Date.now() / 1000).toString(), 
+    hash: dbTx.hash || "",
+    nonce: dbTx.nonce || "0",
+    blockHash: dbTx.blockHash || "",
+    transactionIndex: dbTx.transactionIndex || "0",
+    from: dbTx.fromAddress || "",
+    to: dbTx.toAddress || "",
+    value: dbTx.value || "0", // 기본값 "0" 제공
+    gas: dbTx.gas || "0",
+    gasPrice: dbTx.gasPrice || "0",
+    isError: dbTx.isError || "0",
+    txreceipt_status: dbTx.txreceiptStatus || "0",
+    input: dbTx.input || "0x",
+    contractAddress: dbTx.contractAddress || "",
+    cumulativeGasUsed: dbTx.cumulativeGasUsed || "0",
+    gasUsed: dbTx.gasUsed || "0",
+    confirmations: dbTx.confirmations || "0",
     methodId: dbTx.methodId,
     functionName: dbTx.functionName,
     createdAt: dbTx.createdAt,
@@ -193,7 +193,8 @@ interface GetTxsParams {
   contractAddress?: string;
 }
 
-// ContractStatsService - 타임아웃 방지를 위한 이중 조회 서비스
+// ContractStatsService - 타임아웃 방지를 위한 이중 조회 서비스 (임시 비활성화)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 class ContractStatsService {
   private static instance: ContractStatsService;
   private requestCache = new Map<string, Promise<Result<TxResponse, ErrorResponse>>>();
@@ -246,15 +247,20 @@ class ContractStatsService {
     return this.tryParallelQuery(addresses, page, limit);
   }
 
-  // 초고속 조회 (5초 타임아웃)
+  // 초고속 조회 (30초 타임아웃)
   private async tryFastQuery(addresses: string[], page: number, limit: number): Promise<Result<TxResponse, ErrorResponse> | null> {
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5초 타임아웃
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30초 타임아웃
 
+      // 초고속 트랜잭션 목록 조회 API 사용 (통계가 아닌 실제 트랜잭션 목록)
       const response = await api
-        .post('scan/contracts/stats/fast', {
-          json: addresses,
+        .get('transactions/latest', {
+          searchParams: {
+            contractAddress: addresses[0], // 첫 번째 컨트랙트 주소 사용
+            limit: limit.toString(),
+            sort: 'desc',
+          },
           signal: controller.signal,
         })
         .json<{data: DbTxResponse}>();
@@ -264,11 +270,11 @@ class ContractStatsService {
       if (response.data?.success) {
         return this.transformDbResponse(response.data, page, limit);
       }
-         } catch (error: unknown) {
-       if (error instanceof Error && error.name === 'AbortError') {
-         console.warn('초고속 조회 타임아웃');
-       }
-     }
+    } catch (error: unknown) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.warn('초고속 조회 타임아웃');
+      }
+    }
     return null;
   }
 
@@ -276,7 +282,7 @@ class ContractStatsService {
   private async tryParallelQuery(addresses: string[], page: number, limit: number): Promise<Result<TxResponse, ErrorResponse>> {
     try {
       const response = await api
-        .post('scan/contracts/stats', {
+        .post('contracts/stats', {
           json: {
             contractAddresses: addresses,
             useCache: true,
@@ -626,23 +632,36 @@ const getBlockByNumber: (
   }
 };
 
-// 새로운 getTxs 함수 - ContractStatsService 사용
+// 기존 transactions API 사용 - 백엔드 최적화에 집중
 const getTxs: (params?: GetTxsParams) => Promise<Result<TxResponse, ErrorResponse>> = async (params = {}) => {
+  console.log('🔍 getTxs 호출됨 (기존 transactions API 사용):', params);
+  
+  // 기존 안정적인 transactions API를 직접 사용
+  return getOriginalTxs(params);
+  
+  /* 
+  // ContractStatsService는 백엔드 최적화 완료 후 다시 고려
   try {
     const contractStatsService = ContractStatsService.getInstance();
     const contractAddress = params.contractAddress || "0x671645FC21615fdcAA332422D5603f1eF9752E03";
     
+    console.log('📡 ContractStatsService로 API 호출 시작:', { contractAddress, page: params.page, limit: params.limit });
+    
     // 단일 컨트랙트 주소를 배열로 변환하여 새로운 서비스 사용
-    return await contractStatsService.getContractStats(
+    const result = await contractStatsService.getContractStats(
       [contractAddress], 
       params.page || 1, 
       params.limit || 10
     );
+    
+    console.log('📊 ContractStatsService 응답:', result);
+    return result;
   } catch (error) {
-    console.error('ContractStatsService 사용 중 에러, 기존 방식으로 폴백:', error);
+    console.error('❌ ContractStatsService 사용 중 에러, 기존 방식으로 폴백:', error);
     // 에러 시 기존 방식으로 폴백
     return getOriginalTxs(params);
   }
+  */
 };
 
 export { getTxs, getTxDetail, getBlockByNumber };

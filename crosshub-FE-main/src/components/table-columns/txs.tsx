@@ -4,10 +4,20 @@ import { Link } from "react-router-dom";
 import dayjs from "dayjs";
 
 // Wei를 ETH로 변환하는 함수
-function weiToEth(weiValue: string): string {
-  const wei = BigInt(weiValue);
-  const eth = Number(wei) / 1e18;
-  return eth.toFixed(6);
+function weiToEth(weiValue: string | undefined): string {
+  // undefined, null, 빈 문자열 체크
+  if (!weiValue || weiValue === "" || weiValue === "0") {
+    return "0.000000";
+  }
+  
+  try {
+    const wei = BigInt(weiValue);
+    const eth = Number(wei) / 1e18;
+    return eth.toFixed(6);
+  } catch (error) {
+    console.warn("Wei 변환 에러:", error, "값:", weiValue);
+    return "0.000000";
+  }
 }
 
 const columns: ColumnDef<Tx>[] = [

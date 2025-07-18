@@ -73,6 +73,22 @@ export class ScanController {
   }
 
   @Public()
+  @Get('debug/transaction-count')
+  @ApiOperation({ 
+    summary: '디버깅: 트랜잭션 총 개수 확인',
+    description: '데이터베이스에 있는 트랜잭션의 총 개수를 확인합니다.',
+  })
+  @ApiQuery({
+    name: 'contractAddress',
+    required: false,
+    description: '컨트랙트 주소 (선택사항)',
+    example: '0x671645FC21615fdcAA332422D5603f1eF9752E03',
+  })
+  async getTransactionCount(@Query() query: { contractAddress?: string }) {
+    return this.scanService.getTransactionCount(query.contractAddress);
+  }
+
+  @Public()
   @Throttle({ default: { limit: 100, ttl: 400000 } })
   @Get('transactions/latest')
   @ApiOperation({ 
@@ -144,7 +160,7 @@ export class ScanController {
   }
 
   @Public()
-  @Throttle({ default: { limit: 100, ttl: 60000 } })
+  @Throttle({ default: { limit: 100, ttl: 400000 } })
   @Post('contracts/stats/fast')
   @ApiOperation({ 
     summary: '다중 컨트랙트 통계 조회 (초고속)',

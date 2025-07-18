@@ -37,10 +37,10 @@ export class GetTransactionsQueryDto {
 
   @ApiPropertyOptional({
     description: '전체 카운트 조회 생략 여부 (성능 최적화)',
-    example: 'false',
-    default: 'false',
+    example: 'true',
+    default: 'true',
   })
-  skipCount?: boolean = false;
+  skipCount?: boolean = true;
 }
 
 export class GetMultiContractStatsQueryDto {
@@ -259,10 +259,10 @@ export class GetBlocksQueryDto {
 
   @ApiPropertyOptional({
     description: '전체 카운트 조회 생략 여부 (성능 최적화)',
-    example: 'false',
-    default: 'false',
+    example: 'true',
+    default: 'true',
   })
-  skipCount?: boolean = false;
+  skipCount?: boolean = true;
 }
 
 export class BlockListResponseDto {

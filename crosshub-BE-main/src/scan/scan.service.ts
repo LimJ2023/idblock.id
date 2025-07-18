@@ -22,23 +22,88 @@ export class ScanService {
     
     if (data && typeof data === 'object') {
       const transformed = { ...data };
+      
+      // 날짜 변환
       if (transformed.createdAt instanceof Date) {
         transformed.createdAt = transformed.createdAt.toISOString();
       }
       if (transformed.updatedAt instanceof Date) {
         transformed.updatedAt = transformed.updatedAt.toISOString();
       }
+      
       // BigInt을 문자열로 변환
       if (typeof transformed.id === 'bigint') {
         transformed.id = transformed.id.toString();
       }
+      
+      // null/undefined 값들을 기본값으로 처리
+      // Wei 단위 필드들 (프론트엔드에서 BigInt 변환이 필요한 필드들)
+      const weiFields = ['value', 'gas', 'gasPrice', 'cumulativeGasUsed', 'gasUsed'];
+      weiFields.forEach(field => {
+        if (transformed[field] === null || transformed[field] === undefined) {
+          transformed[field] = '0';
+        }
+      });
+      
+      // 일반 텍스트 필드들
+      const textFields = ['nonce', 'toAddress', 'input', 'confirmations', 'txreceiptStatus'];
+      textFields.forEach(field => {
+        if (transformed[field] === null || transformed[field] === undefined) {
+          transformed[field] = '';
+        }
+      });
+      
+      // 에러 관련 필드 기본값 설정
+      if (transformed.isError === null || transformed.isError === undefined) {
+        transformed.isError = '0';
+      }
+      
       return transformed;
     }
     
     return data;
   }
 
+  // 디버깅용: 트랜잭션 개수 확인
+  async getTransactionCount(contractAddress?: string) {
+    try {
+      const conditions: SQL[] = [];
+      if (contractAddress) {
+        conditions.push(eq(Transaction.contractAddress, contractAddress));
+        this.logger.log(`🔍 특정 컨트랙트 주소의 트랜잭션 개수 조회: ${contractAddress}`);
+      } else {
+        this.logger.log(`🔍 전체 트랜잭션 개수 조회`);
+      }
+
+      const whereCondition = conditions.length > 0 ? and(...conditions) : undefined;
+
+      const [result] = await this.db
+        .select({ count: count() })
+        .from(Transaction)
+        .where(whereCondition);
+
+      const totalCount = Number(result.count);
+      this.logger.log(`📊 조회 결과: ${totalCount}개 트랜잭션`);
+
+      return {
+        success: true,
+        totalTransactions: totalCount,
+        contractAddress: contractAddress || 'all',
+        timestamp: new Date().toISOString(),
+      };
+    } catch (error) {
+      this.logger.error('트랜잭션 개수 조회 실패:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        contractAddress: contractAddress || 'all',
+        timestamp: new Date().toISOString(),
+      };
+    }
+  }
+
   async getTransactions(query: GetTransactionsQueryDto) {
+    const startTime = Date.now();
     const { 
       contractAddress, 
       page = '1', 
@@ -46,12 +111,14 @@ export class ScanService {
       sort = 'desc',
       // 커서 기반 페이지네이션을 위한 파라미터
       cursor,
-      skipCount = false // 첫 번째 페이지에서는 count를 스킵할 수 있는 옵션
+      skipCount = true // 성능 최적화: 기본적으로 COUNT 스킵
     } = query;
     
     const pageNum = parseInt(page, 10);
     const limitNum = parseInt(limit, 10);
     const offset = (pageNum - 1) * limitNum;
+
+    this.logger.log(`🔍 getTransactions 시작 - contractAddress: ${contractAddress}, page: ${pageNum}, limit: ${limitNum}, sort: ${sort}, skipCount: ${skipCount}`);
 
     // 조건 구성
     const conditions: SQL[] = [];
@@ -70,37 +137,107 @@ export class ScanService {
 
     const whereCondition = conditions.length > 0 ? and(...conditions) : undefined;
 
-    // 총 개수 조회 최적화 - 첫 번째 페이지이고 skipCount가 true이면 생략
+    // 총 개수 조회 최적화 - 성능을 위해 기본적으로 스킵
     let total: number | null = null;
-    if (!skipCount || pageNum > 1) {
-      const [totalResult] = await this.db
-        .select({ count: count() })
-        .from(Transaction)
-        .where(whereCondition);
-      total = Number(totalResult.count);
+    let isApproximateCount = false;
+    
+    if (!skipCount) {
+      const countStartTime = Date.now();
+      this.logger.log(`🔢 COUNT 쿼리 시작...`);
+      
+      // 큰 테이블의 경우 근사치 COUNT 사용
+      if (!contractAddress && pageNum === 1) {
+        // 전체 테이블 조회 시 PostgreSQL 통계 정보 활용
+        try {
+          const [approximateResult] = await this.db.execute(sql`
+            SELECT reltuples::bigint as approximate_count
+            FROM pg_class 
+            WHERE relname = 'transaction'
+          `);
+          
+          if (approximateResult && approximateResult.approximate_count) {
+            total = Number(approximateResult.approximate_count);
+            isApproximateCount = true;
+            this.logger.log(`📊 근사치 COUNT 사용: ${total}개 (통계 정보 기반)`);
+          }
+        } catch (error) {
+          this.logger.warn('근사치 COUNT 실패, 정확한 COUNT로 전환:', error);
+        }
+      }
+      
+      // 근사치를 구할 수 없는 경우 정확한 COUNT 실행
+      if (total === null) {
+        const [totalResult] = await this.db
+          .select({ count: count() })
+          .from(Transaction)
+          .where(whereCondition);
+        
+        total = Number(totalResult.count);
+      }
+      
+      const countDuration = Date.now() - countStartTime;
+      this.logger.log(`📊 COUNT 쿼리 완료: ${total}개 (${isApproximateCount ? '근사치' : '정확'}), 소요시간: ${countDuration}ms`);
+    } else {
+      this.logger.log(`⏭️ COUNT 쿼리 생략 (성능 최적화)`);
     }
 
-    // 데이터 조회 - timeStamp 문자열을 직접 정렬 (인덱스 활용)
-    // PostgreSQL에서 숫자 문자열을 정렬하려면 lpad를 사용하거나
-    // 또는 timeStamp가 일정한 길이라면 문자열 정렬도 가능
+    // 데이터 조회 최적화
+    const dataStartTime = Date.now();
+    this.logger.log(`🗄️ 데이터 조회 시작... (${cursor ? 'cursor' : 'offset'} 기반)`);
+    
     const orderBy = sort === 'desc' ? 
       desc(sql`${Transaction.timeStamp}::bigint`) : 
       asc(sql`${Transaction.timeStamp}::bigint`);
 
+    // 성능 최적화: 필요한 컬럼만 선택 (옵션)
+    const selectFields = {
+      id: Transaction.id,
+      blockNumber: Transaction.blockNumber,
+      timeStamp: Transaction.timeStamp,
+      hash: Transaction.hash,
+      fromAddress: Transaction.fromAddress,
+      toAddress: Transaction.toAddress,
+      value: Transaction.value,
+      gas: Transaction.gas,
+      gasPrice: Transaction.gasPrice,
+      gasUsed: Transaction.gasUsed,
+      contractAddress: Transaction.contractAddress,
+      isError: Transaction.isError,
+      txreceiptStatus: Transaction.txreceiptStatus,
+      // 자주 사용되지 않는 필드는 필요시에만 포함
+      ...(limitNum <= 20 && { // 소량 조회 시에만 전체 필드 포함
+        nonce: Transaction.nonce,
+        blockHash: Transaction.blockHash,
+        transactionIndex: Transaction.transactionIndex,
+        input: Transaction.input,
+        cumulativeGasUsed: Transaction.cumulativeGasUsed,
+        confirmations: Transaction.confirmations,
+        methodId: Transaction.methodId,
+        functionName: Transaction.functionName,
+        createdAt: Transaction.createdAt,
+        updatedAt: Transaction.updatedAt,
+      })
+    };
+
     // 쿼리 실행
     let transactions;
     if (cursor) {
-      // 커서 기반 페이지네이션
+      // 커서 기반 페이지네이션 (권장)
       transactions = await this.db
-        .select()
+        .select(selectFields)
         .from(Transaction)
         .where(whereCondition)
         .orderBy(orderBy)
         .limit(limitNum);
     } else {
       // 일반 offset 기반 페이지네이션
+      // 큰 offset의 경우 성능 경고
+      if (offset > 10000) {
+        this.logger.warn(`⚠️ 큰 offset 사용 (${offset}): 성능 저하 가능, cursor 기반 페이지네이션 권장`);
+      }
+      
       transactions = await this.db
-        .select()
+        .select(selectFields)
         .from(Transaction)
         .where(whereCondition)
         .orderBy(orderBy)
@@ -108,9 +245,15 @@ export class ScanService {
         .offset(offset);
     }
 
+    const dataDuration = Date.now() - dataStartTime;
+    this.logger.log(`📋 데이터 조회 완료: ${transactions.length}개, 소요시간: ${dataDuration}ms`);
+
     // 다음 커서 계산 (마지막 항목의 timeStamp)
     const nextCursor = transactions.length > 0 ? 
       transactions[transactions.length - 1].timeStamp : null;
+
+    const totalDuration = Date.now() - startTime;
+    this.logger.log(`✅ getTransactions 완료 - 총 소요시간: ${totalDuration}ms (COUNT: ${total !== null ? `${Date.now() - startTime - dataDuration}ms` : 'skipped'}, 데이터: ${dataDuration}ms)`);
 
     return {
       success: true,
@@ -119,7 +262,17 @@ export class ScanService {
       page: pageNum,
       limit: limitNum,
       nextCursor,
-      hasMore: transactions.length === limitNum
+      hasMore: transactions.length === limitNum,
+      // 성능 디버깅 정보 추가
+      performanceInfo: {
+        totalDuration,
+        countDuration: total !== null ? totalDuration - dataDuration : null,
+        dataDuration,
+        skipCount,
+        usedCursor: !!cursor,
+        isApproximateCount,
+        largeOffsetWarning: !cursor && offset > 10000,
+      }
     };
   }
 
@@ -132,9 +285,13 @@ export class ScanService {
     const { contractAddress, limit = '10', sort = 'desc' } = query;
     const limitNum = parseInt(limit, 10);
 
+    // 디버깅 로그 추가
+    this.logger.log(`🔍 getLatestTransactions 호출됨 - contractAddress: ${contractAddress}, limit: ${limit}, limitNum: ${limitNum}, sort: ${sort}`);
+
     const conditions: SQL[] = [];
     if (contractAddress) {
       conditions.push(eq(Transaction.contractAddress, contractAddress));
+      this.logger.log(`📝 contractAddress 조건 추가: ${contractAddress}`);
     }
 
     const whereCondition = conditions.length > 0 ? and(...conditions) : undefined;
@@ -143,6 +300,8 @@ export class ScanService {
       desc(sql`${Transaction.timeStamp}::bigint`) : 
       asc(sql`${Transaction.timeStamp}::bigint`);
     
+    this.logger.log(`🗄️ 데이터베이스 쿼리 실행 중... (limit: ${limitNum})`);
+    
     const transactions = await this.db
       .select()
       .from(Transaction)
@@ -150,15 +309,21 @@ export class ScanService {
       .orderBy(orderBy)
       .limit(limitNum);
 
+    this.logger.log(`📊 쿼리 결과: ${transactions.length}개 트랜잭션 조회됨`);
+
     const nextCursor = transactions.length > 0 ? 
       transactions[transactions.length - 1].timeStamp : null;
 
-    return {
+    const result = {
       success: true,
       data: this.transformDates(transactions),
       nextCursor,
       hasMore: transactions.length === limitNum
     };
+
+    this.logger.log(`✅ 응답 반환: ${result.data.length}개 트랜잭션, hasMore: ${result.hasMore}`);
+
+    return result;
   }
 
   async getTransactionByHash(hash: string) {
@@ -179,22 +344,63 @@ export class ScanService {
   }
 
   async getBlocks(query: GetBlocksQueryDto) {
-    const { page = '1', limit = '10', sort = 'desc', skipCount = false } = query;
+    const startTime = Date.now();
+    const { page = '1', limit = '10', sort = 'desc', skipCount = true } = query; // 성능 최적화: 기본적으로 COUNT 스킵
     
     const pageNum = parseInt(page, 10);
     const limitNum = parseInt(limit, 10);
     const offset = (pageNum - 1) * limitNum;
 
-    // 총 개수 조회 최적화
+    this.logger.log(`🔍 getBlocks 시작 - page: ${pageNum}, limit: ${limitNum}, sort: ${sort}, skipCount: ${skipCount}`);
+
+    // 총 개수 조회 최적화 - 성능을 위해 기본적으로 스킵
     let total: number | null = null;
-    if (!skipCount || pageNum > 1) {
-      const [totalResult] = await this.db
-        .select({ count: count() })
-        .from(Block);
-      total = Number(totalResult.count);
+    let isApproximateCount = false;
+    
+    if (!skipCount) {
+      const countStartTime = Date.now();
+      this.logger.log(`🔢 블록 COUNT 쿼리 시작...`);
+      
+      // 전체 블록 조회 시 PostgreSQL 통계 정보 활용
+      try {
+        const [approximateResult] = await this.db.execute(sql`
+          SELECT reltuples::bigint as approximate_count
+          FROM pg_class 
+          WHERE relname = 'block'
+        `);
+        
+        if (approximateResult && approximateResult.approximate_count) {
+          total = Number(approximateResult.approximate_count);
+          isApproximateCount = true;
+          this.logger.log(`📊 근사치 블록 COUNT 사용: ${total}개 (통계 정보 기반)`);
+        }
+      } catch (error) {
+        this.logger.warn('근사치 블록 COUNT 실패, 정확한 COUNT로 전환:', error);
+      }
+      
+      // 근사치를 구할 수 없는 경우 정확한 COUNT 실행
+      if (total === null) {
+        const [totalResult] = await this.db
+          .select({ count: count() })
+          .from(Block);
+        total = Number(totalResult.count);
+      }
+      
+      const countDuration = Date.now() - countStartTime;
+      this.logger.log(`📊 블록 COUNT 쿼리 완료: ${total}개 (${isApproximateCount ? '근사치' : '정확'}), 소요시간: ${countDuration}ms`);
+    } else {
+      this.logger.log(`⏭️ 블록 COUNT 쿼리 생략 (성능 최적화)`);
     }
 
-    // 데이터 조회 - timestamp 직접 정렬
+    // 데이터 조회 최적화
+    const dataStartTime = Date.now();
+    this.logger.log(`🗄️ 블록 데이터 조회 시작... (offset: ${offset})`);
+    
+    // 큰 offset의 경우 성능 경고
+    if (offset > 10000) {
+      this.logger.warn(`⚠️ 큰 offset 사용 (${offset}): 성능 저하 가능`);
+    }
+    
     const orderBy = sort === 'desc' ? 
       desc(sql`${Block.timestamp}::bigint`) : 
       asc(sql`${Block.timestamp}::bigint`);
@@ -206,12 +412,27 @@ export class ScanService {
       .limit(limitNum)
       .offset(offset);
 
+    const dataDuration = Date.now() - dataStartTime;
+    this.logger.log(`📋 블록 데이터 조회 완료: ${blocks.length}개, 소요시간: ${dataDuration}ms`);
+
+    const totalDuration = Date.now() - startTime;
+    this.logger.log(`✅ getBlocks 완료 - 총 소요시간: ${totalDuration}ms (COUNT: ${total !== null ? `${totalDuration - dataDuration}ms` : 'skipped'}, 데이터: ${dataDuration}ms)`);
+
     return {
       success: true,
       data: this.transformDates(blocks),
       total,
       page: pageNum,
       limit: limitNum,
+      // 성능 디버깅 정보 추가
+      performanceInfo: {
+        totalDuration,
+        countDuration: total !== null ? totalDuration - dataDuration : null,
+        dataDuration,
+        skipCount,
+        isApproximateCount,
+        largeOffsetWarning: offset > 10000,
+      }
     };
   }
 
