@@ -1,4 +1,4 @@
-import { getBlockByNumber, getTxDetail, getTxs } from "@/api/polygon.api";
+import { getBlockByNumber, getTxDetail, getTxs, getTxStats } from "@/api/polygon.api";
 import { createQueryKeys } from "@lukemorales/query-key-factory";
 
 interface TxsQueryParams {
@@ -14,6 +14,13 @@ const txs = createQueryKeys("txs", {
     return {
       queryKey: [params.page || 1, params.limit || 10, contractAddress],
       queryFn: () => getTxs(params),
+    };
+  },
+  stats: (contractAddress?: string) => {
+    const address = contractAddress || "0x671645FC21615fdcAA332422D5603f1eF9752E03";
+    return {
+      queryKey: ["stats", address],
+      queryFn: () => getTxStats(address),
     };
   },
   detail: (hash: string) => ({

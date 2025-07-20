@@ -4,6 +4,7 @@ const multipartApi = ky.create({
   prefixUrl: "/api/v1/",
   credentials: "include",
   retry: {},
+  timeout: 60000, // 60초 타임아웃
 });
 
 const api = ky.create({
@@ -12,6 +13,7 @@ const api = ky.create({
   // prefixUrl: "https://manager.idblock.id/api/v1/",
   prefixUrl: "https://idblock-test.site/api/v1/scan",
   credentials: "include",
+  timeout: 60000, // 60초 타임아웃
   headers: {
     "Content-Type": "application/json",
   },
@@ -39,6 +41,7 @@ const api = ky.create({
 
 const polygonApi = ky.create({
   prefixUrl: "https://api-cardona-zkevm.polygonscan.com/api",
+  timeout: 30000, // 30초 타임아웃 (외부 API)
   searchParams: {
     // apikey: "3PXZ4CZWFS3KGZDSUS8M3P78MW4AW7R6XN",
     apikey: "QSRKS6RJKYPMERPS1WAG9TQK19E7D1SXNF",

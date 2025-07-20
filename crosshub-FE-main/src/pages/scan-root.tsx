@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { TxsTable } from "@/components/tables/txs-table";
+import { TxsTable, TxsStats } from "@/components/tables/txs-table";
 import { columns as txsColumns } from "../components/table-columns/txs";
 import { Link } from "react-router-dom";
 import {
@@ -14,17 +14,17 @@ import { Button } from "@/components/ui/button";
 const CONTRACT_ADDRESSES = [
   {
     address: "0x671645FC21615fdcAA332422D5603f1eF9752E03",
-    name: "메인 컨트랙트",
+    name: "Main Contract",
     description: "Main Contract"
   },
   {
     address: "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063", 
-    name: "신원인증 컨트랙트",
+    name: "Identity Verification Contract",
     description: "Identity Verification Contract"
   },
   {
     address: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
-    name: "배지발급 컨트랙트", 
+    name: "Badge Issuance Contract", 
     description: "Badge Issuance Contract"
   }
 ];
@@ -68,10 +68,16 @@ const ScanRootPage = () => {
           </DropdownMenu>
         </div>
         <div className="px-4 text-sm text-gray-600">
-          💡 {selectedContract.name}의 트랜잭션 정보를 데이터베이스에서 페이지별로 가져옵니다.
+          💡 Fetching transaction information for {selectedContract.name} from the database page by page.
         </div>
       </header>
-      <section className="flex-1">
+      <section className="flex-1 space-y-6">
+        {/* 트랜잭션 통계 구역 */}
+        <div className="flex w-full flex-col gap-4 rounded-3xl bg-white p-6">
+          <TxsStats contractAddress={selectedContract.address} />
+        </div>
+        
+        {/* 트랜잭션 테이블 구역 */}
         <div className="flex w-full flex-col gap-4 rounded-3xl bg-white p-6">
           <TxsTable 
             columns={txsColumns} 

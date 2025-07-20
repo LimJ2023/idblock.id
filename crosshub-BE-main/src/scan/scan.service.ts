@@ -72,10 +72,12 @@ export class ScanService {
         conditions.push(eq(Transaction.contractAddress, contractAddress));
         this.logger.log(`🔍 특정 컨트랙트 주소의 트랜잭션 개수 조회: ${contractAddress}`);
       } else {
-        this.logger.log(`🔍 전체 트랜잭션 개수 조회`);
+        // updateContractStats와 동일한 조건 적용 (null과 빈 문자열 제외)
+        conditions.push(sql`${Transaction.contractAddress} IS NOT NULL AND ${Transaction.contractAddress} != ''`);
+        this.logger.log(`🔍 전체 트랜잭션 개수 조회 (null 제외)`);
       }
 
-      const whereCondition = conditions.length > 0 ? and(...conditions) : undefined;
+      const whereCondition = and(...conditions);
 
       const [result] = await this.db
         .select({ count: count() })

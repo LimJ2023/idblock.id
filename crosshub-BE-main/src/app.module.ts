@@ -37,6 +37,7 @@ import { ApiKeyGuard } from './api/api-key.guard';
 import { ScanModule } from './scan/scan.module';
 import { BlockTxModule } from './block-tx/block-tx.module';
 import { BlockTxController } from './block-tx/block-tx.controller';
+import { DidModule } from './did/did.module';
 
 @Module({
   imports: [
@@ -96,6 +97,7 @@ import { BlockTxController } from './block-tx/block-tx.controller';
     UserModule,
     NotificationModule,
     ThirdwebModule,
+    DidModule,
     TmpEslModule,
     ConditionalModule.registerWhen(
       VisitorModule,

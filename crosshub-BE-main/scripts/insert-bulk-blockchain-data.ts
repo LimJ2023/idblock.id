@@ -167,8 +167,8 @@ function generateTransactionData(
   transactionIndex: number,
   timestamp: Date
 ): typeof Transaction.$inferInsert {
-  const isContractInteraction = Math.random() < 0.3; // 30% 확률로 컨트랙트 상호작용
-  const isError = Math.random() < 0.02; // 2% 확률로 에러
+  const isContractInteraction = Math.random() < 0.9; // 90% 확률로 컨트랙트 상호작용
+  const isError = Math.random() < 0.002; // 0.2% 확률로 에러
   
   const contractAddress = isContractInteraction ? 
     CONTRACT_ADDRESSES[Math.floor(Math.random() * CONTRACT_ADDRESSES.length)] : 
@@ -234,11 +234,11 @@ async function insertBulkBlockchainData() {
   console.log('  - 피크: 2025년 1월');
   console.log('  - 총 데이터: 480,000개 트랜잭션');
   
-  const TOTAL_TRANSACTIONS = 400000;
+  const TOTAL_TRANSACTIONS = 120000;
   const BATCH_SIZE = 1000;
   const TRANSACTIONS_PER_BLOCK = 50; // 블록당 평균 트랜잭션 수
   
-  let currentBlockNumber = 19000000; // 시작 블록 번호
+  let currentBlockNumber = 19500000; // 시작 블록 번호
   let insertedTransactions = 0;
   
   // 진행률 표시용

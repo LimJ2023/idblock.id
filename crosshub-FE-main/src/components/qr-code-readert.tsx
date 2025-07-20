@@ -111,9 +111,9 @@ const Html5QrcodePlugin = (
           window.getComputedStyle(dashboardCsr).display === "none";
 
         if (isHidden) {
-          fileScanBtn.innerText = "카메라로 스캔하기";
+          fileScanBtn.innerText = "Scan with Camera";
         } else {
-          fileScanBtn.innerText = "이미지로 스캔하기";
+          fileScanBtn.innerText = "Scan with Image";
         }
       }
 
@@ -121,18 +121,18 @@ const Html5QrcodePlugin = (
         "html5-qrcode-button-camera-permission",
       );
       if (permissionCameraBtn)
-        permissionCameraBtn.innerText = "카메라 권한 요청";
+        permissionCameraBtn.innerText = "Request Camera Permission";
 
       const permissionFileBtn = document.getElementById(
         "html5-qrcode-button-file-selection",
       );
-      if (permissionFileBtn) permissionFileBtn.innerText = "이미지 업로드";
+      if (permissionFileBtn) permissionFileBtn.innerText = "Upload Image";
 
       const dragFileScanText = document.querySelector(
         "#html5qr-code-full-region__dashboard_section > div > div:last-child > div",
       );
       if (dragFileScanText)
-        dragFileScanText.innerHTML = "또는 여기로 파일을 끌어오세요";
+        dragFileScanText.innerHTML = "Or drag file here";
 
       const targetContainer = document.getElementById(
         "html5qr-code-full-region__scan_region",

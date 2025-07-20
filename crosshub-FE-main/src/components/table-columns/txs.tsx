@@ -15,7 +15,7 @@ function weiToEth(weiValue: string | undefined): string {
     const eth = Number(wei) / 1e18;
     return eth.toFixed(6);
   } catch (error) {
-    console.warn("Wei 변환 에러:", error, "값:", weiValue);
+    console.warn("Wei conversion error:", error, "Value:", weiValue);
     return "0.000000";
   }
 }

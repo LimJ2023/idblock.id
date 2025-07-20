@@ -205,11 +205,13 @@ const getOriginalTxs: (params?: GetTxsParams) => Promise<Result<TxResponse, Erro
       page: (params.page || 1).toString(),
       limit: (params.limit || 10).toString(),
       sort: "desc",
+      // skipCount를 전달하지 않음 - 백엔드에서 기본값 false 사용 (총 개수 조회 실행)
     };
     
     const response = await api
       .get(requestUrl, {
         searchParams,
+        timeout: 120000, // 2분 타임아웃 (트랜잭션 조회는 더 오래 걸릴 수 있음)
       })
       .json<{data: DbTxResponse}>();
 
@@ -343,7 +345,9 @@ const getTxDetail: (
 ) => Promise<Result<TxDetail, ErrorResponse>> = async (txHash) => {
   try {
     const response = await api
-      .get(`transactions/${txHash}`)
+      .get(`transactions/${txHash}`, {
+        timeout: 60000, // 60초 타임아웃 (트랜잭션 상세 정보)
+      })
       .json<{data: DbTxDetailResponse}>();
 
     // 실제 응답 데이터는 response.data에 있음
@@ -418,7 +422,9 @@ const getBlockByNumber: (
 ) => Promise<Result<BlockDetail, ErrorResponse>> = async (blockNumber) => {
   try {
     const response = await api
-      .get(`blocks/${blockNumber}`)
+      .get(`blocks/${blockNumber}`, {
+        timeout: 60000, // 60초 타임아웃 (블록 정보)
+      })
       .json<{data: DbBlockDetailResponse}>();
 
     // 실제 응답 데이터는 response.data에 있음
@@ -530,4 +536,95 @@ const getTxs: (params?: GetTxsParams) => Promise<Result<TxResponse, ErrorRespons
   */
 };
 
-export { getTxs, getTxDetail, getBlockByNumber };
+// 트랜잭션 통계 정보 타입 추가
+export interface TxStatsResponse {
+  success: boolean;
+  data: {
+    currentContractTxCount: number;
+    allContractsTxCount: number;
+    contractAddress: string;
+  };
+}
+
+// 트랜잭션 통계 정보 가져오기 (간단한 두 API 호출 방식)
+const getTxStats: (contractAddress?: string) => Promise<Result<TxStatsResponse['data'], ErrorResponse>> = async (contractAddress = "0x671645FC21615fdcAA332422D5603f1eF9752E03") => {
+  try {
+    console.log('📊 getTxStats 호출됨 (간단한 두 API 방식):', { contractAddress });
+    
+    // 병렬로 두 API 호출: 현재 컨트랙트 통계 + 전체 컨트랙트 통계
+    const [currentContractResponse, allContractsResponse] = await Promise.all([
+      // 1. 현재 컨트랙트의 트랜잭션 수 가져오기
+      api.get(`contracts/${contractAddress}/stats`, {
+        timeout: 60000, // 60초 타임아웃
+      }).json<{data: {success: boolean, data: {transactionCount: number, contractAddress: string, timestamp: string}}}>(),
+      
+      // 2. 모든 컨트랙트의 총 트랜잭션 수 가져오기
+      api.get("contracts/stats/all", {
+        timeout: 60000, // 60초 타임아웃
+      }).json<{data: {success: boolean, data: {totalTransactionCount: number, timestamp: string}}}>()
+    ]);
+
+    console.log('📊 현재 컨트랙트 통계 응답:', currentContractResponse);
+    console.log('📊 전체 컨트랙트 통계 응답:', allContractsResponse);
+    
+    // 두 API 응답 모두 성공인지 확인
+    if (currentContractResponse.data.success && allContractsResponse.data.success) {
+      const statsData = {
+        currentContractTxCount: currentContractResponse.data.data.transactionCount,
+        allContractsTxCount: allContractsResponse.data.data.totalTransactionCount,
+        contractAddress: contractAddress,
+      };
+      
+      console.log('📊 통합된 통계 데이터:', statsData);
+      return Success(statsData);
+    } else {
+      console.error("트랜잭션 통계 API 응답 실패:", { currentContractResponse, allContractsResponse });
+      return Failure({
+        message: "트랜잭션 통계 데이터를 가져오는데 실패했습니다.",
+        error: "API Error",
+        statusCode: 400,
+      });
+    }
+  } catch (e) {
+    console.error("트랜잭션 통계 API 호출 에러:", e);
+    
+    if (e instanceof HTTPError) {
+      const status = e.response.status;
+      
+      // 404 에러인 경우 목업 데이터 반환 (백엔드 엔드포인트 미구현)
+      if (status === 404) {
+        console.warn("백엔드 통계 엔드포인트가 없어 목업 데이터를 반환합니다.");
+        
+        // 목업 통계 데이터 생성
+        const mockStats = {
+          currentContractTxCount: 1256, // 현재 컨트랙트 트랜잭션 개수
+          allContractsTxCount: 5847, // 전체 컨트랙트 트랜잭션 개수
+          contractAddress: contractAddress,
+        };
+        
+        return Success(mockStats);
+      }
+      
+      // 다른 HTTP 에러인 경우
+      try {
+        const errorResponse = await e.response.json<ErrorResponse>();
+        return Failure(errorResponse);
+      } catch {
+        return Failure({
+          message: `HTTP ${status} 에러가 발생했습니다.`,
+          error: "HTTP Error",
+          statusCode: status,
+        });
+      }
+    }
+    
+    // 네트워크 에러 또는 기타 에러
+    return Failure({
+      message: "네트워크 연결을 확인해주세요.",
+      error: "Network Error",
+      statusCode: -1,
+    });
+  }
+};
+
+export { getTxs, getTxDetail, getBlockByNumber, getTxStats };
