@@ -49,7 +49,7 @@ const ScanRootPage = () => {
               selectedContract.address === contract.address ? "bg-primary text-white" : "bg-white text-primary"
             )} style={
               {width: "200px",
-                height: "60px"
+                height: "60px",
               }
             }>
               {contract.name}
