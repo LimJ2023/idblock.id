@@ -16,7 +16,7 @@ export class ResendEmailService implements EmailService {
           <div style="max-width: 600px; margin: 0 auto; text-align: center;">
             
             <!-- IDBlock 로고 -->
-            <div style="margin-bottom: 40px;">
+            <div style="margin-bottom: 10px;">
               <img src="https://d2qilacgdmcy5c.cloudfront.net/idblock_icon.png" alt="IDBlock" style="width: 80px; height: 80px; border-radius: 16px;" />
             </div>
             
@@ -31,12 +31,12 @@ export class ResendEmailService implements EmailService {
             </div>
             
             <!-- 인증 코드 안내 텍스트 -->
-            <p style="color: #666666; font-size: 18px; margin: 0 0 30px 0; font-weight: 400;">
+            <p style="color: #666666; font-size: 18px; margin: 0 0 10px 0; font-weight: 400;">
               Your verification code is:
             </p>
             
             <!-- 인증 코드 -->
-            <div style="margin: 40px 0 50px 0;">
+            <div style="margin: 20px 0 50px 0;">
               <div style="font-size: 48px; font-weight: bold; color: #000000; letter-spacing: 8px; font-family: 'Courier New', monospace;">
                 ${code}
               </div>
