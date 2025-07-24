@@ -39,19 +39,15 @@ const ScanRootPage = () => {
         <img src="/idblock.png" alt="logo" className="max-w-36" />
       </Link>
       <header className="flex w-full flex-col gap-2 py-6">
-        <div className="flex items-center justify-start gap-10 px-4">
-          <h1 className="p-1 text-lg font-semibold leading-[1.35rem]">
+        <div className="flex items-center justify-start gap-5 px-4">
+          <h1 className="p-1 text-xl font-semibold leading-[1.35rem]">
             Contract : 
           </h1>
           {CONTRACT_ADDRESSES.map((contract) => (
             <Button key={contract.address} onClick={() => setSelectedContract(contract) } variants={"secondary"} className={cn(
               "min-w-0 max-w-md truncate font-mono",
               selectedContract.address === contract.address ? "bg-primary text-white" : "bg-white text-primary"
-            )} style={
-              {width: "200px",
-                height: "60px",
-              }
-            }>
+            )}>
               {contract.name}
             </Button>
           )
