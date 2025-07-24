@@ -97,8 +97,8 @@ const TxsStats = ({ contractAddress }: { contractAddress?: string }) => {
           <div className="text-xs text-gray-400 mt-1">Total Transactions</div>
         </div>
       </div>
-      <div className="text-xs text-gray-500 mt-2">
-        Current Contract Address: {stats.contractAddress}
+      <div className="text-md text-gray-700 mt-2">
+        Current Contract Address: <span className="text-black font-bold">{stats.contractAddress}</span>
       </div>
     </div>
   );

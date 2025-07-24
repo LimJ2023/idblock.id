@@ -2,13 +2,14 @@ import { useState } from "react";
 import { TxsTable, TxsStats } from "@/components/tables/txs-table";
 import { columns as txsColumns } from "../components/table-columns/txs";
 import { Link } from "react-router-dom";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+// import {
+//   DropdownMenu,
+//   DropdownMenuContent,
+//   DropdownMenuItem,
+//   DropdownMenuTrigger,
+// } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 // 컨트랙트 주소 정보
 const CONTRACT_ADDRESSES = [
@@ -42,7 +43,16 @@ const ScanRootPage = () => {
           <h1 className="p-1 text-lg font-semibold leading-[1.35rem]">
             Contract (Database)
           </h1>
-          <DropdownMenu>
+          {CONTRACT_ADDRESSES.map((contract) => (
+            <Button key={contract.address} onClick={() => setSelectedContract(contract) } variants={"secondary"} className={cn(
+              "min-w-0 max-w-md truncate",
+              selectedContract.address === contract.address ? "bg-primary text-white" : "bg-white text-primary"
+            )}>
+              {contract.name}
+            </Button>
+          )
+          )}
+          {/* <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variants="secondary" className="min-w-0 max-w-md truncate">
                 {selectedContract.address}
@@ -65,7 +75,7 @@ const ScanRootPage = () => {
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
-          </DropdownMenu>
+          </DropdownMenu> */}
         </div>
         <div className="px-4 text-sm text-gray-600">
           💡 Fetching transaction information for {selectedContract.name} from the database page by page.
