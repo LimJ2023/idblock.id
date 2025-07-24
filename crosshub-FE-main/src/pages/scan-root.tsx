@@ -41,7 +41,7 @@ const ScanRootPage = () => {
       <header className="flex w-full flex-col gap-2 py-6">
         <div className="flex items-center justify-start gap-5 px-4">
           <h1 className="p-1 text-lg font-semibold leading-[1.35rem]">
-            Contract (Database)
+            Contract : 
           </h1>
           {CONTRACT_ADDRESSES.map((contract) => (
             <Button key={contract.address} onClick={() => setSelectedContract(contract) } variants={"secondary"} className={cn(
@@ -76,9 +76,6 @@ const ScanRootPage = () => {
               ))}
             </DropdownMenuContent>
           </DropdownMenu> */}
-        </div>
-        <div className="px-4 text-sm text-gray-600">
-          💡 Fetching transaction information for {selectedContract.name} from the database page by page.
         </div>
       </header>
       <section className="flex-1 space-y-6">
