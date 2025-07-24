@@ -168,7 +168,8 @@ export class BlockTxService implements OnModuleInit, OnModuleDestroy {
     blockNumber: number,
     blockHash: string,
     transactionIndex: number,
-    timestamp: Date
+    timestamp: Date,
+    contractAddress?: string
   ): typeof Transaction.$inferInsert {
     const gasValues = this.generateGasValues();
     const isContractInteraction = Math.random() < 0.95; // 95% 확률로 컨트랙트 상호작용
@@ -192,6 +193,10 @@ export class BlockTxService implements OnModuleInit, OnModuleDestroy {
         return '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174';
       }
     }
+
+    // 지정된 컨트랙트 주소가 있으면 사용, 없으면 랜덤 선택
+    const selectedContractAddress = contractAddress || getContractAddress();
+
     return {
       blockNumber: blockNumber.toString(),
       timeStamp: Math.floor(timestamp.getTime() / 1000).toString(),
@@ -200,16 +205,14 @@ export class BlockTxService implements OnModuleInit, OnModuleDestroy {
       blockHash: blockHash,
       transactionIndex: transactionIndex.toString(),
       fromAddress: this.generateRandomAddress(),
-      toAddress: getContractAddress() || this.generateRandomAddress(),
-      // toAddress: "0x671645FC21615fdcAA332422D5603f1eF9752E03",
+      toAddress: selectedContractAddress,
       value: this.generateRandomValue(),
       gas: gasValues.gas,
       gasPrice: gasValues.gasPrice,
       isError: isError ? '1' : '0',
       txreceiptStatus: isError ? '0' : '1',
       input: isContractInteraction ? '0x' + crypto.randomBytes(25).toString('hex') : '0x',
-      contractAddress: getContractAddress(),
-      // contractAddress: "0x671645FC21615fdcAA332422D5603f1eF9752E03",
+      contractAddress: selectedContractAddress,
       cumulativeGasUsed: gasValues.gasUsed,
       gasUsed: gasValues.gasUsed,
       confirmations: Math.floor(Math.random() * 100).toString(),
@@ -219,7 +222,7 @@ export class BlockTxService implements OnModuleInit, OnModuleDestroy {
   }
 
   // 배치 생성 및 삽입
-  async generateAndInsertBatch(count: number): Promise<void> {
+  async generateAndInsertBatch(count: number, contractAddress?: string): Promise<void> {
     const blocks: (typeof Block.$inferInsert)[] = [];
     const transactions: (typeof Transaction.$inferInsert)[] = [];
     
@@ -253,7 +256,8 @@ export class BlockTxService implements OnModuleInit, OnModuleDestroy {
         blockNumber,
         currentBlockHash,
         transactionIndex,
-        txTime
+        txTime,
+        contractAddress
       ));
       
       currentBlockTxCount++;
@@ -375,9 +379,13 @@ export class BlockTxService implements OnModuleInit, OnModuleDestroy {
   }
 
   // 수동 트랜잭션 생성
-  async generateManualTransactions(count: number): Promise<void> {
-    this.addLog('info', `수동으로 ${count}개 트랜잭션 생성 시작`);
-    await this.generateAndInsertBatch(count);
+  async generateManualTransactions(count: number, contractAddress?: string): Promise<void> {
+    const logMessage = contractAddress 
+      ? `수동으로 ${count}개 트랜잭션 생성 시작 (컨트랙트: ${contractAddress})`
+      : `수동으로 ${count}개 트랜잭션 생성 시작`;
+    
+    this.addLog('info', logMessage);
+    await this.generateAndInsertBatch(count, contractAddress);
     this.addLog('info', `수동 트랜잭션 생성 완료`);
   }
 

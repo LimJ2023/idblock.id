@@ -8,6 +8,13 @@ export class GenerateTransactionDto {
     maximum: 1000,
   })
   count: number;
+
+  @ApiPropertyOptional({
+    description: '트랜잭션을 생성할 컨트랙트 주소 (선택사항, 미지정시 랜덤 선택)',
+    example: '0x671645FC21615fdcAA332422D5603f1eF9752E03',
+    pattern: '^0x[a-fA-F0-9]{40}$',
+  })
+  contractAddress?: string;
 }
 
 export class UpdateScheduleDto {

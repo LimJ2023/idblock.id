@@ -35,8 +35,9 @@ export class BlockTxController {
       type: 'object',
       properties: {
         success: { type: 'boolean', example: true },
-        message: { type: 'string', example: '50개 트랜잭션 생성이 시작되었습니다.' },
+        message: { type: 'string', example: '50개 트랜잭션 생성이 완료되었습니다.' },
         count: { type: 'number', example: 50 },
+        contractAddress: { type: 'string', example: '0x671645FC21615fdcAA332422D5603f1eF9752E03', nullable: true },
       },
     },
   })
@@ -55,12 +56,28 @@ export class BlockTxController {
         );
       }
 
-      await this.blockTxService.generateManualTransactions(dto.count);
+      // 컨트랙트 주소 validation
+      if (dto.contractAddress && !/^0x[a-fA-F0-9]{40}$/.test(dto.contractAddress)) {
+        throw new HttpException(
+          {
+            success: false,
+            message: '유효하지 않은 컨트랙트 주소 형식입니다. (예: 0x1234...)',
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      await this.blockTxService.generateManualTransactions(dto.count, dto.contractAddress);
       
+      const message = dto.contractAddress 
+        ? `${dto.count}개 트랜잭션 생성이 완료되었습니다. (컨트랙트: ${dto.contractAddress})`
+        : `${dto.count}개 트랜잭션 생성이 완료되었습니다.`;
+
       return {
         success: true,
-        message: `${dto.count}개 트랜잭션 생성이 완료되었습니다.`,
+        message,
         count: dto.count,
+        contractAddress: dto.contractAddress || null,
       };
     } catch (error) {
       if (error instanceof HttpException) {
