@@ -25,25 +25,26 @@ export class BlockTxService implements OnModuleInit, OnModuleDestroy {
   };
 
   // 컨트랙트 주소 풀
-  private readonly contractAddresses = [
-    '0x671645FC21615fdcAA332422D5603f1eF9752E03',
-    '0xA0b86a33E6441E8F2C2b4A4E5a9e24B4b6e2A5F4', // USDC
-    '0x6B175474E89094C44Da98b954EedeAC495271d0F', // DAI
-    '0xdAC17F958D2ee523a2206206994597C13D831ec7', // USDT
-    '0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0', // MATIC
-    '0x514910771AF9Ca656af840dff83E8264EcF986CA', // LINK
+  private readonly contractAddresses: string[] = [
+    '0x671645FC21615fdcAA332422D5603f1eF9752E03', // 메인 컨트랙트
+    '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063', // 신원인증 컨트랙트
+    '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174', // 배지발급 컨트랙트
   ];
 
   private readonly functionNames = [
-    'transfer',
-    'approve',
-    'transferFrom',
-    'mint',
-    'burn',
-    'swap',
-    'stake',
-    'unstake',
-    'claim',
+    'verifyIdentity',
+    'updateIdentity',
+    'submitVerification',
+    'approveVerification',
+    'getIdentityStatus',
+    'revokeIdentity',
+    'mintBadge',
+    'awardBadge',
+    'transferBadge',
+    'updateBadgeMetadata',
+    'getBadgeInfo',
+    'revokeBadge',
+    'burnBadge',
   ];
 
   constructor(@Inject(INJECT_DRIZZLE) private db: DrizzleDB) {}
@@ -170,17 +171,27 @@ export class BlockTxService implements OnModuleInit, OnModuleDestroy {
     timestamp: Date
   ): typeof Transaction.$inferInsert {
     const gasValues = this.generateGasValues();
-    const isContractInteraction = Math.random() < 0.4; // 40% 확률로 컨트랙트 상호작용
-    const isError = Math.random() < 0.01; // 1% 확률로 에러
+    const isContractInteraction = Math.random() < 0.95; // 95% 확률로 컨트랙트 상호작용
+    const isError = Math.random() < 0.001; // 0.1% 확률로 에러
     
-    const contractAddress = isContractInteraction ? 
-      this.contractAddresses[Math.floor(Math.random() * this.contractAddresses.length)] : 
-      null;
+    // const contractAddress = isContractInteraction ? 
+    //   this.contractAddresses[Math.floor(Math.random() * this.contractAddresses.length)] : 
+    //   null;
       
     const functionName = isContractInteraction ? 
       this.functionNames[Math.floor(Math.random() * this.functionNames.length)] : 
       null;
-    
+
+    function getContractAddress(): string {
+      let random = Math.random();
+      if( random < 0.45) {
+        return '0x671645FC21615fdcAA332422D5603f1eF9752E03'
+      } else if( random < 0.85) {
+        return '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063';
+      } else {
+        return '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174';
+      }
+    }
     return {
       blockNumber: blockNumber.toString(),
       timeStamp: Math.floor(timestamp.getTime() / 1000).toString(),
@@ -189,7 +200,7 @@ export class BlockTxService implements OnModuleInit, OnModuleDestroy {
       blockHash: blockHash,
       transactionIndex: transactionIndex.toString(),
       fromAddress: this.generateRandomAddress(),
-      toAddress: contractAddress || this.generateRandomAddress(),
+      toAddress: getContractAddress() || this.generateRandomAddress(),
       // toAddress: "0x671645FC21615fdcAA332422D5603f1eF9752E03",
       value: this.generateRandomValue(),
       gas: gasValues.gas,
@@ -197,7 +208,7 @@ export class BlockTxService implements OnModuleInit, OnModuleDestroy {
       isError: isError ? '1' : '0',
       txreceiptStatus: isError ? '0' : '1',
       input: isContractInteraction ? '0x' + crypto.randomBytes(25).toString('hex') : '0x',
-      contractAddress: contractAddress,
+      contractAddress: getContractAddress(),
       // contractAddress: "0x671645FC21615fdcAA332422D5603f1eF9752E03",
       cumulativeGasUsed: gasValues.gasUsed,
       gasUsed: gasValues.gasUsed,

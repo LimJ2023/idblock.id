@@ -19,7 +19,7 @@ const db = drizzle(client);
 // 가중치가 적용된 날짜 생성 함수 (2025년 1월에 피크)
 function generateWeightedDate(): Date {
   const startDate = new Date('2024-11-01T00:00:00Z');
-  const endDate = new Date('2025-07-17T23:59:59Z');
+  const endDate = new Date('2025-07-23T23:59:59Z');
   const peakDate = new Date('2025-01-15T12:00:00Z'); // 2025년 1월 중순 피크
   
   // 전체 기간을 밀리초로 계산
@@ -119,7 +119,7 @@ function generateGasValues(functionName?: string) {
 const CONTRACT_ADDRESSES = [
   '0x671645FC21615fdcAA332422D5603f1eF9752E03', // 메인 컨트랙트
   '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063', // 신원인증 컨트랙트
-  '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174', // 배지발급 컨트랙트
+  // '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174', // 배지발급 컨트랙트
 ];
 
 // 함수 이름 풀
@@ -130,13 +130,13 @@ const FUNCTION_NAMES = [
   'approveVerification',
   'getIdentityStatus',
   'revokeIdentity',
-  'mintBadge',
-  'awardBadge',
-  'transferBadge',
-  'updateBadgeMetadata',
-  'getBadgeInfo',
-  'revokeBadge',
-  'burnBadge',
+  // 'mintBadge',
+  // 'awardBadge',
+  // 'transferBadge',
+  // 'updateBadgeMetadata',
+  // 'getBadgeInfo',
+  // 'revokeBadge',
+  // 'burnBadge',
 ];
 
 // 블록 데이터 생성
@@ -167,8 +167,8 @@ function generateTransactionData(
   transactionIndex: number,
   timestamp: Date
 ): typeof Transaction.$inferInsert {
-  const isContractInteraction = Math.random() < 0.9; // 90% 확률로 컨트랙트 상호작용
-  const isError = Math.random() < 0.002; // 0.2% 확률로 에러
+  const isContractInteraction = Math.random() < 0.95; // 95% 확률로 컨트랙트 상호작용
+  const isError = Math.random() < 0.001; // 0.1% 확률로 에러
   
   const contractAddress = isContractInteraction ? 
     CONTRACT_ADDRESSES[Math.floor(Math.random() * CONTRACT_ADDRESSES.length)] : 
@@ -232,9 +232,9 @@ async function insertBulkBlockchainData() {
   console.log('📊 조건:');
   console.log('  - 기간: 2024년 11월 ~ 2025년 6월');
   console.log('  - 피크: 2025년 1월');
-  console.log('  - 총 데이터: 480,000개 트랜잭션');
+  console.log('  - 총 데이터: 260000개 트랜잭션');
   
-  const TOTAL_TRANSACTIONS = 120000;
+  const TOTAL_TRANSACTIONS = 260000;
   const BATCH_SIZE = 1000;
   const TRANSACTIONS_PER_BLOCK = 50; // 블록당 평균 트랜잭션 수
   
