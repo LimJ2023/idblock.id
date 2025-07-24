@@ -38,7 +38,7 @@ const AddAdminAccountDialog = () => {
     const result = await mutateAsync(data);
 
     if (result.success) {
-      console.log("Success");
+      
       queryClient.invalidateQueries(queries.admin.all);
       setIsOpen(false);
     }

@@ -34,9 +34,9 @@ const LocationSearchInput = ({
   const handleSelect = async (selected: string) => {
     setTempAddress(selected);
     try {
-      const results = await geocodeByAddress(selected);
-      const latLng = await getLatLng(results[0]);
-      console.log("위도/경도:", latLng);
+              const results = await geocodeByAddress(selected);
+        await getLatLng(results[0]);
+              
     } catch (error) {
       console.error("주소 처리 중 오류 발생:", error);
     }

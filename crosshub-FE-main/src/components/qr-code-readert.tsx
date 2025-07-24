@@ -56,7 +56,7 @@ const Html5QrcodePlugin = (
         config,
         verbose,
       );
-      console.log("render html5QrcodeScanner");
+
       await html5QrcodeScanner.render(
         props.qrCodeSuccessCallback,
         props.qrCodeErrorCallback,
@@ -89,9 +89,9 @@ const Html5QrcodePlugin = (
       const clearScanner = async () => {
         try {
           if (scannerRef.current) await scannerRef.current.clear();
-        } catch (error) {
-          console.log("Failed to clear html5QrcodeScanner. ", error);
-        }
+                  } catch {
+            // QR 스캐너 정리 중 오류 발생 시 무시
+          }
       };
       clearScanner();
     };

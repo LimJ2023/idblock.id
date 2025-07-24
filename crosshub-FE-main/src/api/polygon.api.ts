@@ -506,7 +506,7 @@ const getBlockByNumber: (
 
 // 기존 transactions API 사용 - 백엔드 최적화에 집중
 const getTxs: (params?: GetTxsParams) => Promise<Result<TxResponse, ErrorResponse>> = async (params = {}) => {
-  console.log('🔍 getTxs 호출됨 (기존 transactions API 사용):', params);
+
   
   // 기존 안정적인 transactions API를 직접 사용
   return getOriginalTxs(params);
@@ -517,7 +517,7 @@ const getTxs: (params?: GetTxsParams) => Promise<Result<TxResponse, ErrorRespons
     const contractStatsService = ContractStatsService.getInstance();
     const contractAddress = params.contractAddress || "0x671645FC21615fdcAA332422D5603f1eF9752E03";
     
-    console.log('📡 ContractStatsService로 API 호출 시작:', { contractAddress, page: params.page, limit: params.limit });
+
     
     // 단일 컨트랙트 주소를 배열로 변환하여 새로운 서비스 사용
     const result = await contractStatsService.getContractStats(
@@ -526,7 +526,7 @@ const getTxs: (params?: GetTxsParams) => Promise<Result<TxResponse, ErrorRespons
       params.limit || 10
     );
     
-    console.log('📊 ContractStatsService 응답:', result);
+
     return result;
   } catch (error) {
     console.error('❌ ContractStatsService 사용 중 에러, 기존 방식으로 폴백:', error);
@@ -549,7 +549,7 @@ export interface TxStatsResponse {
 // 트랜잭션 통계 정보 가져오기 (간단한 두 API 호출 방식)
 const getTxStats: (contractAddress?: string) => Promise<Result<TxStatsResponse['data'], ErrorResponse>> = async (contractAddress = "0x671645FC21615fdcAA332422D5603f1eF9752E03") => {
   try {
-    console.log('📊 getTxStats 호출됨 (간단한 두 API 방식):', { contractAddress });
+  
     
     // 병렬로 두 API 호출: 현재 컨트랙트 통계 + 전체 컨트랙트 통계
     const [currentContractResponse, allContractsResponse] = await Promise.all([
@@ -564,8 +564,7 @@ const getTxStats: (contractAddress?: string) => Promise<Result<TxStatsResponse['
       }).json<{data: {success: boolean, data: {totalTransactionCount: number, timestamp: string}}}>()
     ]);
 
-    console.log('📊 현재 컨트랙트 통계 응답:', currentContractResponse);
-    console.log('📊 전체 컨트랙트 통계 응답:', allContractsResponse);
+    
     
     // 두 API 응답 모두 성공인지 확인
     if (currentContractResponse.data.success && allContractsResponse.data.success) {
@@ -575,7 +574,7 @@ const getTxStats: (contractAddress?: string) => Promise<Result<TxStatsResponse['
         contractAddress: contractAddress,
       };
       
-      console.log('📊 통합된 통계 데이터:', statsData);
+
       return Success(statsData);
     } else {
       console.error("트랜잭션 통계 API 응답 실패:", { currentContractResponse, allContractsResponse });

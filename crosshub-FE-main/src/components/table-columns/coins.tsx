@@ -47,7 +47,7 @@ const columns: ColumnDef<Coin>[] = [
           <Button
             variants="secondary"
             onClick={() =>
-              console.log(`${id} 상장 ${isVisible ? "중지" : "하기"}`)
+  
             }
             className={cn(
               "border border-neutral-400 bg-background font-pretendard text-neutral-600",

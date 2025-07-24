@@ -20,7 +20,7 @@ function weiToEth(weiValue: string): string {
 
 const BlockDetailPage = () => {
   const data = useLoaderData() as BlockDetail;
-  console.log("Block data", data);
+
   return (
     <div className="flex min-h-full w-full flex-col border bg-neutral-100 p-8">
       <Link to={"/"} className="px-4">

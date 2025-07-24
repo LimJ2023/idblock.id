@@ -70,7 +70,6 @@ const NewsDialog = ({ data }: { data: NewsDialogData }) => {
       const result = await create(formData);
 
       if (result.success) {
-        console.log("Success");
         setIsOpen(false);
         queryClient.invalidateQueries(queries.news.all);
       }
@@ -83,7 +82,6 @@ const NewsDialog = ({ data }: { data: NewsDialogData }) => {
     const result = await update({ id, ...formData });
 
     if (result.success) {
-      console.log("Success");
       setIsOpen(false);
       queryClient.invalidateQueries(queries.news.all);
     }

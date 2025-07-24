@@ -34,7 +34,7 @@ const QrScanDialog = () => {
     try {
       const parsed = JSON.parse(decodedText);
       if ("userId" in parsed) {
-        console.log("userId", parsed.userId);
+  
         setSelected(parsed.userId);
       }
     } catch (error) {

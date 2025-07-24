@@ -65,7 +65,6 @@ const FAQDialog = ({ data }: { data: FAQDialogData }) => {
       const result = await create(formData);
 
       if (result.success) {
-        console.log("Success");
         setIsOpen(false);
         queryClient.invalidateQueries(queries.faq.all);
       }
@@ -78,7 +77,6 @@ const FAQDialog = ({ data }: { data: FAQDialogData }) => {
     const result = await update({ id, ...formData });
 
     if (result.success) {
-      console.log("Success");
       setIsOpen(false);
       queryClient.invalidateQueries(queries.faq.all);
     }

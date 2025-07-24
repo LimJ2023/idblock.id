@@ -23,7 +23,7 @@ const ThumbnailUploadForm = () => {
     const file = event.currentTarget.files?.[0];
 
     if (file) {
-      console.log(file);
+  
       const result = await mutateAsync({ file });
 
       if (result.success) {

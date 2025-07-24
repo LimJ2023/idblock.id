@@ -36,14 +36,7 @@ const TxsStats = ({ contractAddress }: { contractAddress?: string }) => {
 
   const stats = statsResult?.success ? statsResult.value : null;
 
-  console.log('📊 TxsStats 디버깅 정보:', {
-    contractAddress,
-    statsResult,
-    stats,
-    isLoading,
-    error,
-    success: statsResult?.success
-  });
+
 
   if (isLoading) {
     return (
@@ -130,15 +123,7 @@ const TxsTable = <TData, TValue>({
   const total = responseData?.total || 0;
   const totalPages = Math.ceil(total / pageSize);
 
-  console.log('📊 TxsTable 디버깅 정보:', {
-    currentPage,
-    pageSize,
-    total,
-    totalPages,
-    dataLength: txsData.length,
-    result: result?.success,
-    responseData
-  });
+
 
   // Table configuration for server-side pagination
   const table = useReactTable({

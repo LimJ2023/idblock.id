@@ -75,7 +75,7 @@ const SiteNewForm = () => {
       const errorMessage = Array.isArray(result.error.message)
         ? result.error.message[0]?.message || "알 수 없는 오류가 발생했습니다."
         : result.error.message || "알 수 없는 오류가 발생했습니다.";
-      console.log("관광지 등록 실패 : ", errorMessage);
+      
       toast({
         variant: "destructive",
         title: "관광지 등록 실패",
@@ -84,9 +84,9 @@ const SiteNewForm = () => {
     }
   };
 
-  const onInvalid: SubmitErrorHandler<AddSite> = (error) => {
-    console.log("관광지 등록 중 문제 발생", error);
-  };
+      const onInvalid: SubmitErrorHandler<AddSite> = () => {
+      
+    };
 
   const isSubmitDisabled = isLoading || !isValid;
 

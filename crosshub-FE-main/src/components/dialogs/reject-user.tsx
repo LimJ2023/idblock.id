@@ -48,7 +48,7 @@ const RejectUserDialog = ({
     const result = await mutateAsync({ documentId: id, reason: data.reason });
 
     if (result.success) {
-      console.log("Success");
+      
       toast({
         title: "거절 성공",
         description: "승인이 거절 되었습니다.",
@@ -59,7 +59,7 @@ const RejectUserDialog = ({
       return;
     }
 
-    console.log("Failed");
+    
     toast({
       title: "거절 실패",
       description: "승인 거절에 실패하였습니다.",

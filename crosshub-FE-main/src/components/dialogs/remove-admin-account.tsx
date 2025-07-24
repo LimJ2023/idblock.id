@@ -44,7 +44,7 @@ const RemoveAdminAccountDialog = ({
     const result = await mutateAsync({ id });
 
     if (result.success) {
-      console.log("Success");
+      
       toast({
         title: "관리자 삭제 성공",
         description: "관리자가 삭제되었습니다.",
@@ -53,7 +53,7 @@ const RemoveAdminAccountDialog = ({
       return;
     }
 
-    console.log("Failed");
+    
     toast({
       title: "관리자 삭제 실패",
       description: "관리자 삭제에 실패하었습니다.",

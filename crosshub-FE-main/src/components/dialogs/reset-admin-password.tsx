@@ -38,7 +38,7 @@ const ResetAdminPasswordDialog = ({ id }: { id: number }) => {
     const result = await mutateAsync({ id, password: data.password });
 
     if (result.success) {
-      console.log("Success");
+      
       toast({
         title: "비밀번호 재설정 성공",
         description: "비밀번호가 재설정 되었습니다.",
@@ -47,7 +47,7 @@ const ResetAdminPasswordDialog = ({ id }: { id: number }) => {
       return;
     }
 
-    console.log("Failed");
+    
     toast({
       title: "비밀번호 재설정 실패",
       description: "비밀번호 재설정에 실패하였습니다.",
