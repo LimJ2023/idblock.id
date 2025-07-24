@@ -17,17 +17,17 @@ export class ResendEmailService implements EmailService {
             
             <!-- IDBlock 로고 -->
             <div style="margin-bottom: 10px;">
-              <img src="https://d2qilacgdmcy5c.cloudfront.net/idblock_icon.png" alt="IDBlock" style="width: 80px; height: 80px; border-radius: 16px;" />
+              <img src="https://d2qilacgdmcy5c.cloudfront.net/idblock_icon.png" alt="IDBlock" style="width: 60px; height: 60px; border-radius: 16px;" />
             </div>
             
             <!-- 메인 제목 -->
-            <h1 style="color: #333333; font-size: 28px; font-weight: 400; margin: 0 0 50px 0; line-height: 1.3;">
+            <h1 style="color: #333333; font-size: 28px; font-weight: 400; margin: 0 0 60px 0; line-height: 1.3;">
               Here's your IDBlock launch code!
             </h1>
             
             <!-- 편지봉투 아이콘 -->
-            <div style="margin-bottom: 40px;">
-              <img src="https://d2qilacgdmcy5c.cloudfront.net/postImage.png" alt="Mail" style="width: 120px; height: auto;" />
+            <div style="margin-bottom: 25px;">
+              <img src="https://d2qilacgdmcy5c.cloudfront.net/postImage.png" alt="Mail" style="width: 140px; height: auto;" />
             </div>
             
             <!-- 인증 코드 안내 텍스트 -->
