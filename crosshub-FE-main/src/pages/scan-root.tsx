@@ -10,28 +10,47 @@ import { Link } from "react-router-dom";
 // } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { TransactionIndicator } from "@/components/transaction-indicator";
+import { useTransactionUpdates } from "@/hooks/use-transaction-updates";
 
 // 컨트랙트 주소 정보
 const CONTRACT_ADDRESSES = [
   {
     address: "0x671645FC21615fdcAA332422D5603f1eF9752E03",
     name: "Main Contract",
-    description: "Main Contract"
+    description: "Main Contract",
+    country: "Vietnam",
+    flagImage: "/flag/vnm.png"
   },
   {
     address: "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063", 
     name: "Identity Verification Contract",
-    description: "Identity Verification Contract"
+    description: "Identity Verification Contract",
+    country: "Singapore",
+    flagImage: "/flag/sgp.png"
   },
   {
     address: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
     name: "Badge Issuance Contract", 
-    description: "Badge Issuance Contract"
+    description: "Badge Issuance Contract",
+    country: "Laos",
+    flagImage: "/flag/lao.png"
   }
 ];
 
 const ScanRootPage = () => {
   const [selectedContract, setSelectedContract] = useState(CONTRACT_ADDRESSES[0]);
+
+  // 트랜잭션 업데이트 감지 훅 사용
+  const { isIndicatorActive } = useTransactionUpdates({
+    contractAddresses: CONTRACT_ADDRESSES.map(contract => contract.address),
+    pollingInterval: 5000, // 5초마다 업데이트 확인
+    onTransactionIncrease: (contractAddress, newCount, previousCount) => {
+      // 트랜잭션 증가 시 로그 출력
+      const contract = CONTRACT_ADDRESSES.find(c => c.address === contractAddress);
+      console.log(`✅ ${contract?.country || contractAddress}에서 트랜잭션이 증가했습니다! ${previousCount} → ${newCount}`);
+    },
+  });
 
   return (
     <main className="flex min-h-full w-full flex-col bg-neutral-100 p-8">
@@ -44,14 +63,30 @@ const ScanRootPage = () => {
             Contract : 
           </h1>
           {CONTRACT_ADDRESSES.map((contract) => (
-            <Button key={contract.address} onClick={() => setSelectedContract(contract) } variants={"secondary"} className={cn(
-              "min-w-0 max-w-md truncate font-mono",
-              selectedContract.address === contract.address ? "bg-primary text-white" : "bg-white text-primary"
-            )}>
-              {contract.name}
-            </Button>
+            <div key={contract.address} className="flex flex-col items-start gap-1 mt-7">
+              <Button 
+                onClick={() => setSelectedContract(contract)} 
+                variants={"secondary"} 
+                className={cn(
+                  "min-w-0 max-w-md truncate font-mono",
+                  selectedContract.address === contract.address ? "bg-gray-200 text-black" : "bg-white text-gray-600"
+                )}
+              >
+                <img src={contract.flagImage} alt={contract.country} className="w-6 h-4" />
+                {contract.country}
+
+                <div className="flex items-center gap-2">
+              {/* 트랜잭션 업데이트 표시등 */}
+              <TransactionIndicator 
+                isActive={isIndicatorActive(contract.address)}
+                size={10}
+              />
+              </div>
+              </Button>
+            </div>
           )
           )}
+          
           {/* <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variants="secondary" className="min-w-0 max-w-md truncate">
