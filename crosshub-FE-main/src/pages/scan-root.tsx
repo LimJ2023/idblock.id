@@ -31,10 +31,24 @@ const CONTRACT_ADDRESSES = [
   },
   {
     address: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
-    name: "Badge Issuance Contract", 
-    description: "Badge Issuance Contract",
+    name: "Identity Verification Contract", 
+    description: "Identity Verification Contract",
     country: "Laos",
     flagImage: "/flag/lao.png"
+  },
+  {
+    address: "0x4E8F0C98b7c0F4C9b8C7d6E4F5A2B1C3D8E9F0A1",
+    name: "Digital Identity Contract",
+    description: "Digital Identity Contract",
+    country: "Taiwan",
+    flagImage: "/flag/twn.svg"
+  },
+  {
+    address: "0x7B5A9C1D2E3F4A5B6C7D8E9F0A1B2C3D4E5F6A7B",
+    name: "Credential Verification Contract",
+    description: "Credential Verification Contract", 
+    country: "Thailand",
+    flagImage: "/flag/tha.svg"
   }
 ];
 
