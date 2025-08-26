@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+import React, { memo, useCallback, useRef, useState } from 'react';
 
 import { ScrollView, TextInput, View, ActivityIndicator } from 'react-native';
 
@@ -37,7 +37,7 @@ export const SignupPassport = memo(function ({ route }: Params) {
   const [image, setImage] = useState<string>('');
   const [passportData, setPassportData] = useState<any>({});
   const { bottom } = useSafeAreaInsets();
-  const { cameraPermissionCheck } = usePermissionCheck();
+  const { cameraPermissionCheck, galleryPermissionCheck } = usePermissionCheck();
 
   const permissionRequestCount = useRef<number>(0);
 
@@ -47,36 +47,7 @@ export const SignupPassport = memo(function ({ route }: Params) {
     imageRef.current = image;
   }
 
-  // 개발 모드에서 자동으로 더미 데이터 설정
-  useEffect(() => {
-    if (__DEV__ && !image) {
-      console.log('📔 개발 모드: 더미 여권 이미지 및 OCR 데이터 자동 설정');
-      setImage('file:///android_asset/public/passport01.jpg');
-      setPassportData({
-        ocr_fullName: 'JOHN DOE',
-        ocr_gender: 'MALE',
-        ocr_birthDate: '1990-01-01',
-        ocr_nationality: 'USA',
-        ocr_number: 'A12345678',
-        ocr_issueDate: '2020-01-01',
-        ocr_expireDate: '2030-01-01',
-      });
-    }
-  }, [image]);
 
-  const handleMockPassport = useCallback(() => {
-    console.log('📔 개발 모드: Mock 여권 데이터 설정 완료');
-    setImage('file:///android_asset/public/passport01.jpg');
-    setPassportData({
-      ocr_fullName: 'JANE SMITH',
-      ocr_gender: 'FEMALE',
-      ocr_birthDate: '1985-05-15',
-      ocr_nationality: 'CANADA',
-      ocr_number: 'B87654321',
-      ocr_issueDate: '2019-05-15',
-      ocr_expireDate: '2029-05-15',
-    });
-  }, []);
 
   const handleScanner = useCallback(() => {
     cameraPermissionCheck().then((result) => {
@@ -99,7 +70,7 @@ export const SignupPassport = memo(function ({ route }: Params) {
   const handleNext = useCallback(() => {
     // 중도 가입일 때는 다른 플로우 사용
     let selectedFlow = SIGNUP_FLOW;
-    
+
     if (isFromMainScreen && flowType === 'AFTER_SIMPLE_SIGNUP_VERIFICATION') {
       selectedFlow = AFTER_SIMPLE_SIGNUP_VERIFICATION_FLOW;
       console.log('중도 가입: AFTER_SIMPLE_SIGNUP_VERIFICATION_FLOW 사용');
@@ -145,54 +116,79 @@ export const SignupPassport = memo(function ({ route }: Params) {
     }
   }, [uuid, email, pw, name, country, honorary, birth, passport, passportData, isFromMainScreen, flowType]);
 
-  const openGallery = () => {
-    const options: ImageLibraryOptions = {
-      mediaType: 'photo',
-      selectionLimit: 1,
-    };
+  const openGallery = useCallback(async () => {
+    try {
+      // 갤러리 권한 확인
+      const permissionResult = await galleryPermissionCheck();
 
-    launchImageLibrary(options, (response) => {
-      if (response.didCancel) {
-        console.log('User canceled gallery selection.');
+      if (permissionResult !== 'granted') {
+        Toast.show('Gallery access permission is required', Toast.SHORT);
         return;
       }
 
-      if (response.errorCode) {
-        console.log('Gallery Error: ', response.errorMessage);
-        return;
-      }
+      const options: ImageLibraryOptions = {
+        mediaType: 'photo',
+        selectionLimit: 1,
+        quality: 0.8, // 이미지 품질 최적화
+      };
 
-      const asset: Asset | undefined = response.assets?.[0];
-      if (asset?.uri) {
-        console.log('Selected image URI:', asset.uri);
-        setImage(asset.uri);
-      } else {
-        console.warn('Unable to find image asset.');
-      }
-    });
-  };
+      launchImageLibrary(options, (response) => {
+        if (response.didCancel) {
+          console.log('User canceled gallery selection.');
+          return;
+        }
+
+        if (response.errorCode) {
+          console.log('Gallery Error: ', response.errorMessage);
+          Toast.show('Failed to select image from gallery', Toast.SHORT);
+          return;
+        }
+
+        const asset: Asset | undefined = response.assets?.[0];
+        if (asset?.uri) {
+          console.log('Selected image URI:', asset.uri);
+          setImage(asset.uri);
+        } else {
+          console.warn('Unable to find image asset.');
+          Toast.show('Failed to load selected image', Toast.SHORT);
+        }
+      });
+    } catch (error) {
+      console.error('Gallery access error:', error);
+      Toast.show('Failed to access gallery', Toast.SHORT);
+    }
+  }, [galleryPermissionCheck]);
 
   const handlePostRecogPassport = useCallback(async () => {
-    if (image) {
+    if (!image) {
+      Toast.show('Please select a passport image', Toast.SHORT);
+      return;
+    }
+
+    try {
       const formData = new FormData();
       formData.append('file', {
         uri: image,
         name: 'passport.jpg',
         type: 'image/jpeg',
       });
+
       setIsLoading(true);
       const response = await apiPostRecogPassport({ formData });
 
       if (!response.ocr_fullName && !response.ocr_birthDate && !response.ocr_issueDate && !response.ocr_expireDate) {
-        Toast.show('Please select a passport image', Toast.SHORT);
+        Toast.show('Failed to recognize passport information. Please try again.', Toast.SHORT);
       } else {
         setPassportData(response);
+        Toast.show('Passport information recognized successfully', Toast.SHORT);
       }
+    } catch (error) {
+      console.error('OCR processing error:', error);
+      Toast.show('Failed to process passport image. Please try again.', Toast.SHORT);
+    } finally {
       setIsLoading(false);
-    } else {
-      Toast.show('Please select a passport image', Toast.SHORT);
     }
-  }, [image]);
+  }, [image, apiPostRecogPassport]);
 
   const handlePassportDataChange = useCallback(
     (key: string, value: string) => {
@@ -201,9 +197,10 @@ export const SignupPassport = memo(function ({ route }: Params) {
     [passportData],
   );
 
-  useEffect(() => {
-    handlePostRecogPassport();
-  }, [image]);
+  // 자동 OCR 처리 제거 - 사용자가 수동으로 처리하도록 변경
+  // useEffect(() => {
+  //   handlePostRecogPassport();
+  // }, [image]);
 
   return (
     <View style={[style.container, { paddingBottom: bottom }]}>
@@ -335,9 +332,19 @@ export const SignupPassport = memo(function ({ route }: Params) {
               <FastImage source={STATIC_IMAGE.CAMERA_WHITE} style={style.cameraButtonImage} resizeMode="contain" />
               <Text style={[font.BODY3_SB, style.cameraButtonText]}>Take a photo of your passport</Text>
             </Button>
+            {image && !passportData.ocr_fullName && (
+              <Button
+                style={[style.nextButton, { backgroundColor: !isLoading ? COLOR.PRI_1_400 : COLOR.DISABLED, marginBottom: 10 }]}
+                disabled={isLoading}
+                onPress={handlePostRecogPassport}>
+                <Text style={[font.BODY3_SB, { color: !isLoading ? COLOR.WHITE : COLOR.PRI_3_600 }]}>
+                  {isLoading ? 'Processing...' : 'Recognize Passport Info'}
+                </Text>
+              </Button>
+            )}
             <Button
               style={[style.nextButton, { backgroundColor: image && !isLoading ? COLOR.PRI_1_500 : COLOR.DISABLED }]}
-              disabled={!image && isLoading}
+              disabled={!image || isLoading}
               onPress={handleNext}>
               <Text style={[font.BODY3_SB, { color: image && !isLoading ? COLOR.WHITE : COLOR.PRI_3_600 }]}>Next</Text>
             </Button>
@@ -346,11 +353,7 @@ export const SignupPassport = memo(function ({ route }: Params) {
             <Button style={[style.passportCameraButton, { backgroundColor: COLOR.PRI_1_400 }]} onPress={openGallery}>
               <Text style={[font.BODY3_SB, { color: COLOR.WHITE }]}>Select from Gallery</Text>
             </Button>
-            {__DEV__ && (
-              <Button style={[style.passportCameraButton, { backgroundColor: COLOR.PRI_2_500, marginTop: 10 }]} onPress={handleMockPassport}>
-                <Text style={[font.BODY3_SB, { color: COLOR.WHITE }]}>Set Mock Passport Data (Dev)</Text>
-              </Button>
-            )}
+
           </View>
         </View>
       </ScrollView>

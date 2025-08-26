@@ -13,9 +13,9 @@ import { Alert } from '~/components/Alert';
 import { Text } from '~/components/Text';
 
 import { useAppRootAction } from '~/zustands/app';
-import { 
-  useSignupEmailData, 
-  useSignupAction, 
+import {
+  useSignupEmailData,
+  useSignupAction,
   useSignupErrorData,
   SignupStep
 } from '~/zustands/signup';
@@ -45,13 +45,13 @@ export const SignupEmail = memo(function () {
   const [passwordMessage, setPasswordMessage] = useState<InputMessage>();
   const [codeMessage, setCodeMessage] = useState<InputMessage>();
   const [passwordConfirmMessage, setPasswordConfirmMessage] = useState<InputMessage>();
-  
+
   const { bottom } = useSafeAreaInsets();
   const { setIsVisibleLoading } = useAppRootAction();
 
   const { apiPostMailConfirm } = useApiPostMailConfirm();
   const { apiPostMailVerify } = useApiPostMailVerify();
-  const { apiPostAuthSignupSimple} = useApiPostAuthSignup();
+  const { apiPostAuthSignupSimple } = useApiPostAuthSignup();
 
   // 컴포넌트 마운트 시 현재 단계 설정
   useEffect(() => {
@@ -138,7 +138,7 @@ export const SignupEmail = memo(function () {
   const handlePasswordConfirm = useCallback((text: string) => {
     setPasswordConfirmMessage(undefined);
     signupAction.setError('passwordError', undefined);
-    
+
     const value = text.trim();
 
     if (value !== emailData.password) {
@@ -167,7 +167,7 @@ export const SignupEmail = memo(function () {
   //       setAlertMessage('');
 
   //       const nextScreen = getNextScreenInFlow(SIGNUP_FLOW, MENU.STACK.SCREEN.SIGNUP_EMAIL);
-        
+
   //       if (nextScreen) {
   //         navigation.push(nextScreen, {
   //           uuid: uuidRef.current,
@@ -191,7 +191,7 @@ export const SignupEmail = memo(function () {
 
   const handleSignUp = useCallback(async () => {
     //비밀번호 유효성 검사
-    if(!Util.regexPassword(emailData.password)){
+    if (!Util.regexPassword(emailData.password)) {
       setPasswordMessage({
         text: 'Password must contain 8-15 characters with the combination of letters, numbers, and special characters (!@#$%^&*()).',
         color: COLOR.ERROR,
@@ -207,12 +207,12 @@ export const SignupEmail = memo(function () {
         email: emailData.email,
         password: emailData.password
       });
-      
+
       console.log('isSignUp : ', isSignUp);
       if (isSignUp) {
         // 단계 완료 표시
         signupAction.completeStep(SignupStep.EMAIL);
-        
+
         const nextScreen = getNextScreenInFlow(SIGNUP_FLOW, MENU.STACK.SCREEN.SIGNUP_EMAIL);
 
         if (nextScreen) {
@@ -263,7 +263,7 @@ export const SignupEmail = memo(function () {
               wrapperStyle={style.inputWrapper}
               onChangeText={handleMail}
             />
-                        <Button
+            <Button
               style={[style.verifyButton, { backgroundColor: isVisibleVerifyButton ? COLOR.PRI_2_500 : COLOR.PRI_2_200 }]}
               disabled={!isVisibleVerifyButton}
               onPress={handleVerify}>
@@ -272,23 +272,25 @@ export const SignupEmail = memo(function () {
               </Text>
             </Button>
             <Text style={[font.BODY2_M, style.labelText]}>Enter Password</Text>
-              <Input
+            <Input
               secureTextEntry={true}
               value={emailData.password}
               placeholder="Enter Password"
               wrapperStyle={style.inputWrapper}
               message={passwordMessage}
               onChangeText={handlePassword}
-              />
-              <Text style={[font.BODY2_M, style.labelText]}>Password Confirmation</Text>
-              <Input
-                secureTextEntry={true}
-                value={emailData.passwordConfirm}
-                placeholder='Confirm Password'
-                wrapperStyle={style.inputWrapper}
-                message={passwordConfirmMessage}
-                onChangeText={handlePasswordConfirm}
-              />
+              textContentType='newPassword'
+            />
+            <Text style={[font.BODY2_M, style.labelText]}>Password Confirmation</Text>
+            <Input
+              secureTextEntry={true}
+              value={emailData.passwordConfirm}
+              placeholder='Confirm Password'
+              wrapperStyle={style.inputWrapper}
+              message={passwordConfirmMessage}
+              onChangeText={handlePasswordConfirm}
+              textContentType='newPassword'
+            />
 
             <Text style={[font.BODY2_M, style.labelText]}>Enter Verification Code</Text>
             <Input

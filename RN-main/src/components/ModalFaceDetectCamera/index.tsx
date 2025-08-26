@@ -2,8 +2,8 @@ import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 
 import { Platform, StatusBar, View } from 'react-native';
 
-import { Camera, Face } from 'react-native-vision-camera-face-detector';
-import { Camera as CameraProps, Frame, useCameraDevice } from 'react-native-vision-camera';
+import { Camera as CameraProps, useCameraDevice } from 'react-native-vision-camera';
+import FaceDetection from '@react-native-ml-kit/face-detection';
 import FastImage from 'react-native-fast-image';
 import throttle from 'lodash.throttle';
 import Modal from 'react-native-modal';
@@ -50,13 +50,7 @@ export const ModalFaceDetectCamera = memo(function ({ isVisible, onSubmit, onClo
     if (!isSubmitRef.current) {
       isSubmitRef.current = true;
 
-      // 개발 모드에서는 더미 이미지 사용
-      if (__DEV__) {
-        console.log('📷 개발 모드: 더미 얼굴 이미지 자동 제출');
-        handleClose();
-        onSubmit?.('file:///android_asset/public/pexels-justin-shaifer-501272-1222271.jpg');
-        return;
-      }
+
 
       const file = await cameraRef.current?.takePhoto?.({
         enableShutterSound: true,
@@ -75,47 +69,75 @@ export const ModalFaceDetectCamera = memo(function ({ isVisible, onSubmit, onClo
     }
   }, []);
 
-  // 개발 모드에서 자동으로 더미 얼굴 감지 시뮬레이션
-  const handleMockFaceDetection = useCallback(() => {
-    if (__DEV__) {
-      console.log('🎭 개발 모드: 더미 얼굴 감지 시뮬레이션');
-      setFaceBorder({
-        width: 200,
-        height: 250,
-        x: 100,
-        y: 150,
-      });
-    }
-  }, []);
+
 
   const handleDetectedFaces = useCallback(
-    throttle(async (faces: Face[], frame: Frame) => {
-      let bigFace: FaceBorder = {
-        width: 0,
-        height: 0,
-        x: 0,
-        y: 0,
-      };
+    throttle(async (imagePath: string) => {
+      try {
+        const faces = await FaceDetection.detect(imagePath, {
+          performanceMode: 'accurate',
+          landmarkMode: 'all',
+          classificationMode: 'all',
+        });
 
-      const face = faces['0'];
-      // for (const face of faces) {
-      const border = face.bounds;
+        let bigFace: FaceBorder = {
+          width: 0,
+          height: 0,
+          x: 0,
+          y: 0,
+        };
 
-      if (border?.width > 100 && border?.height > 100) {
-        if (border.width * border.height > bigFace.width * bigFace.height) {
-          bigFace = border;
+        if (faces.length > 0) {
+          const face = faces[0];
+          const bounds = face.bounds;
+
+          if (bounds.width > 100 && bounds.height > 100) {
+            bigFace = {
+              width: bounds.width,
+              height: bounds.height,
+              x: bounds.left,
+              y: bounds.top,
+            };
+          }
         }
-      }
-      // }
 
-      if (bigFace.width) {
-        setFaceBorder(bigFace);
-      } else {
+        if (bigFace.width) {
+          setFaceBorder(bigFace);
+        } else {
+          setFaceBorder(undefined);
+        }
+      } catch (error) {
+        console.log('Face detection error:', error);
         setFaceBorder(undefined);
       }
-    }, 200),
+    }, 500),
     [],
   );
+
+  // 주기적으로 얼굴 감지를 수행하는 함수
+  const startFaceDetection = useCallback(async () => {
+    if (!cameraRef.current || !isVisible || !isLoaded) return;
+
+    try {
+      const photo = await cameraRef.current.takePhoto({
+        enableShutterSound: false,
+        skipMetadata: true,
+      });
+
+      if (photo?.path) {
+        const fullPath = Platform.select({
+          ios: photo.path,
+          android: 'file://' + photo.path,
+        });
+
+        if (fullPath) {
+          await handleDetectedFaces(fullPath);
+        }
+      }
+    } catch (error) {
+      console.log('Face detection photo error:', error);
+    }
+  }, [isVisible, isLoaded, handleDetectedFaces]);
 
   useEffect(() => {
     setFaceBorder(undefined);
@@ -126,15 +148,18 @@ export const ModalFaceDetectCamera = memo(function ({ isVisible, onSubmit, onClo
 
     isSubmitRef.current = false;
 
-    // 개발 모드에서 자동으로 얼굴 감지 시뮬레이션
-    if (__DEV__ && isVisible) {
-      const timer = setTimeout(() => {
-        handleMockFaceDetection();
-      }, 1500); // 1.5초 후 자동으로 얼굴 감지
+  }, [isVisible]);
 
-      return () => clearTimeout(timer);
-    }
-  }, [isVisible, handleMockFaceDetection]);
+  // 얼굴 감지를 위한 주기적 스캔
+  useEffect(() => {
+    if (!isVisible || !isLoaded) return;
+
+    const interval = setInterval(() => {
+      startFaceDetection();
+    }, 1000); // 1초마다 얼굴 감지
+
+    return () => clearInterval(interval);
+  }, [isVisible, isLoaded, startFaceDetection]);
 
   return (
     <Modal
@@ -160,18 +185,13 @@ export const ModalFaceDetectCamera = memo(function ({ isVisible, onSubmit, onClo
         {device ? (
           <View style={style.cameraWrap}>
             <CameraDecorator isVisible={isLoaded} isActivated={!!faceBorder} />
-            <Camera
+            <CameraProps
               ref={cameraRef}
-              isActive={true}
+              isActive={isVisible && isLoaded}
               enableLocation={false}
               style={{ flex: 1 }}
               photo={true}
               device={device}
-              faceDetectionCallback={handleDetectedFaces}
-              faceDetectionOptions={{
-                performanceMode: 'accurate',
-                landmarkMode: 'all',
-              }}
               onError={(error) => {
                 console.log(error);
               }}

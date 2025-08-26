@@ -43,33 +43,12 @@ export const ModalRectangleScanner = memo(function ({ isVisible, onSubmit, onClo
   }, []);
 
   const handleCapture = useCallback(() => {
-    // 개발 모드에서는 더미 여권 이미지 사용
-    if (__DEV__) {
-      console.log('📔 개발 모드: 더미 여권 이미지 자동 제출');
-      handleClose();
-      onSubmit?.('file:///android_asset/public/passport01.jpg');
-      return;
-    }
+
 
     scannerRef.current?.capture();
   }, []);
 
-  // 개발 모드에서 자동으로 더미 사각형 감지 시뮬레이션
-  const handleMockRectangleDetection = useCallback(() => {
-    if (__DEV__) {
-      console.log('📐 개발 모드: 더미 사각형 감지 시뮬레이션');
-      setDetectedRectangle({
-        dimensions: {
-          width: 300,
-          height: 200,
-        },
-        topLeft: { x: 50, y: 100 },
-        topRight: { x: 350, y: 100 },
-        bottomLeft: { x: 50, y: 300 },
-        bottomRight: { x: 350, y: 300 },
-      } as DetectedRectangle);
-    }
-  }, []);
+
 
   const handleImageProcessed = useCallback((data: PictureCallbackProps) => {
     handleClose();
@@ -83,15 +62,7 @@ export const ModalRectangleScanner = memo(function ({ isVisible, onSubmit, onClo
       setIsLoaded(false);
     }
 
-    // 개발 모드에서 자동으로 사각형 감지 시뮬레이션
-    if (__DEV__ && isVisible) {
-      const timer = setTimeout(() => {
-        handleMockRectangleDetection();
-      }, 1500); // 1.5초 후 자동으로 사각형 감지
-
-      return () => clearTimeout(timer);
-    }
-  }, [isVisible, handleMockRectangleDetection]);
+  }, [isVisible]);
 
   return (
     <Modal

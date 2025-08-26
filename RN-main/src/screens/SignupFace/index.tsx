@@ -46,7 +46,7 @@ export const SignupFace = memo(function ({ route }: Params) {
 
   const { setIsVisibleLoading } = useAppRootAction();
   const { accessToken } = useAccessToken();
-  
+
 
   const { apiPutAuthInformation } = useApiPutAuthInformation();
   const { apiPostAuthPassport } = useApiPostAuthPassport();
@@ -73,20 +73,7 @@ export const SignupFace = memo(function ({ route }: Params) {
     console.log('🔍 SignupFace - route params pw:', pw);
   }, [signupEmailData, email, pw]);
 
-  // 개발 모드에서 자동으로 더미 이미지 설정
-  useEffect(() => {
-    if (__DEV__ && !image) {
-      console.log('🎭 개발 모드: 더미 얼굴 이미지 자동 설정');
-      // public 폴더의 더미 이미지를 사용
-      setImage('file:///android_asset/public/pexels-justin-shaifer-501272-1222271.jpg');
-    }
-  }, [image]);
 
-  const handleMockImage = useCallback(() => {
-    // public 폴더의 더미 이미지를 사용
-    setImage('file:///android_asset/public/pexels-justin-shaifer-501272-1222271.jpg');
-    console.log('🎭 개발 모드: Mock 이미지 설정 완료');
-  }, []);
 
   const handleFaceDetectCamera = useCallback(() => {
     cameraPermissionCheck().then((result) => {
@@ -190,7 +177,7 @@ export const SignupFace = memo(function ({ route }: Params) {
         let isAutoApproval = false;
         try {
 
-          if(route.params.isFromMainScreen) {
+          if (route.params.isFromMainScreen) {
             isAutoApproval = await apiPostAuthAdditionalVerification({
               email: email || signupEmailData.email,
               password: pw || signupEmailData.password,
@@ -229,32 +216,32 @@ export const SignupFace = memo(function ({ route }: Params) {
           return;
         }
 
-          // 4단계: 완료
-          setCurrentStep(4);
-          setCurrentStepText('Registration completed successfully. Moving to next screen...');
+        // 4단계: 완료
+        setCurrentStep(4);
+        setCurrentStepText('Registration completed successfully. Moving to next screen...');
 
-          // 약간의 지연 후 화면 이동 (완료 상태를 보여주기 위해)
-          setTimeout(() => {
-            try {
-              if (isAutoApproval) {
-                navigation.push(MENU.STACK.SCREEN.SIGNUP_AUTO_APPROVAL);
-                return;
-              }
-              const nextScreen = getNextScreenInFlow(SIGNUP_FLOW, MENU.STACK.SCREEN.SIGNUP_FACE);
-
-              if (nextScreen) {
-                navigation.push(nextScreen);
-              } else {
-                navigation.reset({
-                  index: 0,
-                  routes: [{ name: MENU.STACK.SCREEN.MAIN }],
-                });
-              }
-            } catch (navError) {
-              Toast.show('An error occurred while navigating to the next screen.', Toast.SHORT);
+        // 약간의 지연 후 화면 이동 (완료 상태를 보여주기 위해)
+        setTimeout(() => {
+          try {
+            if (isAutoApproval) {
+              navigation.push(MENU.STACK.SCREEN.SIGNUP_AUTO_APPROVAL);
+              return;
             }
-          }, 1000);
-        
+            const nextScreen = getNextScreenInFlow(SIGNUP_FLOW, MENU.STACK.SCREEN.SIGNUP_FACE);
+
+            if (nextScreen) {
+              navigation.push(nextScreen);
+            } else {
+              navigation.reset({
+                index: 0,
+                routes: [{ name: MENU.STACK.SCREEN.MAIN }],
+              });
+            }
+          } catch (navError) {
+            Toast.show('An error occurred while navigating to the next screen.', Toast.SHORT);
+          }
+        }, 1000);
+
       } else {
         Toast.show('File upload failed. Please try again.', Toast.SHORT);
       }
@@ -344,12 +331,7 @@ export const SignupFace = memo(function ({ route }: Params) {
               <FastImage source={STATIC_IMAGE.CAMERA_WHITE} style={style.cameraButtonImage} resizeMode="contain" />
               <Text style={[font.BODY3_SB, style.cameraButtonText]}>{image ? 'Retake a photo' : 'Take a photo'}</Text>
             </Button>
-            {__DEV__ && (
-              <Button style={[style.cameraButton, { marginTop: 10, backgroundColor: COLOR.PRI_2_500 }]} onPress={handleMockImage}>
-                <FastImage source={STATIC_IMAGE.CAMERA_WHITE} style={style.cameraButtonImage} resizeMode="contain" />
-                <Text style={[font.BODY3_SB, style.cameraButtonText]}>Set Mock Image (Dev)</Text>
-              </Button>
-            )}
+
 
             <Button
               style={[style.nextButton, { backgroundColor: image ? COLOR.PRI_1_500 : COLOR.DISABLED }]}
@@ -359,7 +341,7 @@ export const SignupFace = memo(function ({ route }: Params) {
             </Button>
             <Button style={[style.cameraButton, { marginTop: 10, backgroundColor: COLOR.PRI_3_500 }]} onPress={handleGalleryPicker}>
               <FastImage source={STATIC_IMAGE.CAMERA_WHITE} style={style.cameraButtonImage} resizeMode="contain" />
-              <Text style={[font.BODY3_SB, style.cameraButtonText]}>Choose Mock Image from Gallery (Dev)</Text>
+              <Text style={[font.BODY3_SB, style.cameraButtonText]}>Choose Image from Gallery</Text>
             </Button>
           </View>
         </View>

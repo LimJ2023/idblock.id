@@ -31,10 +31,10 @@ function InputComp(props: TextInputProps & Props, ref: ForwardedRef<InputRef> | 
           props.maximumCount && (props.value?.length || 0) > props.maximumCount
             ? COLOR.RED
             : props.message?.text
-            ? props.message.color || COLOR.GRAY_600
-            : isFocus
-            ? COLOR.PURPLE
-            : style.container.borderColor,
+              ? props.message.color || COLOR.GRAY_600
+              : isFocus
+                ? COLOR.PURPLE
+                : style.container.borderColor,
       },
       props?.containerStyle || {},
       { marginTop: 0, marginBottom: 0 },
@@ -62,7 +62,7 @@ function InputComp(props: TextInputProps & Props, ref: ForwardedRef<InputRef> | 
           ref={inputRef}
           allowFontScaling={false}
           keyboardType="default"
-          textContentType="sublocality"
+          textContentType={props.secureTextEntry ? "password" : "none"}
           autoCapitalize="none"
           autoComplete="off"
           autoCorrect={false}

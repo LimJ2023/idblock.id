@@ -13,13 +13,14 @@ node_require('react-native-permissions/scripts/setup.rb')
 $VCEnableLocation = false
 
 # platform :ios, min_ios_version_supported
-platform :ios, "16.0"
+platform :ios, "15.0"
 prepare_react_native_project!
 
 setup_permissions([
   'Camera',
   'FaceID',
   'Notifications',
+  'PhotoLibrary',
 ])
 
 linkage = ENV['USE_FRAMEWORKS'] || 'static'
@@ -38,6 +39,7 @@ target 'crosshub' do
   pod 'Firebase/Analytics', :modular_headers => true
   pod 'GoogleUtilities', :modular_headers => true
   pod 'GoogleMLKit/FaceDetection'
+  pod 'GoogleMLKit/BarcodeScanning'
   
   $RNFirebaseAsStaticFramework = true
 
