@@ -118,11 +118,11 @@ export const SignupPassport = memo(function ({ route }: Params) {
 
   const openGallery = useCallback(async () => {
     try {
-      // 갤러리 권한 확인
+      // 먼저 갤러리 권한을 확인
       const permissionResult = await galleryPermissionCheck();
 
       if (permissionResult !== 'granted') {
-        Toast.show('Gallery access permission is required', Toast.SHORT);
+        Toast.show('Gallery access permission is required. Please enable it in Settings.', Toast.LONG);
         return;
       }
 
@@ -140,7 +140,11 @@ export const SignupPassport = memo(function ({ route }: Params) {
 
         if (response.errorCode) {
           console.log('Gallery Error: ', response.errorMessage);
-          Toast.show('Failed to select image from gallery', Toast.SHORT);
+          if (response.errorCode === 'permission') {
+            Toast.show('Gallery access permission is required. Please enable it in Settings.', Toast.LONG);
+          } else {
+            Toast.show('Failed to select image from gallery', Toast.SHORT);
+          }
           return;
         }
 
@@ -154,8 +158,8 @@ export const SignupPassport = memo(function ({ route }: Params) {
         }
       });
     } catch (error) {
-      console.error('Gallery access error:', error);
-      Toast.show('Failed to access gallery', Toast.SHORT);
+      console.error('Gallery permission check error:', error);
+      Toast.show('Failed to check gallery permission', Toast.SHORT);
     }
   }, [galleryPermissionCheck]);
 
@@ -196,6 +200,24 @@ export const SignupPassport = memo(function ({ route }: Params) {
     },
     [passportData],
   );
+
+  // 목업 데이터를 설정하는 함수
+  const handleSetMockData = useCallback(() => {
+    const mockPassportData = {
+      ocr_fullName: 'HONG GILDONG',
+      ocr_gender: 'M',
+      ocr_birthDate: '1990-01-01',
+      ocr_nationality: 'KOR',
+      ocr_number: 'M12345678',
+      ocr_issueDate: '2020-01-01',
+      ocr_expireDate: '2030-01-01'
+    };
+
+    setPassportData(mockPassportData);
+    // 목업 이미지도 설정 (기본 샘플 이미지 사용)
+    setImage('mock_passport_image');
+    Toast.show('목업 여권 데이터가 설정되었습니다', Toast.SHORT);
+  }, []);
 
   // 자동 OCR 처리 제거 - 사용자가 수동으로 처리하도록 변경
   // useEffect(() => {
@@ -354,6 +376,12 @@ export const SignupPassport = memo(function ({ route }: Params) {
               <Text style={[font.BODY3_SB, { color: COLOR.WHITE }]}>Select from Gallery</Text>
             </Button>
 
+            {/* 개발용 목업 데이터 버튼 */}
+            {__DEV__ && (
+              <Button style={[style.passportCameraButton, { backgroundColor: COLOR.PURPLE, marginTop: 10 }]} onPress={handleSetMockData}>
+                <Text style={[font.BODY3_SB, { color: COLOR.WHITE }]}>Use Mock Data (Dev Only)</Text>
+              </Button>
+            )}
           </View>
         </View>
       </ScrollView>

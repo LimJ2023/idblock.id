@@ -50,10 +50,9 @@ export const SignupFace = memo(function ({ route }: Params) {
 
   const { apiPutAuthInformation } = useApiPutAuthInformation();
   const { apiPostAuthPassport } = useApiPostAuthPassport();
-  const { cameraPermissionCheck } = usePermissionCheck();
+  const { cameraPermissionCheck, galleryPermissionCheck } = usePermissionCheck();
   const { apiPostAuthSignup, apiPostAuthAdditionalVerification } = useApiPostAuthSignup();
   const { apiPostAuthFace } = useApiPostAuthFace();
-  const { galleryPermissionCheck } = usePermissionCheck();
   const { bottom } = useSafeAreaInsets();
 
   const permissionRequestCount = useRef<number>(0);
@@ -62,17 +61,6 @@ export const SignupFace = memo(function ({ route }: Params) {
   const signupEmailData = useSignupEmailData();
   const signupPersonalData = useSignupPersonalData();
   const passportImage = useSignupPassportData().passportImage;
-
-  // 디버깅: signupEmailData 값 확인
-  useEffect(() => {
-    console.log('🔍 SignupFace - signupEmailData:', signupEmailData);
-    console.log('🔍 SignupFace - email:', signupEmailData.email);
-    console.log('🔍 SignupFace - password:', signupEmailData.password);
-    console.log('🔍 SignupFace - passwordConfirm:', signupEmailData.passwordConfirm);
-    console.log('🔍 SignupFace - route params email:', email);
-    console.log('🔍 SignupFace - route params pw:', pw);
-  }, [signupEmailData, email, pw]);
-
 
 
   const handleFaceDetectCamera = useCallback(() => {
@@ -93,23 +81,51 @@ export const SignupFace = memo(function ({ route }: Params) {
     setImage(imagePath);
   }, []);
 
-  const handleGalleryPicker = useCallback(() => {
-    launchImageLibrary(
-      {
-        mediaType: 'photo',
-        quality: 0.8,
-        includeBase64: false,
-      },
-      (response) => {
-        if (response.assets && response.assets[0]) {
-          const asset = response.assets[0];
-          if (asset.uri) {
-            setImage(asset.uri);
+  const handleGalleryPicker = useCallback(async () => {
+    try {
+      // 먼저 갤러리 권한을 확인
+      const permissionResult = await galleryPermissionCheck();
+
+      if (permissionResult !== 'granted') {
+        Toast.show('Gallery access permission is required. Please enable it in Settings.', Toast.LONG);
+        return;
+      }
+
+      launchImageLibrary(
+        {
+          mediaType: 'photo',
+          quality: 0.8,
+          includeBase64: false,
+        },
+        (response) => {
+          if (response.didCancel) {
+            console.log('User canceled gallery selection.');
+            return;
           }
-        }
-      },
-    );
-  }, []);
+
+          if (response.errorCode) {
+            console.log('Gallery Error: ', response.errorMessage);
+            if (response.errorCode === 'permission') {
+              Toast.show('Gallery access permission is required. Please enable it in Settings.', Toast.LONG);
+            } else {
+              Toast.show('Failed to select image from gallery', Toast.SHORT);
+            }
+            return;
+          }
+
+          if (response.assets && response.assets[0]) {
+            const asset = response.assets[0];
+            if (asset.uri) {
+              setImage(asset.uri);
+            }
+          }
+        },
+      );
+    } catch (error) {
+      console.error('Gallery permission check error:', error);
+      Toast.show('Failed to check gallery permission', Toast.SHORT);
+    }
+  }, [galleryPermissionCheck]);
 
   const stepLabels = ['Passport Image Upload', 'Face Image Upload', 'Processing Registration', 'Complete'];
 
