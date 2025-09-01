@@ -15,7 +15,7 @@ export class BlockTxService implements OnModuleInit, OnModuleDestroy {
   private scheduledJob: schedule.Job | null = null;
   private logs: TransactionLog[] = [];
   private readonly maxLogEntries = 1000;
-  
+
   // 설정값들
   private config: TransactionGeneratorConfig = {
     minTransactionsPerDay: 100,
@@ -26,9 +26,11 @@ export class BlockTxService implements OnModuleInit, OnModuleDestroy {
 
   // 컨트랙트 주소 풀
   private readonly contractAddresses: string[] = [
-    '0x671645FC21615fdcAA332422D5603f1eF9752E03', // 메인 컨트랙트
-    '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063', // 신원인증 컨트랙트
-    '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174', // 배지발급 컨트랙트
+    '0x671645FC21615fdcAA332422D5603f1eF9752E03', // 베트남 
+    '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063', // 싱가폴 
+    '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174', // 라오스
+    '0x4E8F0C98b7c0F4C9b8C7d6E4F5A2B1C3D8E9F0A1', // 대만
+    '0x7B5A9C1D2E3F4A5B6C7D8E9F0A1B2C3D4E5F6A7B', // 태국
   ];
 
   private readonly functionNames = [
@@ -47,7 +49,7 @@ export class BlockTxService implements OnModuleInit, OnModuleDestroy {
     'burnBadge',
   ];
 
-  constructor(@Inject(INJECT_DRIZZLE) private db: DrizzleDB) {}
+  constructor(@Inject(INJECT_DRIZZLE) private db: DrizzleDB) { }
 
   async onModuleInit() {
     this.logger.log('🚀 BlockTx 서비스 초기화');
@@ -89,7 +91,7 @@ export class BlockTxService implements OnModuleInit, OnModuleDestroy {
     };
 
     this.logs.unshift(logEntry);
-    
+
     // 최대 로그 수 제한
     if (this.logs.length > this.maxLogEntries) {
       this.logs = this.logs.slice(0, this.maxLogEntries);
@@ -118,7 +120,7 @@ export class BlockTxService implements OnModuleInit, OnModuleDestroy {
     const gasLimit = Math.floor(Math.random() * 300000) + 21000; // 21k ~ 321k
     const gasUsed = Math.floor(gasLimit * (0.7 + Math.random() * 0.3)); // 70% ~ 100% 사용
     const gasPrice = Math.floor(Math.random() * 50) + 20; // 20 ~ 70 Gwei
-    
+
     return {
       gas: gasLimit.toString(),
       gasUsed: gasUsed.toString(),
@@ -134,11 +136,11 @@ export class BlockTxService implements OnModuleInit, OnModuleDestroy {
         .from(Block)
         .orderBy(desc(Block.number))
         .limit(1);
-        
+
       if (result.length === 0) {
         return 18500000; // 기본 시작 블록
       }
-      
+
       return parseInt(result[0].number) + 1;
     } catch (error) {
       this.addLog('warn', `블록 조회 중 오류, 기본값 사용: ${error}`);
@@ -150,7 +152,7 @@ export class BlockTxService implements OnModuleInit, OnModuleDestroy {
   private generateBlockData(blockNumber: number, timestamp: Date): typeof Block.$inferInsert {
     const gasUsed = Math.floor(Math.random() * 5000000) + 1000000; // 1M ~ 6M
     const gasLimit = gasUsed + Math.floor(Math.random() * 2000000);
-    
+
     return {
       number: blockNumber.toString(),
       hash: this.generateRandomHash(),
@@ -174,23 +176,27 @@ export class BlockTxService implements OnModuleInit, OnModuleDestroy {
     const gasValues = this.generateGasValues();
     const isContractInteraction = Math.random() < 0.95; // 95% 확률로 컨트랙트 상호작용
     const isError = Math.random() < 0.001; // 0.1% 확률로 에러
-    
+
     // const contractAddress = isContractInteraction ? 
     //   this.contractAddresses[Math.floor(Math.random() * this.contractAddresses.length)] : 
     //   null;
-      
-    const functionName = isContractInteraction ? 
-      this.functionNames[Math.floor(Math.random() * this.functionNames.length)] : 
+
+    const functionName = isContractInteraction ?
+      this.functionNames[Math.floor(Math.random() * this.functionNames.length)] :
       null;
 
     function getContractAddress(): string {
       let random = Math.random();
-      if( random < 0.45) {
+      if (random < 0.25) {
         return '0x671645FC21615fdcAA332422D5603f1eF9752E03'
-      } else if( random < 0.85) {
+      } else if (random < 0.45) {
         return '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063';
-      } else {
+      } else if (random < 0.65) {
         return '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174';
+      } else if (random < 0.85) {
+        return '0x7B5A9C1D2E3F4A5B6C7D8E9F0A1B2C3D4E5F6A7B';
+      } else {
+        return '0x4E8F0C98b7c0F4C9b8C7d6E4F5A2B1C3D8E9F0A1';
       }
     }
 
@@ -225,17 +231,17 @@ export class BlockTxService implements OnModuleInit, OnModuleDestroy {
   async generateAndInsertBatch(count: number, contractAddress?: string): Promise<void> {
     const blocks: (typeof Block.$inferInsert)[] = [];
     const transactions: (typeof Transaction.$inferInsert)[] = [];
-    
+
     let blockNumber = await this.getLatestBlockNumber();
     const now = new Date();
-    
+
     let transactionIndex = 0;
     let currentBlockTxCount = 0;
     let currentBlockHash = this.generateRandomHash();
-    
+
     // 첫 번째 블록 생성
     blocks.push(this.generateBlockData(blockNumber, now));
-    
+
     for (let i = 0; i < count; i++) {
       // 블록당 트랜잭션 수 초과시 새 블록 생성
       if (currentBlockTxCount >= this.config.transactionsPerBlock) {
@@ -243,15 +249,15 @@ export class BlockTxService implements OnModuleInit, OnModuleDestroy {
         currentBlockHash = this.generateRandomHash();
         currentBlockTxCount = 0;
         transactionIndex = 0;
-        
+
         // 새 블록 시간은 1-3분 후로 설정
         const blockTime = new Date(now.getTime() + Math.random() * 2 * 60 * 1000 + 60 * 1000);
         blocks.push(this.generateBlockData(blockNumber, blockTime));
       }
-      
+
       // 트랜잭션 시간을 현재 시간 기준으로 약간 랜덤화
       const txTime = new Date(now.getTime() + Math.random() * 60 * 1000);
-      
+
       transactions.push(this.generateTransactionData(
         blockNumber,
         currentBlockHash,
@@ -259,22 +265,22 @@ export class BlockTxService implements OnModuleInit, OnModuleDestroy {
         txTime,
         contractAddress
       ));
-      
+
       currentBlockTxCount++;
       transactionIndex++;
     }
-    
+
     try {
       // 블록 먼저 삽입
       if (blocks.length > 0) {
         await this.db.insert(Block).values(blocks).onConflictDoNothing();
       }
-      
+
       // 트랜잭션 삽입
       if (transactions.length > 0) {
         await this.db.insert(Transaction).values(transactions).onConflictDoNothing();
       }
-      
+
       this.addLog('info', `${count}개 트랜잭션 생성 완료`, count, blocks.length);
     } catch (error) {
       this.addLog('error', `데이터 삽입 중 오류: ${error}`);
@@ -285,13 +291,13 @@ export class BlockTxService implements OnModuleInit, OnModuleDestroy {
   // 하루 동안의 트랜잭션 생성 계획
   private generateDayPlan(): number[] {
     const totalTransactions = Math.floor(
-      Math.random() * (this.config.maxTransactionsPerDay - this.config.minTransactionsPerDay) + 
+      Math.random() * (this.config.maxTransactionsPerDay - this.config.minTransactionsPerDay) +
       this.config.minTransactionsPerDay
     );
-    
+
     // 하루를 24시간으로 나누고 각 시간대별로 트랜잭션 분배
     const hourlyDistribution: number[] = new Array(24).fill(0);
-    
+
     for (let i = 0; i < totalTransactions; i++) {
       // 가중치: 업무시간(9-18시)에 더 많은 트랜잭션
       const weights = [
@@ -300,11 +306,11 @@ export class BlockTxService implements OnModuleInit, OnModuleDestroy {
         3.5, 3.0, 2.8, 2.5, 2.2, 1.8, // 12-17시
         1.5, 1.2, 1.0, 0.8, 0.6, 0.5  // 18-23시
       ];
-      
+
       // 가중치 기반 시간대 선택
       const totalWeight = weights.reduce((sum, w) => sum + w, 0);
       let random = Math.random() * totalWeight;
-      
+
       for (let hour = 0; hour < 24; hour++) {
         random -= weights[hour];
         if (random <= 0) {
@@ -313,7 +319,7 @@ export class BlockTxService implements OnModuleInit, OnModuleDestroy {
         }
       }
     }
-    
+
     return hourlyDistribution;
   }
 
@@ -334,10 +340,10 @@ export class BlockTxService implements OnModuleInit, OnModuleDestroy {
 
         if (transactionsForThisHour > 0) {
           this.addLog('info', `${currentHour}시: ${transactionsForThisHour}개 트랜잭션 생성 시작`);
-          
+
           // 시간 내에서 불규칙적으로 분산 생성
           await this.generateTransactionsForHour(transactionsForThisHour);
-          
+
           this.addLog('info', `${currentHour}시 완료`);
         }
       } catch (error) {
@@ -351,15 +357,15 @@ export class BlockTxService implements OnModuleInit, OnModuleDestroy {
   // 시간별 트랜잭션 생성 함수
   private async generateTransactionsForHour(count: number): Promise<void> {
     if (count === 0) return;
-    
+
     // 1-5개 트랜잭션을 여러 번 생성
     const batches = Math.ceil(count / 5);
-    
+
     for (let i = 0; i < batches; i++) {
       const batchSize = Math.min(5, count - i * 5);
       if (batchSize > 0) {
         await this.generateAndInsertBatch(batchSize);
-        
+
         // 배치 간 지연 (1-10분)
         if (i < batches - 1) {
           const delay = Math.floor(Math.random() * 10 * 60 * 1000) + 60 * 1000;
@@ -380,10 +386,10 @@ export class BlockTxService implements OnModuleInit, OnModuleDestroy {
 
   // 수동 트랜잭션 생성
   async generateManualTransactions(count: number, contractAddress?: string): Promise<void> {
-    const logMessage = contractAddress 
+    const logMessage = contractAddress
       ? `수동으로 ${count}개 트랜잭션 생성 시작 (컨트랙트: ${contractAddress})`
       : `수동으로 ${count}개 트랜잭션 생성 시작`;
-    
+
     this.addLog('info', logMessage);
     await this.generateAndInsertBatch(count, contractAddress);
     this.addLog('info', `수동 트랜잭션 생성 완료`);
@@ -393,16 +399,16 @@ export class BlockTxService implements OnModuleInit, OnModuleDestroy {
   async generateSingleRandomTransaction(): Promise<{ transaction: any, block: any }> {
     const now = new Date();
     const blockNumber = await this.getLatestBlockNumber();
-    
+
     this.addLog('info', `블록 ${blockNumber}에 단일 랜덤 트랜잭션 생성 시작`);
-    
+
     try {
       // 새 블록 생성
       const blockData = this.generateBlockData(blockNumber, now);
-      
+
       // 블록을 DB에 저장
       const [insertedBlock] = await this.db.insert(Block).values(blockData).returning();
-      
+
       // 단일 트랜잭션 생성
       const transactionData = this.generateTransactionData(
         blockNumber,
@@ -410,17 +416,17 @@ export class BlockTxService implements OnModuleInit, OnModuleDestroy {
         0, // 첫 번째 트랜잭션
         now
       );
-      
+
       // 트랜잭션을 DB에 저장
       const [insertedTransaction] = await this.db.insert(Transaction).values(transactionData).returning();
-      
+
       this.addLog('info', `블록 ${blockNumber}에 단일 트랜잭션 생성 완료 (Hash: ${transactionData.hash.substring(0, 10)}...)`, 1, 1);
-      
+
       return {
         transaction: insertedTransaction,
         block: insertedBlock
       };
-      
+
     } catch (error) {
       this.addLog('error', `단일 트랜잭션 생성 중 오류: ${error}`);
       throw error;
@@ -431,7 +437,7 @@ export class BlockTxService implements OnModuleInit, OnModuleDestroy {
   updateConfiguration(newConfig: Partial<TransactionGeneratorConfig>) {
     const oldConfig = { ...this.config };
     this.config = { ...this.config, ...newConfig };
-    
+
     this.addLog('info', `설정 업데이트: ${JSON.stringify(oldConfig)} -> ${JSON.stringify(this.config)}`);
 
     // 활성화 상태가 변경되면 스케줄러 재시작
