@@ -32,6 +32,26 @@ export interface FaceLivenessResponse {
   transactionId: string;
   result: LivenessScore;
 }
+export interface AddNewFaceResponse {
+  message: string;
+  faceId: string;
+  metaFaceId: string;
+  option: any;
+}
+export interface GetFaceDataResponse {
+  message: string,
+  result: any,
+  totalCount: string
+}
+export interface SearchFaceResponse {
+  message: string,
+  searchId: string,
+  requestName: string,
+  option: any,
+  faceIdList: {
+    [key: string]: string
+  }
+}
 
 interface Face {
   isAvailable: boolean;
@@ -70,4 +90,5 @@ interface Pose {
 interface Quality {
   Brightness: number;
   Sharpness: number;
-} 
+}
+

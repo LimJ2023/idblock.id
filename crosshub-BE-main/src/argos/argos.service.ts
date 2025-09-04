@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Body, Inject, Injectable } from '@nestjs/common';
 import axios from 'axios';
 import sharp from 'sharp';
 import { EnvService } from 'src/env/env.service';
@@ -8,6 +8,9 @@ import {
   FaceLivenessResponse,
   IdLivenessResponse,
   RecognitionResponse,
+  AddNewFaceResponse,
+  GetFaceDataResponse,
+  SearchFaceResponse,
 } from './argos.types';
 import {
   City,
@@ -24,6 +27,78 @@ export class ArgosService {
     private readonly envService: EnvService,
     private readonly s3Service: S3Service,
   ) {}
+
+  // id용 얼굴 데이터 추가
+  async argosAddNewFace(faceImage: Express.Multer.File, collectionId: string, userName: string) {
+    const fileUrl = await this.s3Service.uploadFile(faceImage, 'public/passport/');
+    const faceImageBase64 = await this.fetchImageAsBase64(fileUrl.url);
+
+    try {
+    const response = await axios.post<AddNewFaceResponse>(
+      'https://face.argosidentity.com/faces',
+      {
+        "collectionId": collectionId,
+        "userName": userName,
+        "faceImage": faceImageBase64
+      },
+      {
+        headers: {
+          'x-api-key': this.envService.get('ARGOS_API_KEY'),
+        },
+      },
+    );
+    return response.data;
+  }catch (e: any) {
+      console.error(e);
+      throw new BadRequestException('Failed to fetch Argos Add New Face');
+    }
+  }
+
+  // 얼굴 데이터 조회
+  async argosGetFaceData(collectionId: string) {
+    try{
+    
+      const response = await axios.get<GetFaceDataResponse>(`https://face.argosidentity.com/faces`,{
+        headers: {
+          'x-api-key': this.envService.get('ARGOS_API_KEY'),
+        },
+        params: {
+          collectionId: collectionId,
+          page: '1',
+        }
+      });
+      return response.data.result;
+    } catch (error) {
+      console.error('Error fetching Argos Get Face Data:', error);
+      throw new BadRequestException('Failed to fetch Argos Get Face Data');
+    }
+  }
+
+  // 얼굴 검색
+  async argosSearchFace(collectionId: string, userName: string, faceImage: Express.Multer.File) {
+    const fileUrl = await this.s3Service.uploadFile(faceImage, 'public/passport/');
+    const faceImageBase64 = await this.fetchImageAsBase64(fileUrl.url);
+
+    try {
+      const response = await axios.post<SearchFaceResponse>(
+        'https://face.argosidentity.com/search',
+        {
+          "collectionId": collectionId,
+          "requestName": userName,
+          "faceImage": faceImageBase64
+        },
+        {
+          headers: {
+            'x-api-key': this.envService.get('ARGOS_API_KEY'),
+          },
+        },
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching Argos Search Face:', error);
+      throw new BadRequestException('Failed to fetch Argos Search Face');
+    }
+  }
 
   private async fetchImageAsBase64(url: string): Promise<string> {
     try {

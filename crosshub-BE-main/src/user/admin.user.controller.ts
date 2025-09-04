@@ -20,6 +20,7 @@ import {
   ApiOperation,
   ApiTags,
   ApiBearerAuth,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { CurrentUser } from 'src/auth/current-user.decorator';
 import {
@@ -28,6 +29,8 @@ import {
   RejectUserDto,
   UserRecognitionDto,
   UserVerificationDocumetDetailDto,
+  AddNewFaceDto,
+  ArgosGetFaceDataDto,
 } from './admin.user.dto';
 import { FileUploadDto } from 'src/s3/s3.dto';
 import { S3Service } from 'src/s3/s3.service';
@@ -55,6 +58,20 @@ export class AdminUserController {
   @RequireAdminPermission(AdminPermission.GENERAL)
   async listUsers(@Query() q: QueryUserDto) {
     return this.userService.listUsers(q.data.status);
+  }
+
+  // --------------------------------------------------------------
+  // 여기서부터 argos 관련 기능 (구체적인 경로들을 먼저 배치)
+  // --------------------------------------------------------------
+
+  @Get('argos-get-face-data')
+  @ApiOperation({
+    summary: '회원 Argos Get Face Data',
+    description: '회원 Argos Get Face Data를 조회합니다. (중간 관리자 이상 접근 가능)',
+  })
+  @RequireAdminPermission(AdminPermission.MIDDLE)
+  async getArgosGetFaceData(@Query() query: ArgosGetFaceDataDto) {
+    return await this.argosService.argosGetFaceData(query.collectionId);
   }
 
   @Get(':documentId')
@@ -116,6 +133,45 @@ export class AdminUserController {
       console.error('File upload error:', error);
       throw new BadRequestException('파일 업로드 중 오류가 발생했습니다.');
     }
+  }
+
+  @Post('argos-add-new-face')
+  @ApiOperation({
+    summary: '회원 Argos Add New Face',
+    description: '회원 Argos Add New Face를 수행합니다. (중간 관리자 이상 접근 가능)',
+  })
+  @RequireAdminPermission(AdminPermission.MIDDLE)
+  @UseInterceptors(FileInterceptor('faceImage'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: '새로운 얼굴 추가',
+    type: AddNewFaceDto,
+  })
+  async getArgosAddNewFace(
+    @UploadedFile() faceImage: Express.Multer.File,
+    @Body() body: { collectionId: string; userName: string }
+  ) {
+    return await this.argosService.argosAddNewFace(faceImage, body.collectionId, body.userName);
+  }
+
+  // 얼굴 검색
+  @Post('argos-search-face')
+  @ApiOperation({
+    summary: '회원 argos 얼굴 검색',
+    description: '회원 얼굴 검색을 수행합니다.'
+  })
+  @RequireAdminPermission(AdminPermission.MIDDLE)
+  @UseInterceptors(FileInterceptor('faceImage'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: '얼굴 이미지 파일',
+    type: AddNewFaceDto,
+  })
+  async getArgosSearchFace(@UploadedFile() faceImage: Express.Multer.File, @Body() body: {
+    collectionId: string,
+    userName: string
+  }) {
+    return await this.argosService.argosSearchFace(body.collectionId, body.userName, faceImage);
   }
 
   @Post('approve')

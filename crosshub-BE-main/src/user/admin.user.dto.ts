@@ -84,3 +84,36 @@ export class RejectUserDto extends TypeschemaDto(
   })
   reason: string;
 }
+
+export class AddNewFaceDto {
+  @ApiProperty({
+    type: 'string',
+    format: 'binary',
+    title: '얼굴 이미지',
+    description: '얼굴 이미지 파일',
+  })
+  faceImage: any;
+
+  @ApiProperty({
+    title: '컬렉션 ID',
+    description: '컬렉션 ID',
+    example: '1234567890',
+  })
+  collectionId: string;
+
+  @ApiProperty({
+    title: '사용자 이름',
+    description: '사용자 이름',
+    example: '홍길동',
+  })
+  userName: string;
+}
+
+export class ArgosGetFaceDataDto {
+  @ApiProperty({
+    title: '컬렉션 ID',
+    description: '컬렉션 ID',
+    example: 'crosshub_faces_01',
+  })
+  collectionId: string;
+}
